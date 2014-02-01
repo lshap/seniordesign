@@ -26,8 +26,6 @@ float [][] z;
 float formCenterX = 0;
 float formCenterY = 0; 
 float formCenterZ = 0;
-float formResolution = 8;
-float startRadius = 50;
 boolean drawn = false;
 
 void setup() {
@@ -58,7 +56,7 @@ void rotateCamera(float x, float y) {
 	eyeZ = t * sin(angle1);
 }
 
-void drawExtrudeForm(int height) {
+void drawExtrudeForm(int formResolution, int startRadius, int height) {
 	float stepSize = 5;
 	fill(100);
 	
@@ -91,11 +89,16 @@ void drawExtrudeForm(int height) {
 
 
 	// draw mesh
+	fill(255, 0, 0);
+	stroke(255, 0, 0);
+
+	beginShape();
 	for (int k = 0; k < height; k++) {
-		beginShape();
+		// beginShape();
 		curveVertex(x[k][formResolution - 1] + formCenterX,
 		y[k][formResolution - 1] + formCenterY, 
 		z[k][formResolution - 1] + formCenterZ); 
+
 		for (int i = 0; i < formResolution; i ++) {
 			curveVertex(x[k][i] + formCenterX,
 			y[k][i] + formCenterY, 
@@ -104,9 +107,10 @@ void drawExtrudeForm(int height) {
 		
 		curveVertex(x[k][0] + formCenterX, y[k][0] + formCenterY, z[k][0] + formCenterZ); 
 		curveVertex(x[k][1] + formCenterX, y[k][1] + formCenterY, z[k][1] + formCenterZ); 
-		endShape();
+//		endShape();
 	}
-	
+	endShape();
+
 }
 
 void draw() {
@@ -115,9 +119,7 @@ void draw() {
 	background(0);
 	pushMatrix();
 	
-	noFill();
-	stroke(255);
 //	box(100);
-	drawExtrudeForm(50);
+	drawExtrudeForm(8, 50, 50);
 	popMatrix();
 }
