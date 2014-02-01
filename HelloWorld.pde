@@ -20,27 +20,19 @@ float oldMouseX;
 float oldMouseY;
 
 // generated form
-float [] x = new float[8];
-float [] y = new float[8];
-float [] z = new float[8];
+float [][] x; 
+float [][] y;
+float [][] z;
 float formCenterX = 0;
 float formCenterY = 0; 
 float formCenterZ = 0;
 float formResolution = 8;
+float startRadius = 50;
+boolean drawn = false;
 
 void setup() {
   size(width, height, P3D);
   background(0);
-
-  float startRadius = 50;
-  float angle = radians(360/float(formResolution));
-  
-  for (int i = 0; i < formResolution; i++) {
-	x[i] = cos(angle * i) * startRadius;		
-	y[i] = 0; 		
-	z[i] = sin(angle * i) * startRadius;		
-
-	}	
 }
 
 void mousePressed() {
@@ -67,29 +59,54 @@ void rotateCamera(float x, float y) {
 }
 
 void drawExtrudeForm(int height) {
-float stepSize = 5;
-fill(100);
-	for (int k = 0; k < height; k++) {
-		for (int i = 0; i < formResolution; i++) {
-			x[i] += random(-stepSize, stepSize);
-			y[i]+= 4;
-			z[i] += random(-stepSize, stepSize);
-		}		
+	float stepSize = 5;
+	fill(100);
+	
+	// set mesh points if it hasn't been drawn
+	if (!drawn) {
+		x = new float[height][8];
+		y = new float[height][8];
+		z = new float[height][8];
 
+		// setup the original form
+		float angle = radians(360/float(formResolution));
+
+		for (int i = 0; i < formResolution; i++) {
+			x[0][i] = cos(angle * i) * startRadius;
+			y[0][i] = 0;
+			z[0][i] = sin(angle * i) * startRadius; 
+		}
+
+		// randomly jitter points on 2D form as shape is extruded out
+		for (int k = 1; k < height; k++) {
+			for (int i = 0; i < formResolution; i++) {
+				x[k][i] = x[k-1][i] + random(-stepSize, stepSize);
+				y[k][i] = y[k-1][i] + 4;  		
+				z[k][i] = z[k-1][i] + random(-stepSize, stepSize);
+			}	
+		}
+		
+		drawn = true;
+	}
+
+
+	// draw mesh
+	for (int k = 0; k < height; k++) {
 		beginShape();
-		curveVertex(x[formResolution - 1] + formCenterX,
-			    y[formResolution - 1] + formCenterY, 
-			    z[formResolution - 1] + formCenterZ); 
+		curveVertex(x[k][formResolution - 1] + formCenterX,
+		y[k][formResolution - 1] + formCenterY, 
+		z[k][formResolution - 1] + formCenterZ); 
 		for (int i = 0; i < formResolution; i ++) {
-			curveVertex(x[i] + formCenterX,
-				    y[i] + formCenterY, 
-				    z[i] + formCenterZ); 
+			curveVertex(x[k][i] + formCenterX,
+			y[k][i] + formCenterY, 
+			z[k][i] + formCenterZ); 
 		} 
 		
-		curveVertex(x[0] + formCenterX,	y[0] + formCenterY, z[0] + formCenterZ); 
-		curveVertex(x[1] + formCenterX,	y[1] + formCenterY, z[1] + formCenterZ); 
+		curveVertex(x[k][0] + formCenterX, y[k][0] + formCenterY, z[k][0] + formCenterZ); 
+		curveVertex(x[k][1] + formCenterX, y[k][1] + formCenterY, z[k][1] + formCenterZ); 
 		endShape();
-}
+	}
+	
 }
 
 void draw() {
@@ -103,6 +120,4 @@ void draw() {
 //	box(100);
 	drawExtrudeForm(50);
 	popMatrix();
-	noLoop();
-
 }
