@@ -27,6 +27,22 @@ float formCenterX = 0;
 float formCenterY = 0; 
 float formCenterZ = 0;
 boolean drawn = false;
+ExtrudeForm ext;
+
+$(document).ready(function(){
+	$("#canvas").bind('mousewheel', function(e){
+	e.preventDefault();
+        if(e.originalEvent.wheelDelta /120 > 0) {
+		r -= 40;
+		rotateCamera(0,0);
+        }
+        else{
+		r += 40;
+		rotateCamera(0,0);
+
+        }
+    });
+});
 
 void setup() {
   size(width, height, P3D);
@@ -89,11 +105,11 @@ void drawExtrudeForm(int formResolution, int startRadius, int height) {
 
 
 	// draw mesh
-	fill(255, 0, 0);
+	fill(0, 255, 0);
 	stroke(255, 0, 0);
 
 	beginShape();
-	for (int k = 0; k < height; k++) {
+/*	for (int k = 0; k < height; k++) {
 		// beginShape();
 		curveVertex(x[k][formResolution - 1] + formCenterX,
 		y[k][formResolution - 1] + formCenterY, 
@@ -108,7 +124,26 @@ void drawExtrudeForm(int formResolution, int startRadius, int height) {
 		curveVertex(x[k][0] + formCenterX, y[k][0] + formCenterY, z[k][0] + formCenterZ); 
 		curveVertex(x[k][1] + formCenterX, y[k][1] + formCenterY, z[k][1] + formCenterZ); 
 //		endShape();
-	}
+	}*/
+
+	shininess(1.0);
+	scale(100);
+	  vertex(-1, -1, -1);
+ 	 vertex( 1, -1, -1);
+ 	 vertex( 0,  0,  1);
+
+ 	 vertex( 1, -1, -1);
+ 	 vertex( 1,  1, -1);
+  	vertex( 0,  0,  1);
+
+ 	 vertex( 1, 1, -1);
+ 	 vertex(-1, 1, -1);
+ 	 vertex( 0, 0,  1);
+
+ 	 vertex(-1,  1, -1);
+ 	 vertex(-1, -1, -1);
+ 	 curveVertex( 0,  0,  1);
+
 	endShape();
 
 }
@@ -121,5 +156,89 @@ void draw() {
 	
 //	box(100);
 	drawExtrudeForm(8, 50, 50);
+
+	int shapeSize = 50;
+	PVector [] s = new PVector[shapeSize];
+	float angle = radians(360/float(shapeSize));
+
+	for (int i = 0; i < shapeSize; i++) {
+			s[i] = new PVector(cos(angle * i) * 50, 0, sin(angle * i) * 50); 
+	}
+
+
+	if (!ext) {
+ 	ext = new ExtrudeForm(50, s, 5);
+	}
+	// ext.display();
+
 	popMatrix();
+}
+
+
+class ExtrudeForm {
+PVector vertices[];
+
+ExtrudeForm(int height, PVector [] shape, float randomStep) {
+	
+	vertices = new PVector[shape.length * height * 4];
+	PVector [] lastShape = new PVector[shape.length];
+	PVector [] currShape = new PVector[shape.length];
+
+	// initialize lastShape to startShape
+	for (int i = 0; i < shape.length; i++) {
+		lastShape[i] = new PVector(shape[i].x, shape[i].y, shape[i].z);
+	}
+
+	int index = 0;
+
+	// initialize vertices
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < shape.length; j++) {
+			PVector startVert = lastShape[j]; 
+			int lastInd = (j + 1) % shape.length;
+			PVector endVert = lastShape[lastInd]; 
+			PVector startTop = new PVector(startVert.x,
+ 						       startVert.y + 4,
+							startVert.z);
+			PVector endTop;	
+			if (j < shape.length - 1) {
+				endTop = new PVector(endVert.x + random(-randomStep, randomStep),
+						       endVert.y + 4,
+							endVert.z + random(-randomStep, randomStep));
+			}
+			else {
+				endTop = currShape[0];
+			}
+
+			// add next quad to vertices
+			vertices[index] = startVert;
+			vertices[index + 1] = startTop;
+			vertices[index + 2] = endTop;
+			vertices[index + 3] = endVert;
+			index += 4;		
+
+			// keep track of added vertices	
+			currShape[j] = startTop;
+			currShape[j + 1] = endTop;				
+		}
+			
+		// update last shape	
+		for (int k = 0; k < shape.length; k++) {
+			lastShape[k] = new PVector(currShape[k].x, currShape[k].y, currShape[k].z);
+		}
+	
+	}	
+}
+
+void display() {
+	noFill();
+	stroke(0, 255, 0);
+
+	beginShape(QUAD_STRIP);
+	for (int i = 0; i < vertices.length; i++) {
+		vertex(vertices[i].x, vertices[i].y, vertices[i].z);
+	}
+ 
+	endShape();
+}
 }
