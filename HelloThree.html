@@ -26,6 +26,11 @@
 	
 			function init() {
 				scene = new THREE.Scene();
+
+				var light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 0, 0, 1 );
+				scene.add( light );
+				
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
 									0.1,
@@ -37,54 +42,51 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
-				var geometry = new THREE.CubeGeometry(1,1,1);
+				/*var geometry = new THREE.CubeGeometry(1,1,1);
 				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 				var cube = new THREE.Mesh( geometry, material );
-				scene.add( cube );
+				scene.add( cube );*/
+				drawExtrudeForm();
 
-				camera.position.z = 5;
+				camera.position.set( 0, 0, 5);
 				render();
 			}
+			
+			function drawExtrudeForm() {
+				var extrudeSettings = { amount: 2,  bevelEnabled: false, 
+							 steps: 2};			   
+				var pts = [], starPoints = 5, l;
 
+				for ( i = 0; i < starPoints * 2; i ++ ) {
+
+					if ( i % 2 == 1 ) {
+
+						l = 0.5;
+
+					} else {
+						l = 1;
+
+					}
+
+					var a = i / starPoints * Math.PI;
+					pts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
+
+				}
+
+				var starShape = new THREE.Shape( pts );
+				var circle3d = starShape.extrude( extrudeSettings );
+				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+				var extrudemesh = new THREE.Mesh(circle3d, material);
+				scene.add(extrudemesh);	
+
+				
+			}
 
 			function render() {
 				requestAnimationFrame(render);
 				renderer.render(scene, camera);
 			}
 			
-
-
-/*			$("canvas").mousedown(function(e){
-				var parentOffset = $(this).parent().offset();
-				oldMousex = e.pageX;
-				oldMousey = e.pageY;
-//				console.log("clicked at " + oldMousex + " , " + oldMousey);
-				console.log("width = " + width + "height = " + height);
-			});
-
-			$("canvas").mouseup(function(e) {
-				var deltaX = e.pageX - oldMousex;
-				var deltaY = e.pageY - oldMousey;
-				console.log("rotating by " + deltaX + " " + deltaY);
-				rotateCamera(deltaX, deltaY);	
-			});
-
-			function rotateCamera(x, y) {
-				var gain = 40;
-				angle1 += gain * (x * Math.PI/180)/width;
-				angle2 += gain * (-y * Math.PI/180)/height;
-				angle2 %= Math.PI/2;
-
-				var t = r * Math.cos(angle2);
-				camera.position.y = r * Math.sin(angle2);
-				camera.position.x = t * Math.cos(angle1);
-				camera.position.z = t * Math.sin(angle1);
-				console.log("new position: " + camera.position.x 
-						+ " , " + camera.position.y
-						+ " , " + camera.position.z);
-				render();
-			}*/	
-		
 });
 		</script>
 	</body>	
