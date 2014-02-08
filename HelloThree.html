@@ -32,7 +32,6 @@
 									1000 );
 
 				controls = new THREE.OrbitControls(camera);
-				controls.addEventListener('change', render);
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -51,7 +50,6 @@
 			function render() {
 				requestAnimationFrame(render);
 				renderer.render(scene, camera);
-				// controls.update();
 			}
 			
 
