@@ -11,18 +11,13 @@
 			var scene;
 			var camera;
 			var renderer;
-			var oldMousex;
-			var oldMousey;
+			var frameCount = 0;
 			var controls;
-
-			var width = window.innerWidth;
-			var height = window.innerHeight;	
-			var angle1 = -Math.PI/2;
-			var angle2 = 0;
-			var r = 5;
+			var starShape, extrudemesh, material;
 
 			$(document).ready(function() {	
 			init();
+			animate();
 	
 			function init() {
 				scene = new THREE.Scene();
@@ -42,21 +37,12 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
-				/*var geometry = new THREE.CubeGeometry(1,1,1);
-				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-				var cube = new THREE.Mesh( geometry, material );
-				scene.add( cube );*/
-				drawExtrudeForm();
-
-				camera.position.set( 0, 0, 5);
-				render();
-			}
-			
-			function drawExtrudeForm() {
-				var extrudeSettings = { amount: 2,  bevelEnabled: false, 
-							 steps: 2};			   
+				camera.position.set(0, 0, 5);
+				
+				// init extrude form
+				var extrudeSettings = { amount: 1,  bevelEnabled: false, 
+							 steps:2};			   
 				var pts = [], starPoints = 5, l;
-
 				for ( i = 0; i < starPoints * 2; i ++ ) {
 
 					if ( i % 2 == 1 ) {
@@ -73,18 +59,42 @@
 
 				}
 
-				var starShape = new THREE.Shape( pts );
+				starShape = new THREE.Shape( pts );
 				var circle3d = starShape.extrude( extrudeSettings );
-				var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-				var extrudemesh = new THREE.Mesh(circle3d, material);
+				material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+				extrudemesh = new THREE.Mesh(circle3d, material);
+				extrudemesh.geometry.dynamic = true;
 				scene.add(extrudemesh);	
+			}
+		
+/*			$("canvas").click(function(){
+				console.log("camera at " + camera.position.x + " , " +
+							camera.position.y + " , " + 
+							camera.position.z); 
 
-				
+ 
+			}); */
+		
+			function drawExtrudeForm(height) {
+				scene.remove(extrudemesh);
+				var extrudeSettings = { amount: height,  bevelEnabled: false, 
+							 steps: 2};			   
+				var circle3d = starShape.extrude( extrudeSettings );
+				extrudemesh = new THREE.Mesh(circle3d, material);
+				scene.add(extrudemesh);
+			}
+			
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
 			}
 
 			function render() {
-				requestAnimationFrame(render);
+				if (extrudemesh.scale.z < 100) {
+					extrudemesh.scale.z += 0.01;
+				}
 				renderer.render(scene, camera);
+				frameCount++;
 			}
 			
 });
