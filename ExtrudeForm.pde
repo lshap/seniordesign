@@ -6,7 +6,7 @@ PVector vertices[];
 ExtrudeForm(int height, PVector [] shape, float randomStep) {
 	vertices = new PVector[shape.length * height * 4];
 	PVector [] lastShape = new PVector[shape.length];
-	PVector [] currShape = new PVector[shape.length;
+	PVector [] currShape = new PVector[shape.length];
 	
 	// initialize lastShape to startShape
 	for (int i = 0; i < shape.length; i++) {

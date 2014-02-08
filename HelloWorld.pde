@@ -33,11 +33,11 @@ $(document).ready(function(){
 	$("#canvas").bind('mousewheel', function(e){
 	e.preventDefault();
         if(e.originalEvent.wheelDelta /120 > 0) {
-		r -= 40;
+		r -= 20;
 		rotateCamera(0,0);
         }
         else{
-		r += 40;
+		r += 20;
 		rotateCamera(0,0);
 
         }
@@ -155,7 +155,7 @@ void draw() {
 	pushMatrix();
 	
 //	box(100);
-	drawExtrudeForm(8, 50, 50);
+	// drawExtrudeForm(8, 50, 50);
 
 	int shapeSize = 50;
 	PVector [] s = new PVector[shapeSize];
@@ -167,9 +167,9 @@ void draw() {
 
 
 	if (!ext) {
- 	ext = new ExtrudeForm(50, s, 5);
+ 	ext = new ExtrudeForm(50, s, 2);
 	}
-	// ext.display();
+	 ext.display();
 
 	popMatrix();
 }
@@ -184,12 +184,11 @@ ExtrudeForm(int height, PVector [] shape, float randomStep) {
 	PVector [] lastShape = new PVector[shape.length];
 	PVector [] currShape = new PVector[shape.length];
 
+	int index = 0;
 	// initialize lastShape to startShape
 	for (int i = 0; i < shape.length; i++) {
 		lastShape[i] = new PVector(shape[i].x, shape[i].y, shape[i].z);
 	}
-
-	int index = 0;
 
 	// initialize vertices
 	for (int i = 0; i < height; i++) {
@@ -197,12 +196,12 @@ ExtrudeForm(int height, PVector [] shape, float randomStep) {
 			PVector startVert = lastShape[j]; 
 			int lastInd = (j + 1) % shape.length;
 			PVector endVert = lastShape[lastInd]; 
-			PVector startTop = new PVector(startVert.x,
+			PVector startTop = new PVector(startVert.x + random(-randomStep, randomStep),
  						       startVert.y + 4,
-							startVert.z);
+							startVert.z + random(-randomStep, randomStep));
 			PVector endTop;	
 			if (j < shape.length - 1) {
-				endTop = new PVector(endVert.x + random(-randomStep, randomStep),
+				endTop = new PVector(endVert.x + random(-randomStep, randomStep), 
 						       endVert.y + 4,
 							endVert.z + random(-randomStep, randomStep));
 			}
@@ -234,7 +233,7 @@ void display() {
 	noFill();
 	stroke(0, 255, 0);
 
-	beginShape(QUAD_STRIP);
+	beginShape(QUADS);
 	for (int i = 0; i < vertices.length; i++) {
 		vertex(vertices[i].x, vertices[i].y, vertices[i].z);
 	}
