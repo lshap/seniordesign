@@ -38,7 +38,18 @@
 				document.body.appendChild( renderer.domElement );
 
 				camera.position.set(0, 0, 5);
-				
+				drawExtrudeForm();	
+			}
+		
+/*			$("canvas").click(function(){
+				console.log("camera at " + camera.position.x + " , " +
+							camera.position.y + " , " + 
+							camera.position.z); 
+
+ 
+			}); */
+		
+			function drawExtrudeForm() {
 				// init extrude form
 				var extrudeSettings = { amount: 1,  bevelEnabled: false, 
 							 steps:2};			   
@@ -66,23 +77,6 @@
 				extrudemesh.geometry.dynamic = true;
 				scene.add(extrudemesh);	
 			}
-		
-/*			$("canvas").click(function(){
-				console.log("camera at " + camera.position.x + " , " +
-							camera.position.y + " , " + 
-							camera.position.z); 
-
- 
-			}); */
-		
-			function drawExtrudeForm(height) {
-				scene.remove(extrudemesh);
-				var extrudeSettings = { amount: height,  bevelEnabled: false, 
-							 steps: 2};			   
-				var circle3d = starShape.extrude( extrudeSettings );
-				extrudemesh = new THREE.Mesh(circle3d, material);
-				scene.add(extrudemesh);
-			}
 			
 			function animate() {
 				requestAnimationFrame(animate);
@@ -90,9 +84,13 @@
 			}
 
 			function render() {
-				if (extrudemesh.scale.z < 100) {
+/*				if (extrudemesh.scale.z < 10) {
 					extrudemesh.scale.z += 0.01;
-				}
+				} */
+
+
+				extrudemesh.geometry.vertices[0].x += 0.01;
+				extrudemesh.geometry.verticesNeedUpdate = true;
 				renderer.render(scene, camera);
 				frameCount++;
 			}
