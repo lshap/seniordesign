@@ -25,7 +25,7 @@
 				var light = new THREE.DirectionalLight( 0xffffff );
 				light.position.set( 0, 0, 1 );
 				scene.add( light );
-				
+			
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
 									0.1,
@@ -51,8 +51,7 @@
 		
 			function drawExtrudeForm() {
 				// init extrude form
-				var extrudeSettings = { amount: 1,  bevelEnabled: false, 
-							 steps:2};			   
+				var starpts = [];
 				var pts = [], starPoints = 5, l;
 				for ( i = 0; i < starPoints * 2; i ++ ) {
 
@@ -66,15 +65,34 @@
 					}
 
 					var a = i / starPoints * Math.PI;
-					pts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
+					starpts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
 
 				}
 
-				starShape = new THREE.Shape( pts );
-				var circle3d = starShape.extrude( extrudeSettings );
-				material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-				extrudemesh = new THREE.Mesh(circle3d, material);
-				extrudemesh.geometry.dynamic = true;
+				var angle = (2 * Math.PI)/50;
+				for (i = 0; i < 50; i++) {
+					var x = Math.cos(angle * i);
+					var y = Math.sin(angle * i);
+					pts.push( new THREE.Vector2(x,y));
+				}
+				
+				var splinePts = [];
+				var sangle = (2 * Math.PI)/10;
+				for (i = 0; i < 10; i++) {
+					var x = Math.cos(angle * i * 2);
+					var y = Math.sin(angle * i * 2);
+					var z = i;
+					splinePts.push( new THREE.Vector3(x, y, z));
+				}				
+
+				var spline = new THREE.SplineCurve3(splinePts);
+				starShape = new THREE.Shape(starpts);
+				var extrudeSettings = { amount: 10,  bevelEnabled: false, 
+							 steps:10, extrudePath: spline};			   
+				var star3d = starShape.extrude(extrudeSettings);
+				material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true} );
+				extrudemesh = new THREE.Mesh(star3d, material);
+				extrudemesh.geometry.dynamic = true; 
 				scene.add(extrudemesh);	
 			}
 			
@@ -89,7 +107,7 @@
 				} */
 
 
-				extrudemesh.geometry.vertices[0].x += 0.01;
+				// extrudemesh.geometry.vertices[0].x += 0.01;
 				extrudemesh.geometry.verticesNeedUpdate = true;
 				renderer.render(scene, camera);
 				frameCount++;
