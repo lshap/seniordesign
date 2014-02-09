@@ -14,6 +14,9 @@
 			var frameCount = 0;
 			var controls;
 			var starShape, extrudemesh, material;
+			var numBasePoints;
+			var numpoints;
+			var scale = 0;
 
 			$(document).ready(function() {	
 			init();
@@ -87,13 +90,17 @@
 
 				var spline = new THREE.SplineCurve3(splinePts);
 				starShape = new THREE.Shape(starpts);
-				var extrudeSettings = { amount: 10,  bevelEnabled: false, 
-							 steps:10, extrudePath: spline};			   
+				var extrudeSettings = { amount: 0.1,  bevelEnabled: false, 
+							 steps:10 /*, extrudePath: spline*/};			   
 				var star3d = starShape.extrude(extrudeSettings);
 				material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true} );
 				extrudemesh = new THREE.Mesh(star3d, material);
 				extrudemesh.geometry.dynamic = true; 
 				scene.add(extrudemesh);	
+				numpoints = extrudemesh.geometry.vertices.length;
+				numBasePoints = starpts.length;
+				console.log("numpoints = " + numpoints + " numbasepoints = " + numBasePoints);
+				console.log(numpoints/numBasePoints);
 			}
 			
 			function animate() {
@@ -102,12 +109,17 @@
 			}
 
 			function render() {
-/*				if (extrudemesh.scale.z < 10) {
-					extrudemesh.scale.z += 0.01;
-				} */
 
+				if (scale < 10) {
+					for (i = 1; i < numpoints/numBasePoints; i++ ) {
+						for (j = 0; j < numBasePoints; j++) {
+							var ind = i * numBasePoints + j;
+							extrudemesh.geometry.vertices[ind].z += 0.01 * i;
+						}
+					} 
+					scale ++;
+				}
 
-				// extrudemesh.geometry.vertices[0].x += 0.01;
 				extrudemesh.geometry.verticesNeedUpdate = true;
 				renderer.render(scene, camera);
 				frameCount++;
