@@ -41,21 +41,25 @@
 				document.body.appendChild( renderer.domElement );
 
 				camera.position.set(0, 0, 5);
-				drawExtrudeForm();	
+				drawCircleExtrude();	
 			}
 		
-/*			$("canvas").click(function(){
-				console.log("camera at " + camera.position.x + " , " +
-							camera.position.y + " , " + 
-							camera.position.z); 
+			function drawCircleExtrude(){
+				var pts = [];
+				var angle = (2 * Math.PI)/50;
 
- 
-			}); */
-		
-			function drawExtrudeForm() {
-				// init extrude form
+				for (i = 0; i < 50; i++) {
+					var x = Math.cos(angle * i);
+					var y = Math.sin(angle * i);
+					pts.push( new THREE.Vector2(x,y));
+				}
+
+				drawExtrudeForm(pts);
+			}
+			
+			function drawStarExtrude() {
 				var starpts = [];
-				var pts = [], starPoints = 5, l;
+				var starPoints = 5, l;
 				for ( i = 0; i < starPoints * 2; i ++ ) {
 
 					if ( i % 2 == 1 ) {
@@ -68,40 +72,46 @@
 					}
 
 					var a = i / starPoints * Math.PI;
-					starpts.push( new THREE.Vector2 ( Math.cos( a ) * l, Math.sin( a ) * l ) );
-
+					starpts.push( new THREE.Vector2( Math.cos(a) * l, Math.sin(a) * l ));
 				}
 
-				var angle = (2 * Math.PI)/50;
-				for (i = 0; i < 50; i++) {
-					var x = Math.cos(angle * i);
-					var y = Math.sin(angle * i);
-					pts.push( new THREE.Vector2(x,y));
-				}
-				
+				drawExtrudeForm(starpts);
+			}
+
+			function drawExtrudeForm(pts) {
 				var splinePts = [];
 				var sangle = (2 * Math.PI)/10;
 				for (i = 0; i < 10; i++) {
-					var x = Math.cos(angle * i * 2);
-					var y = Math.sin(angle * i * 2);
+					var x = Math.cos(sangle * i * 2);
+					var y = Math.sin(sangle * i * 2);
 					var z = i;
 					splinePts.push( new THREE.Vector3(x, y, z));
 				}				
 
 				var spline = new THREE.SplineCurve3(splinePts);
-				starShape = new THREE.Shape(starpts);
+				var shape = new THREE.Shape(pts);
 				var extrudeSettings = { amount: 0.1,  bevelEnabled: false, 
-							 steps:10 /*, extrudePath: spline*/};			   
-				var star3d = starShape.extrude(extrudeSettings);
+							 steps:100 , extrudePath: spline};			   
+				var shape3d = shape.extrude(extrudeSettings);
 				material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true} );
-				extrudemesh = new THREE.Mesh(star3d, material);
+				extrudemesh = new THREE.Mesh(shape3d, material);
 				extrudemesh.geometry.dynamic = true; 
 				scene.add(extrudemesh);	
 				numpoints = extrudemesh.geometry.vertices.length;
-				numBasePoints = starpts.length;
+				numBasePoints = pts.length;
 				console.log("numpoints = " + numpoints + " numbasepoints = " + numBasePoints);
 				console.log(numpoints/numBasePoints);
-			}
+				
+				// move points inward to taper shape
+				for (var i = 0; i < numpoints/numBasePoints; i++) {
+						for (j = 0; j < numBasePoints; j++) {
+							var ind = i * numBasePoints + j;
+							extrudemesh.geometry.vertices[ind].x *= 0.1 * i;
+							extrudemesh.geometry.vertices[ind].y *= 0.1 * i;
+						}
+					}
+
+			 	}
 			
 			function animate() {
 				requestAnimationFrame(animate);
@@ -114,7 +124,7 @@
 					for (i = 1; i < numpoints/numBasePoints; i++ ) {
 						for (j = 0; j < numBasePoints; j++) {
 							var ind = i * numBasePoints + j;
-							extrudemesh.geometry.vertices[ind].z += 0.01 * i;
+							extrudemesh.geometry.vertices[ind].z += 0.1 * i;
 						}
 					} 
 					scale ++;
