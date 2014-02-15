@@ -13,7 +13,7 @@
 			var renderer;
 			var frameCount = 0;
 			var controls;
-			var starShape, extrudemesh, material;
+			var starShape, meshes, material;
 			var numBasePoints;
 			var numpoints;
 			var scale = 0;
@@ -24,7 +24,7 @@
 	
 			function init() {
 				scene = new THREE.Scene();
-
+				meshes = [];
 				var light = new THREE.DirectionalLight( 0xffffff );
 				light.position.set( 0, 0, 1 );
 				scene.add( light );
@@ -40,11 +40,15 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
-				camera.position.set(0, 0, 5);
-				drawCircleExtrude();	
+				camera.position.set(0, 0, 150);
+				
+				for (var i = 0; i < 5; i++) {
+					drawCircleExtrude(i * 20,0);	
+				}
+
 			}
 		
-			function drawCircleExtrude(){
+			function drawCircleExtrude(xpos, zpos){
 				var pts = [];
 				var angle = (2 * Math.PI)/50;
 
@@ -54,7 +58,7 @@
 					pts.push( new THREE.Vector2(x,y));
 				}
 
-				drawExtrudeForm(pts);
+				drawExtrudeForm(pts, xpos, zpos);
 			}
 			
 			function drawStarExtrude() {
@@ -75,10 +79,10 @@
 					starpts.push( new THREE.Vector2( Math.cos(a) * l, Math.sin(a) * l ));
 				}
 
-				drawExtrudeForm(starpts);
+				drawExtrudeForm(starpts, 0,0);
 			}
 
-			function drawExtrudeForm(pts) {
+			function drawExtrudeForm(pts, xpos, zpos) {
 				var splinePts = [];
 				var sangle = (2 * Math.PI)/10;
 				for (i = 0; i < 10; i++) {
@@ -94,7 +98,7 @@
 							 steps:100 , extrudePath: spline};			   
 				var shape3d = shape.extrude(extrudeSettings);
 				material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true} );
-				extrudemesh = new THREE.Mesh(shape3d, material);
+				var extrudemesh = new THREE.Mesh(shape3d, material);
 				extrudemesh.geometry.dynamic = true; 
 				scene.add(extrudemesh);	
 				numpoints = extrudemesh.geometry.vertices.length;
@@ -110,7 +114,11 @@
 							extrudemesh.geometry.vertices[ind].y *= 0.1 * i;
 						}
 					}
-
+				// rotate mesh so it grows from ground up
+				extrudemesh.rotation.x = Math.PI/2;	
+				extrudemesh.position.x = xpos;
+				extrudemesh.position.z = zpos;
+				meshes.push(extrudemesh);
 			 	}
 			
 			function animate() {
@@ -119,18 +127,20 @@
 			}
 
 			function render() {
-
-				if (scale < 10) {
+			if (scale < 10) {
+				for (var m = 0; m < meshes.length; m ++) {
+					var extrudemesh = meshes[m];
 					for (i = 1; i < numpoints/numBasePoints; i++ ) {
 						for (j = 0; j < numBasePoints; j++) {
 							var ind = i * numBasePoints + j;
 							extrudemesh.geometry.vertices[ind].z += 0.1 * i;
 						}
-					} 
-					scale ++;
+					}
+ 
+					extrudemesh.geometry.verticesNeedUpdate = true; 
 				}
-
-				extrudemesh.geometry.verticesNeedUpdate = true;
+				scale ++;
+			}
 				renderer.render(scene, camera);
 				frameCount++;
 			}
