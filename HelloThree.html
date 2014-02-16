@@ -1,12 +1,15 @@
 <html>
 	<head>
 		<title>Three.js app</title>
-		<style>canvas { width: 100%; height: 100% }</style>
+<!--		<style>canvas { width: 100%; height: 100% }</style> -->
+		<canvas id="canvas"></canvas>
+		<canvas id="imagecanvas"></canvas>
 	</head>
 	<body>
 		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
 		<script src="resources/jquery-1.11.0.min.js"></script>
 		<script src="resources/OrbitControls.js"></script>
+		<script src="resources/paper-full.min.js"></script>
 		<script>
 			var scene;
 			var camera;
@@ -17,14 +20,23 @@
 			var numBasePoints;
 			var numpoints;
 			var scale = 0;
+			var translate = 0;
 
 			$(document).ready(function() {	
 			init();
 			animate();
 	
 			function init() {
+				paper.setup(canvas);				
+				extrudeImage();
+
+				var planegeom = new THREE.CubeGeometry(1000000, 10, 100000);
+				var planemat = new THREE.MeshBasicMaterial({ color: 0x000f00} );
+				var plane = new THREE.Mesh(planegeom, planemat);
 				scene = new THREE.Scene();
+				scene.add(plane);
 				meshes = [];
+				
 				var light = new THREE.DirectionalLight( 0xffffff );
 				light.position.set( 0, 0, 1 );
 				scene.add( light );
@@ -36,16 +48,30 @@
 
 				controls = new THREE.OrbitControls(camera);
 
-				renderer = new THREE.WebGLRenderer();
+				var canvas = document.getElementById('canvas'); 
+				var context = canvas.getContext('2d');
+				context.canvas.width = window.innerWidth;
+				context.canvas.height = window.innherHeight;
+
+				renderer = new THREE.WebGLRenderer(canvas);
+				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
-				camera.position.set(0, 0, 150);
+				camera.position.set(0, 50, 150);
 				
 				for (var i = 0; i < 5; i++) {
 					drawCircleExtrude(i * 20,0);	
 				}
+			}
 
+
+			function extrudeImage() {
+				var image = new Image();
+				image.src = 'obamahope.jpg';
+				var raster = new paper.Raster(image);
+				console.log(raster.getPixel(0,0));
+				console.log(raster.getPixel(1,1));
 			}
 		
 			function drawCircleExtrude(xpos, zpos){
@@ -86,15 +112,15 @@
 				var splinePts = [];
 				var sangle = (2 * Math.PI)/10;
 				for (i = 0; i < 10; i++) {
-					var x = Math.cos(sangle * i * 2);
-					var y = Math.sin(sangle * i * 2);
-					var z = i;
+					var x = Math.cos(sangle * i);
+					var y = Math.sin(sangle * i);
+					var z = i * 10;
 					splinePts.push( new THREE.Vector3(x, y, z));
 				}				
 
 				var spline = new THREE.SplineCurve3(splinePts);
 				var shape = new THREE.Shape(pts);
-				var extrudeSettings = { amount: 0.1,  bevelEnabled: false, 
+				var extrudeSettings = { amount:100,  bevelEnabled: false, 
 							 steps:100 , extrudePath: spline};			   
 				var shape3d = shape.extrude(extrudeSettings);
 				material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true} );
@@ -103,22 +129,34 @@
 				scene.add(extrudemesh);	
 				numpoints = extrudemesh.geometry.vertices.length;
 				numBasePoints = pts.length;
-				console.log("numpoints = " + numpoints + " numbasepoints = " + numBasePoints);
-				console.log(numpoints/numBasePoints);
 				
 				// move points inward to taper shape
-				for (var i = 0; i < numpoints/numBasePoints; i++) {
+				var numShapes = numpoints/numBasePoints;
+				for (var i = 0; i < numShapes; i++) {
 						for (j = 0; j < numBasePoints; j++) {
 							var ind = i * numBasePoints + j;
-							extrudemesh.geometry.vertices[ind].x *= 0.1 * i;
-							extrudemesh.geometry.vertices[ind].y *= 0.1 * i;
+							extrudemesh.geometry.vertices[ind].x *= 0.1 * (numShapes - i);
+							extrudemesh.geometry.vertices[ind].y *= 0.1 * (numShapes - i);
 						}
 					}
+
 				// rotate mesh so it grows from ground up
-				extrudemesh.rotation.x = Math.PI/2;	
-				extrudemesh.position.x = xpos;
-				extrudemesh.position.z = zpos;
+				var rotmat = new THREE.Matrix4();
+				rotmat.makeRotationX(3 * Math.PI/2);
+				//extrudemesh.rotation.x +=  Math.PI/2;	
+
+				extrudemesh.geometry.applyMatrix(rotmat);
+/*				console.log("extrude mesh position = " + extrudemesh.position.x + " , " 
+									+  extrudemesh.position.y + " , " 
+									+ extrudemesh.position.z); */
+				// translate shape to its position
+				var transmat = new THREE.Matrix4();
+				transmat.makeTranslation(xpos, 0, zpos);
+				extrudemesh.geometry.applyMatrix(transmat);
+//				extrudemesh.position.x = xpos;
+//				extrudemesh.position.z = zpos;
 				meshes.push(extrudemesh);
+				extrudemesh.scale.y = 0.1;
 			 	}
 			
 			function animate() {
@@ -127,20 +165,14 @@
 			}
 
 			function render() {
-			if (scale < 10) {
-				for (var m = 0; m < meshes.length; m ++) {
-					var extrudemesh = meshes[m];
-					for (i = 1; i < numpoints/numBasePoints; i++ ) {
-						for (j = 0; j < numBasePoints; j++) {
-							var ind = i * numBasePoints + j;
-							extrudemesh.geometry.vertices[ind].z += 0.1 * i;
-						}
-					}
- 
-					extrudemesh.geometry.verticesNeedUpdate = true; 
+				if (scale < 100) {
+					for (var m = 0; m < meshes.length; m ++) {
+						var extrudemesh = meshes[m];
+						// extrudemesh.rotation.y += Math.PI * 0.01;
+						extrudemesh.scale.y += 0.01;
+					}				
+					scale ++;
 				}
-				scale ++;
-			}
 				renderer.render(scene, camera);
 				frameCount++;
 			}

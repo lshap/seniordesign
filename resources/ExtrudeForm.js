@@ -61,8 +61,8 @@ ExtrudeForm.prototype.init = function () {
 
 		case shape.TRIANGLE:
 			this.basePts = [];
-			this.basePts.push(new THREE.Vector2());
-			this.basePts.push(new THREE.Vector2());
+			this.basePts.push(new THREE.Vector2(0, 1));
+			this.basePts.push(new THREE.Vector2( ));
 			this.basePts.push(new THREE.Vector2());
 		break;
 
