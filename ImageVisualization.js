@@ -112,10 +112,10 @@
 								geom = new THREE.CubeGeometry(1, height, 1);
 							break;	
 							case ShapeType.CYLINDER: 
-								geom = new THREE.CylinderGeometry(1, 1, height, 1, 1, false);
+								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
 							break;	
 							case ShapeType.CONE: 
-								geom = new THREE.CylinderGeometry(1, 0.01, height, 1, 1, false);
+								geom = new THREE.CylinderGeometry(0.005, 0.5, height, 8, 1, false);
 							break;	
 							default:
 								geom = new THREE.CubeGeometry(1, height, 1);
