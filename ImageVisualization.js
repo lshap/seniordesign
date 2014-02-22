@@ -10,6 +10,7 @@
 			var controls;
 			var scale = 0;
 			var imgdata;
+			var compressedImgData;
 			var meshes = [];
 			var numshapes = 0;
 			
@@ -29,7 +30,12 @@
 			// constructor
 			function ImageExtrusion(img, inputdata, colors, shape, animate) {
 				this.imgsrc = img;
-				this.data = inputdata;
+				// this.data = inputdata;
+				this.data = [];
+				/*for (var i = 0; i < 2000; i++) {
+					this.data.push(Math.random() * 10);
+				}*/
+
 				this.colors = colors;	
 				this.shapeType = shape;
 				console.log("shape type = "+ this.shapeType);
@@ -54,6 +60,7 @@
 				controls = new THREE.OrbitControls(camera);
 
 				var canvas = document.getElementById('canvas'); 
+				$(canvas).css('margin-top', '0px');
 
 				renderer = new THREE.WebGLRenderer(canvas);
 				renderer.setClearColor(0xffffff, 1);
@@ -86,7 +93,6 @@
 			ImageExtrusion.prototype.extrudeImage = function() {
 				console.log(imgdata);
 				var imagedata = imgdata.data;
-				
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
 					
@@ -96,14 +102,8 @@
 						var z = pix / imgdata.width;
 						var height = Math.random() * 4;
 				
-						var colordecision = Math.random();
-						var drawcolor;
-						if (colordecision < 0.5) {
-							drawcolor = 0xff0000;
-						}
-						else {
-							drawcolor = 0x0000ff;
-						}
+						var colordecision = Math.floor(Math.random() * this.colors.length);
+						var drawcolor = this.colors[colordecision];
 	
 						var mesh, geom, mat;
 						// console.log("shape type = "+ this.shapeType);
@@ -146,7 +146,6 @@
 			ImageExtrusion.prototype.loadImageData = function(extrudeImage) {
 				var image = new Image();
 				console.log('trying to load image from source ' + this.imgsrc);
-				image.crossOrigin = "anonymous";
 				image.src = this.imgsrc;
 				var obj = this;
 				$(image).load(function () {
@@ -154,11 +153,39 @@
 					
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
-					ctxt.canvas.width = image.width;
+					
+					// count how many pixels to draw there are 
+					/*ctxt.canvas.width = image.width;
 					ctxt.canvas.height = image.height;
+					ctxt.drawImage(image, 0, 0);
+					var tempdata = (ctxt.getImageData(0, 0, ctxt.canvas.width, ctxt.canvas.height)).data;
 
-					ctxt.drawImage(image,0,0);				
-					imgdata = ctxt.getImageData(0,0, image.width, image.height);
+					var currPoints = 0;
+					for (var i = 0; i < tempdata.length; i+=4) {
+						// check that this pixel is not white
+						var color = rgbToHex(tempdata[i], tempdata[i+1], tempdata[i+2], tempdata[i+3]);
+						if (color == 0) {
+							currPoints ++;
+						}
+					}*/				
+
+	
+					// scale image to data point size
+					/*console.log('currpoints = ' + currPoints);
+					var scale = Math.sqrt(obj.data.length/currPoints);
+					console.log('scale = ' + scale);
+
+					var scaledWidth = (image.width * scale);						
+					var scaledHeight = (image.height * scale);*/
+
+					var scaledWidth = image.width;
+					var scaledHeight = image.height;						
+
+					ctxt.canvas.width = scaledWidth;
+					ctxt.canvas.height = scaledHeight;
+
+					ctxt.drawImage(image, 0, 0, scaledWidth, scaledHeight);				
+					imgdata = ctxt.getImageData(0,0, scaledWidth, scaledHeight);
 					
 					ctxt.canvas.width = 0;
 					ctxt.canvas.height = 0;

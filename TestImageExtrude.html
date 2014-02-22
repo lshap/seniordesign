@@ -5,7 +5,10 @@
 		<script src="resources/OrbitControls.js"></script>
 		<script src="ImageVisualization.js"></script>
 		<script type = "text/javascript"> 
-			var imgExtrusion = new ImageExtrusion("obamahopeblacksmall.jpg", [], [], ShapeType.CYLINDER, false);
+			var colors = [];
+			colors.push(0xff0000);
+			colors.push(0x0000ff);
+			var imgExtrusion = new ImageExtrusion("obamahopeblacksmall.jpg", [], colors, ShapeType.SQUARE, true);
 			$(document).ready(function () {
 			imgExtrusion.init(); 
 	});
