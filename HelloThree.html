@@ -188,8 +188,8 @@
 
 				var spline = new THREE.SplineCurve3(splinePts);
 				var shape = new THREE.Shape(pts);
-				var extrudeSettings = { amount:1,  bevelEnabled: false, 
-							 steps:1 , extrudePath: spline};			   
+				var extrudeSettings = { amount:100,  bevelEnabled: false, 
+							 steps:100 , extrudePath: spline};			   
 				var shape3d = shape.extrude(extrudeSettings);
 				material = new THREE.MeshBasicMaterial({ color: color, wireframe: true} );
 				var extrudemesh = new THREE.Mesh(shape3d, material);
@@ -218,7 +218,7 @@
 				transmat.makeTranslation(xpos, 0, zpos);
 				extrudemesh.geometry.applyMatrix(transmat);
 				meshes.push(extrudemesh);
-			//	extrudemesh.scale.y = 0.01; // scale down to animate 'growth'
+				extrudemesh.scale.y = 0.01; // scale down to animate 'growth'
 			 	}
 			
 			function animate() {
@@ -227,7 +227,7 @@
 			}
 
 			function render() {
-				/*if (scale < 100) {
+			/*	if (scale < 100) {
 					for (var m = 0; m < meshes.length; m ++) {
 						var extrudemesh = meshes[m];
 						extrudemesh.scale.y += 0.01;
