@@ -26,19 +26,19 @@
 				CONE: 2
 			};
 
-
 			// constructor
 			function ImageExtrusion(img, inputdata, colors, shape, animate) {
 				this.imgsrc = img;
 				this.data = inputdata;
 				this.colors = colors;	
 				this.shapeType = shape;
+				console.log("shape type = "+ this.shapeType);
 				this.animated = animate;	
 			} 
 	
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
-				this.loadImageData(extrudeImage);
+				this.loadImageData(this.extrudeImage);
 					
 				// initialize 3D scene
 				scene = new THREE.Scene();
@@ -83,7 +83,7 @@
 			}
 
 			// converts pixel data to a 3D scene
-			function extrudeImage() {
+			ImageExtrusion.prototype.extrudeImage = function() {
 				console.log(imgdata);
 				var imagedata = imgdata.data;
 				
@@ -106,7 +106,8 @@
 						}
 	
 						var mesh, geom, mat;
-						switch(shapeType) {
+						// console.log("shape type = "+ this.shapeType);
+						switch(this.shapeType) {
 							case ShapeType.SQUARE: 
 								geom = new THREE.CubeGeometry(1, height, 1);
 							break;	
@@ -144,8 +145,10 @@
 			// grabs pixel data from image source
 			ImageExtrusion.prototype.loadImageData = function(extrudeImage) {
 				var image = new Image();
-				console.log('trying to load from source' + imgsrc);
+				console.log('trying to load image from source ' + this.imgsrc);
+				image.crossOrigin = "anonymous";
 				image.src = this.imgsrc;
+				var obj = this;
 				$(image).load(function () {
 					console.log("loaded");	
 					
@@ -160,7 +163,7 @@
 					ctxt.canvas.width = 0;
 					ctxt.canvas.height = 0;
 					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
-					extrudeImage();
+					obj.extrudeImage();
 				});	
 			}
 		
