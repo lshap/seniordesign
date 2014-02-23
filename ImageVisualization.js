@@ -11,6 +11,7 @@
 			var scale = 0;
 			var imgdata;
 			var compressedImgData;
+			var numColoredPixels = 0;
 			var meshes = [];
 			var numshapes = 0;
 			
@@ -32,9 +33,9 @@
 				this.imgsrc = img;
 				// this.data = inputdata;
 				this.data = [];
-				/*for (var i = 0; i < 2000; i++) {
+				for (var i = 0; i < 1000; i++) {
 					this.data.push(Math.random() * 10);
-				}*/
+				}
 
 				this.colors = colors;	
 				this.shapeType = shape;
@@ -93,6 +94,17 @@
 			ImageExtrusion.prototype.extrudeImage = function() {
 				console.log(imgdata);
 				var imagedata = imgdata.data;
+				var pixscale = numColoredPixels/this.data.length;
+				console.log('scale = ' + pixscale);
+				var sqrscale = Math.floor(Math.sqrt(pixscale));
+				
+				for (var i = 0; i < imagedata.width * 4; i += 4 * sqrscale) {
+						
+				}		
+	
+
+
+	
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
 					
@@ -154,20 +166,10 @@
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
-					// count how many pixels to draw there are 
-					/*ctxt.canvas.width = image.width;
+					ctxt.canvas.width = image.width;
 					ctxt.canvas.height = image.height;
 					ctxt.drawImage(image, 0, 0);
-					var tempdata = (ctxt.getImageData(0, 0, ctxt.canvas.width, ctxt.canvas.height)).data;
 
-					var currPoints = 0;
-					for (var i = 0; i < tempdata.length; i+=4) {
-						// check that this pixel is not white
-						var color = rgbToHex(tempdata[i], tempdata[i+1], tempdata[i+2], tempdata[i+3]);
-						if (color == 0) {
-							currPoints ++;
-						}
-					}*/				
 
 	
 					// scale image to data point size
@@ -178,16 +180,27 @@
 					var scaledWidth = (image.width * scale);						
 					var scaledHeight = (image.height * scale);*/
 
-					var scaledWidth = image.width;
-					var scaledHeight = image.height;						
+					/*var scaledWidth = image.width/4;
+					var scaledHeight = image.height/4;						
 
 					ctxt.canvas.width = scaledWidth;
 					ctxt.canvas.height = scaledHeight;
 
-					ctxt.drawImage(image, 0, 0, scaledWidth, scaledHeight);				
-					imgdata = ctxt.getImageData(0,0, scaledWidth, scaledHeight);
-					
+					ctxt.drawImage(image, 0, 0, scaledWidth, scaledHeight);	*/
+
+					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
 					ctxt.canvas.width = 0;
+					var picdata = imgdata.data;
+
+					// count how many pixels to draw there are 
+					for (var i = 0; i < picdata.length; i+=4) {
+						// check that this pixel is not white
+						var color = rgbToHex(picdata[i], picdata[i+1], picdata[i+2], picdata[i+3]);
+						if (color == 0) {
+							numColoredPixels ++;
+						}
+					}				
+
 					ctxt.canvas.height = 0;
 					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
 					obj.extrudeImage();
