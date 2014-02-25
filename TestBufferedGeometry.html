@@ -33,56 +33,167 @@
 			function addGeometry()  {
 				var geometry = new THREE.BufferGeometry();	
 				var cubes = 1000;
+				var triangles = 12 * cubes; // 12 triangles per cube
+	
 				var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-				geometry.addAttribute('position', Float32Array, cubes, 24);	
+				
+				geometry.attributes = {
+					position: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					normal: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					color: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					}
+
+				}
 				
 				var positions = geometry.attributes.position.array;
-				var r = 800;
-				for (var i = 0; i < cubes; i++) {
-					var x = Math.random() * r - r / 2;
-					var y = Math.random() * r - r / 2;
-					var z = Math.random() * r - r / 2;
+				var normals = geometry.attributes.normal.array;
+				var colors = geometry.attributes.color.array;
 
-					// bottom square
-					positions[i * 24] = x;
-					positions[i * 24 + 1] = y;
-					positions[i * 24 + 2] = z;
+				// function to add the ith triangle with vertices va, vb, vc
+				function addTriangle(i, va, vb, vc) {
+					var ax = va.x;
+					var ay = va.y;
+					var az = va.z;
+					
+					var bx = vb.x;
+					var by = vb.y;
+					var bz = vb.z;
+	
+					var cx = vc.x;
+					var cy = vc.y;
+					var cz = vc.z;
+					
+					var cb = new THREE.Vector3();
+					cb.subVectors(vc, vb);
+					var ab = new THREE.Vector3();	
+					ab.subVectors(va, vb);
+					cb.crossVectors(cb,ab);
+					cb.normalize();
+			
+					var nx = cb.x;
+					var ny = cb.y;
+					var nz = cb.z;
 
-					positions[i * 24 + 3] = x + 1;
-					positions[i * 24 + 4] = y;
-					positions[i * 24 + 5] = z;
+					var index = i * 9;
+					
+					// set positions	
+					positions[index] = ax;	
+					positions[index + 1] = ay;	
+					positions[index + 2] = az;	
+					
+					positions[index + 3] = bx;	
+					positions[index + 4] = by;	
+					positions[index + 5] = bz;	
+						
+					positions[index + 6] = cx;	
+					positions[index + 7] = cy;	
+					positions[index + 8] = cz;	
 
-					positions[i * 24 + 6] = x + 1;
-					positions[i * 24 + 7] = y;
-					positions[i * 24 + 8] = z - 1;
+					// set normals
+					normals[index] = nx;	
+					normals[index + 1] = ny;	
+					normals[index + 2] = nz;	
+					
+					normals[index + 3] = nx;	
+					normals[index + 4] = ny;	
+					normals[index + 5] = nz;	
+						
+					normals[index + 6] = nx;	
+					normals[index + 7] = ny;	
+					normals[index + 8] = nz;
 
-					positions[i * 24 + 9] = x;
-					positions[i * 24 + 10] = y;
-					positions[i * 24 + 11] = z - 1;
+					//set colors
+					colors[index] = 1;	
+					colors[index + 1] = 0;	
+					colors[index + 2] = 0;	
+					
+					colors[index + 3] = 1;	
+					colors[index + 4] = 0;
+					colors[index + 5] = 0;
+						
+					colors[index + 6] = 1;	
+					colors[index + 7] = 0;	
+					colors[index + 8] = 0;
+				}
 
-					// top square
-					positions[i * 24 + 12] = x;
-					positions[i * 24 + 13] = y + 1;
-					positions[i * 24 + 14] = z;
+				var r = 50;
+				var d = 1; // size of triangle	
 
-					positions[i * 24 + 15] = x + 1;
-					positions[i * 24 + 16] = y + 1;
-					positions[i * 24 + 17] = z;
+				// bottom square verts
+				var v1 = new THREE.Vector3( 0, 0, 0 );
+				var v2 = new THREE.Vector3( d, 0, 0 );
+				var v3 = new THREE.Vector3( d, d, 0 );
+				var v4 = new THREE.Vector3( 0, d, 0 );
 
-					positions[i * 24 + 18] = x + 1;
-					positions[i * 24 + 19] = y + 1;
-					positions[i * 24 + 20] = z - 1;
+				// top square verts
+				var v1b = new THREE.Vector3( 0, 0, d );
+				var v2b = new THREE.Vector3( d, 0, d );
+				var v3b = new THREE.Vector3( d, d, d );
+				var v4b = new THREE.Vector3( 0, d, d );
 
-					positions[i * 24 + 21] = x;
-					positions[i * 24 + 22] = y + 1;
-					positions[i * 24 + 23] = z - 1;
+				for (var i = 0; i < triangles; i+= 12) {
+					var centerX = Math.random() * r;	
+					var centerY = Math.random() * r;	
+					var centerZ = Math.random() * r;	
+				
+					var center = new THREE.Vector3(centerX, centerY, centerZ);	
+					var v1t = new THREE.Vector3();		
+					var v2t = new THREE.Vector3();		
+					var v3t = new THREE.Vector3();		
+					var v4t = new THREE.Vector3();		
 
+					var v1bt = new THREE.Vector3();		
+					var v2bt = new THREE.Vector3();		
+					var v3bt = new THREE.Vector3();		
+					var v4bt = new THREE.Vector3();		
+
+					v1t.addVectors(v1, center);
+					v2t.addVectors(v2, center);
+					v3t.addVectors(v3, center);
+					v4t.addVectors(v4, center);
+
+					v1bt.addVectors(v1b, center);
+					v2bt.addVectors(v2b, center);
+					v3bt.addVectors(v3b, center);
+					v4bt.addVectors(v4b, center);
+				
+					// add triangles to cube
+					// bottom face
+					addTriangle(i, v1t, v2t, v4t);
+					addTriangle(i + 1, v2t, v3t, v4t);
+
+					//top face
+					addTriangle(i + 2, v4bt, v2bt, v1bt);
+					addTriangle(i + 3, v4bt, v3bt, v2bt);
+
+					addTriangle(i + 4, v1bt, v2t, v1t);
+					addTriangle(i + 5, v1bt, v2bt, v2t);
+
+					addTriangle(i + 6, v2bt, v3t, v2t);
+					addTriangle(i + 7, v2bt, v3bt, v3t);
+
+					addTriangle(i + 8, v3bt, v4t, v3t);
+					addTriangle(i + 9, v3bt, v4bt, v4t);
+
+					addTriangle(i + 10, v1t, v4t, v1bt);
+					addTriangle(i + 11, v4t, v4bt, v1bt);
 				}
 			
 				mesh = new THREE.Mesh(geometry, material);
 				scene.add(mesh);
-
-
 			}
 
 			function animate()  {
