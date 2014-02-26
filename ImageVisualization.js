@@ -67,16 +67,12 @@
 				controls = new THREE.OrbitControls(camera);
 
 				var canvas = document.getElementById('canvas'); 
-				$(canvas).css('margin-top', '0px');
-
 				renderer = new THREE.WebGLRenderer(canvas);
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 
 				camera.position.set(0, 50, 150);
-
-				this.addShaderScript();
 
 				// set up buffer geometry
 				buffergeom = new THREE.BufferGeometry();	
@@ -108,9 +104,6 @@
 				animate();
 			}
 
-			ImageExtrusion.prototype.addShaderScript = function() {
-				//document.write("<script id=\"vertexShader\"> </script>");	
-			}
 
 			// function to add the ith triangle with vertices va, vb, vc
 			ImageExtrusion.prototype.addTriangle = function(i, va, vb, vc) {
@@ -181,6 +174,47 @@
 				colors[index + 6] = 0;	
 				colors[index + 7] = 0;	
 				colors[index + 8] = 1;
+			}
+				
+			ImageExtrusion.prototype.addMesh = function(i, geom) {
+				var faces = geom.faces;
+				for (var j = 0; j < faces.length; j++) {
+					var face = faces[j];
+
+					var va = geom.vertices[face.a];
+					var vb = geom.vertices[face.b];	
+					var vc = geom.vertices[face.c];	
+					
+					var index = faces.length * i + j * 9;  
+					positions[index] = va.x;	
+					positions[index + 1] = va.y;	
+					positions[index + 2] = va.z;	
+					
+					positions[index + 3] = vb.x;	
+					positions[index + 4] = vb.y;	
+					positions[index + 5] = vb.z;	
+						
+					positions[index + 6] = vc.x;	
+					positions[index + 7] = vc.y;	
+					positions[index + 8] = vc.z;	
+
+					var nx = face.normal.x;
+					var ny = face.normal.y;
+					var nz = face.normal.z	
+
+					// set normals
+					normals[index] = nx;	
+					normals[index + 1] = ny;	
+					normals[index + 2] = nz;	
+					
+					normals[index + 3] = nx;	
+					normals[index + 4] = ny;	
+					normals[index + 5] = nz;	
+						
+					normals[index + 6] = nx;	
+					normals[index + 7] = ny;	
+					normals[index + 8] = nz;;
+				}
 			}
 
 			ImageExtrusion.prototype.addCube = function(i, x, y, z, d, h) {
@@ -279,9 +313,15 @@
 						// console.log("shape type = "+ this.shapeType);
 						switch(this.shapeType) {
 							case ShapeType.SQUARE: 
-							//	geom = new THREE.CubeGeometry(1, height, 1);
-								this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
-								ind += 12;
+								geom = new THREE.CubeGeometry(1, height, 1);
+								var translate = new THREE.Matrix4();
+								translate.makeTranslation(x - imgdata.width/2, 0, z - imgdata.height/2);
+								geom.applyMatrix(translate);
+								this.addMesh(ind, geom);
+								ind++;
+
+							//	this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
+							//	ind += 12;
 							break;	
 							case ShapeType.CYLINDER: 
 								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
@@ -329,7 +369,7 @@
 				var obj = this;
 				$(image).load(function () {
 					console.log("loaded");	
-					document.write("<canvas id=\"imagecanvas\"></canvas>")	
+//					document.write("<canvas id=\"imagecanvas\"></canvas>")	
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
