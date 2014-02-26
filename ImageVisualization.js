@@ -40,13 +40,12 @@
 				this.imgsrc = img;
 				// this.data = inputdata;
 				this.data = [];
-				for (var i = 0; i < 4188; i++) {
+				for (var i = 0; i < 5000; i++) {
 					this.data.push(Math.random() * 10);
 				}
 
 				this.colorchoices = colors;	
 				this.shapeType = shape;
-				console.log("shape type = "+ this.shapeType);
 				this.animated = animate;	
 			} 
 	
@@ -76,6 +75,8 @@
 				document.body.appendChild( renderer.domElement );
 
 				camera.position.set(0, 50, 150);
+
+				this.addShaderScript();
 
 				// set up buffer geometry
 				buffergeom = new THREE.BufferGeometry();	
@@ -107,6 +108,10 @@
 				animate();
 			}
 
+			ImageExtrusion.prototype.addShaderScript = function() {
+				//document.write("<script id=\"vertexShader\"> </script>");	
+			}
+
 			// function to add the ith triangle with vertices va, vb, vc
 			ImageExtrusion.prototype.addTriangle = function(i, va, vb, vc) {
 				var ax = va.x;
@@ -133,7 +138,6 @@
 				var nz = cb.z;
 
 				var index = i * 9;
-				console.log('i =' + i);
 	
 				// set positions	
 				positions[index] = ax;	
@@ -166,17 +170,17 @@
 	
 	
 				//set colors
-				colors[index] = 1;	
+				colors[index] = 0;	
 				colors[index + 1] = 0;	
-				colors[index + 2] = 0;	
+				colors[index + 2] = 1;	
 				
-				colors[index + 3] = 1;	
+				colors[index + 3] = 0;	
 				colors[index + 4] = 0;
-				colors[index + 5] = 0;
+				colors[index + 5] = 1;
 					
-				colors[index + 6] = 1;	
+				colors[index + 6] = 0;	
 				colors[index + 7] = 0;	
-				colors[index + 8] = 0;
+				colors[index + 8] = 1;
 			}
 
 			ImageExtrusion.prototype.addCube = function(i, x, y, z, d, h) {
@@ -277,9 +281,7 @@
 							case ShapeType.SQUARE: 
 							//	geom = new THREE.CubeGeometry(1, height, 1);
 								this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
-								ind+=12;
-								cubeadded = true;
-								console.log('got here');	
+								ind += 12;
 							break;	
 							case ShapeType.CYLINDER: 
 								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
@@ -311,7 +313,6 @@
 
 
 				if (this.shapeType == ShapeType.SQUARE) {
-					console.log('got here');
 					var material = new THREE.MeshBasicMaterial({color: 0xff0000});
 					buffermesh = new THREE.Mesh(buffergeom, material);
 					scene.add(buffermesh);
@@ -328,7 +329,7 @@
 				var obj = this;
 				$(image).load(function () {
 					console.log("loaded");	
-					
+					document.write("<canvas id=\"imagecanvas\"></canvas>")	
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
