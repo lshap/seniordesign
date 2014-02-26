@@ -32,7 +32,8 @@
 	
 			function addGeometry()  {
 				var geometry = new THREE.BufferGeometry();	
-				var cubes = 1000;
+				var cubes = 20000;
+				var r = 500;
 				var triangles = 12 * cubes; // 12 triangles per cube
 	
 				var material = new THREE.MeshBasicMaterial({color: 0xff0000});
@@ -129,7 +130,6 @@
 					colors[index + 8] = 0;
 				}
 
-				var r = 50;
 				var d = 1; // size of triangle	
 
 				// bottom square verts
