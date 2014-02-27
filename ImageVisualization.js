@@ -186,7 +186,6 @@
 					var vc = geom.vertices[face.c];	
 					
 					var index =  i + j * 9;  
-					console.log('index = '+index);
 					positions[index] = va.x;	
 					positions[index + 1] = va.y;	
 					positions[index + 2] = va.z;	
@@ -305,12 +304,6 @@
 						switch(this.shapeType) {
 							case ShapeType.SQUARE: 
 								geom = new THREE.CubeGeometry(1, height, 1);
-								var translate = new THREE.Matrix4();
-								translate.makeTranslation(x - imgdata.width/2, 0, z - imgdata.height/2);
-								geom.applyMatrix(translate);
-
-								this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
-								ind += geom.faces.length * 9; 
 							break;	
 							case ShapeType.CYLINDER: 
 								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
@@ -322,30 +315,19 @@
 								geom = new THREE.CubeGeometry(1, height, 1);
 						}
 
-						var cubemat = new THREE.MeshBasicMaterial({color : drawcolor});
-						if (this.shapeType != ShapeType.SQUARE) {
-							mesh = new THREE.Mesh(geom, cubemat);
-							meshes.push(mesh);
+						var translate = new THREE.Matrix4();
+						translate.makeTranslation(x - imgdata.width/2, 0, z - imgdata.height/2);
+						geom.applyMatrix(translate);
+						this.addMesh(ind, geom);
+						ind += geom.faces.length * 9;
 
-							mesh.position.x = x - imgdata.width/2;
-							mesh.position.z = z - imgdata.height/2;
-							if (animated) {
-								mesh.scale.y = 0.01;	
-							}
-
-							scene.add(mesh); 
-						}
-						
 						numshapes++;
 					}
 				}
 
-
-				if (this.shapeType == ShapeType.SQUARE) {
-					var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-					buffermesh = new THREE.Mesh(buffergeom, material);
-					scene.add(buffermesh);
-				}
+				var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+				buffermesh = new THREE.Mesh(buffergeom, material);
+				scene.add(buffermesh);
 
 				console.log("drew " + numshapes + " shapes");
 			}
