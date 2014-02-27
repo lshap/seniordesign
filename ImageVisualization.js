@@ -32,7 +32,8 @@
 			var ShapeType = {
 				SQUARE: 0,
 				CYLINDER: 1,
-				CONE: 2
+				CONE: 2, 
+				EXTRUDE: 3
 			};
 
 			// constructor
@@ -76,7 +77,24 @@
 
 				// set up buffer geometry
 				buffergeom = new THREE.BufferGeometry();	
-				var triangles = 12 * this.data.length; // 12 triangles per cube
+
+				var numshapetriangles;
+				switch (this.shapeType) {
+				case ShapeType.SQUARE:
+					numshapetriangles = 12;
+				break;
+				case ShapeType.CYLINDER:
+					numshapetriangles = 32;
+				break;
+				case ShapeType.CONE:
+					numshapetriangles = 32;
+				break;
+				case ShapeType.EXTRUDE:
+					numshapetriangles = 172;
+				break;
+				}
+
+				var triangles = numshapetriangles * this.data.length; // 12 triangles per cube
 				buffergeom.attributes = {
 					position: {
 						itemSize: 3,
@@ -281,6 +299,52 @@
 			function compressImage() {
 
 			}
+			
+			ImageExtrusion.prototype.getExtrudeGeometry = function (height) {
+				var pts = [];
+				var angle = (2 * Math.PI)/8;
+
+				for (i = 0; i < 8; i++) {
+					var x = Math.cos(angle * i);
+					var y = Math.sin(angle * i);
+					pts.push( new THREE.Vector2(x,y));
+				}
+
+				var splinePts = [];
+				var sangle = (2 * Math.PI)/10;
+				for (i = 0; i < height; i++) {
+					var x = Math.cos(sangle * i);
+					var y = Math.sin(sangle * i);
+					var z = i;
+					splinePts.push( new THREE.Vector3(x, y, z));
+				}				
+
+				var spline = new THREE.SplineCurve3(splinePts);
+				var shape = new THREE.Shape(pts);
+				var extrudeSettings = { amount:10,  bevelEnabled: false, 
+							 steps:10, extrudePath: spline};			   
+				var shape3d = shape.extrude(extrudeSettings);
+
+
+				numpoints = shape3d.vertices.length;
+				numBasePoints = pts.length;
+				
+				// move points inward to taper shape
+				var numShapes = numpoints/numBasePoints;
+				for (var i = 0; i < numShapes; i++) {
+						for (j = 0; j < numBasePoints; j++) {
+							var ind = i * numBasePoints + j;
+							shape3d.vertices[ind].x *= 0.1 * (numShapes - i);
+							shape3d.vertices[ind].y *= 0.1 * (numShapes - i);
+						}
+				}
+
+				// rotate mesh so it grows from ground up
+				var rotmat = new THREE.Matrix4();
+				rotmat.makeRotationX(3 * Math.PI/2);
+				shape3d.applyMatrix(rotmat);
+				return shape3d;
+			}
 
 			// converts pixel data to a 3D scene
 			ImageExtrusion.prototype.extrudeImage = function() {
@@ -311,6 +375,9 @@
 							case ShapeType.CONE: 
 								geom = new THREE.CylinderGeometry(0.005, 0.5, height, 8, 1, false);
 							break;	
+							case ShapeType.EXTRUDE:
+								geom = this.getExtrudeGeometry(height);					 
+							break;
 							default:
 								geom = new THREE.CubeGeometry(1, height, 1);
 						}
