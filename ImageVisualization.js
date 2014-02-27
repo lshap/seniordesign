@@ -185,7 +185,8 @@
 					var vb = geom.vertices[face.b];	
 					var vc = geom.vertices[face.c];	
 					
-					var index = faces.length * i + j * 9;  
+					var index =  i + j * 9;  
+					console.log('index = '+index);
 					positions[index] = va.x;	
 					positions[index + 1] = va.y;	
 					positions[index + 2] = va.z;	
@@ -286,16 +287,6 @@
 			ImageExtrusion.prototype.extrudeImage = function() {
 				console.log(imgdata);
 				var imagedata = imgdata.data;
-				var pixscale = numColoredPixels/this.data.length;
-				console.log('scale = ' + pixscale);
-				var sqrscale = Math.floor(Math.sqrt(pixscale));
-				
-				for (var i = 0; i < imagedata.width * 4; i += 4 * sqrscale) {
-						
-				}		
-	
-
-
 				var ind = 0;
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
@@ -317,11 +308,9 @@
 								var translate = new THREE.Matrix4();
 								translate.makeTranslation(x - imgdata.width/2, 0, z - imgdata.height/2);
 								geom.applyMatrix(translate);
-								this.addMesh(ind, geom);
-								ind++;
 
-							//	this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
-							//	ind += 12;
+								this.addCube(ind, x - imgdata.width/2, 0, z - imgdata.height/2, 1, height);
+								ind += geom.faces.length * 9; 
 							break;	
 							case ShapeType.CYLINDER: 
 								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
@@ -377,8 +366,6 @@
 					ctxt.canvas.height = image.height;
 					ctxt.drawImage(image, 0, 0);
 
-
-	
 					// scale image to data point size
 					/*console.log('currpoints = ' + currPoints);
 					var scale = Math.sqrt(obj.data.length/currPoints);
