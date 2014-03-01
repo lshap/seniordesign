@@ -9,7 +9,12 @@
 			var colors = [];
 			colors.push(0xff0000);
 			colors.push(0x0000ff);
-			var imgExtrusion = new ImageExtrusion("california.jpg", [], colors, ShapeType.SQUARE, true);
+			var data = [];
+			for (var i = 0; i < 5000; i++) {
+				data.push(Math.random() * 10);
+			}
+
+			var imgExtrusion = new ImageExtrusion("obamahopeblacksmall.jpg", data, colors, ShapeType.SQUARE, false, 2000);
 			$(document).ready(function () {
 				imgExtrusion.init(); 
 	});

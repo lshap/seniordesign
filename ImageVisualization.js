@@ -1,6 +1,6 @@
 /*
  * Creates a 3D extrusion of a given source image
- * NOTE: Requires Three.js, JQuery, and OrbitControls.js
+ * NOTE: Requires Three.js, JQuery, OrbitControls.js, and Tween.js
  */
 
 			var scene;
@@ -10,9 +10,8 @@
 			var controls;
 			var scale = {y : 0.1};
 			var imgdata;
-			var compressedImgData;
+			var condensedData;
 			var numColoredPixels = 0;
-			var meshes = [];
 			var buffermesh;
 			var buffergeom;
 			var numshapes = 0;
@@ -21,13 +20,14 @@
 			// inputted fields
 			var imgsrc;
 			var data;
-			var colorschoices;
+			var colorchoices;
 
 			var positions;
 			var normals;
 			var colors;
 			var shapeType;
 			var animated;
+			var animationTime;
 			var tween;
 
 			var ShapeType = {
@@ -38,17 +38,13 @@
 			};
 
 			// constructor
-			function ImageExtrusion(img, inputdata, colors, shape, animate) {
+			function ImageExtrusion(img, inputdata, colors, shape, animate, time) {
 				this.imgsrc = img;
-				// this.data = inputdata;
-				this.data = [];
-				for (var i = 0; i < 5000; i++) {
-					this.data.push(Math.random() * 10);
-				}
-
+				this.data = inputdata;
 				this.colorchoices = colors;	
 				this.shapeType = shape;
-				this.animated = animate;	
+				this.animated = animate;
+				this.animationTime = time;	
 			} 
 	
 			// init function: initializes image extrusion scene 
@@ -59,9 +55,11 @@
 				scene = new THREE.Scene();
 				
 				var light = new THREE.DirectionalLight( 0xffffff);
-				light.position.set( 0,0,10);
+				light.position.set( 0,10,0);
 				scene.add( light );
-			
+				var amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
+				scene.add( amblight );	
+
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
 									0.1,
@@ -309,10 +307,63 @@
 				return hex;
 			}
 
-			function compressImage() {
+			ImageExtrusion.prototype.resizeImage = function() {
+				console.log('num colored pixels = ' + numColoredPixels);
+				var numpix = numColoredPixels;	
+				var imdata = imgdata.data;
+				console.log('imagedata in resize:');
+				console.log(imgdata);
+				var numdatapts = this.data.length;
+				var p = 0;
 
+				// condense image if it is too large for data
+				var scale = Math.floor(numpix/numdatapts);	
+				console.log('scale = '+ scale);
+				var imgsize = imgdata.height * imgdata.width;
+				console.log('imgsize = ' + imgsize);
+				
+				condensedData = new Uint8ClampedArray(imdata.length/scale);
+				console.log('condenseddata length = ' + condensedData.length);
+				for (var i = 0; i < condensedData.length; i+= 4) {
+					var r = 0, g = 0, b = 0, a = 0;
+
+					// sum next scale number of pixels  	
+					for (var j = i * scale ; j < i * scale + scale * 4; j+= 4) {
+						if (j > imgdata.data.length) {
+
+							console.log('j = ' + j + ' is out of bounds');
+						}
+						r += imgdata.data[j]; 
+						g += imgdata.data[j + 1]; 
+						b += imgdata.data[j + 2]; 
+						a += imgdata.data[j + 3]; 
+						//console.log('r = ' + r + ' g = ' + g + ' b= ' + b + ' a= ' + a );  
+					}	
+					//console.log('r = ' + r + ' g = ' + g + ' b= ' + b + ' a= ' + a );  
+
+					r /= scale;	
+					g /= scale;	
+					b /= scale;	
+					a /= scale;	
+					
+					condensedData[i] = r;
+					condensedData[i + 1] = g;
+					condensedData[i + 2] = b;
+					condensedData[i + 3] = a;
+					
+					var color = rgbToHex(r, g, b, a);
+					if (color == 0) {
+						p++;
+					}
+				}
+				console.log('new number of black pix = ' + p);
+				imgdata.data = condensedData;
+				
+				// scale image up if it is too small
 			}
 			
+
+			// method to generate geometry for an extruded swirl
 			ImageExtrusion.prototype.getExtrudeGeometry = function (height) {
 				var pts = [];
 				var angle = (2 * Math.PI)/8;
@@ -362,12 +413,11 @@
 			// converts pixel data to a 3D scene
 			ImageExtrusion.prototype.extrudeImage = function() {
 				console.log(imgdata);
-				var imagedata = imgdata.data;
+				var imagedata = imgdata.data; 
 				var ind = 0;
 				var vertexColors = {name: "colors", colors:[]};
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
-					
 					if (color == 0) {
 						var pix = i/4;
 						var x =  pix % imgdata.width;
@@ -378,7 +428,6 @@
 						var drawcolor = new THREE.Color(this.colorchoices[colordecision]);
 	
 						var mesh, geom, mat;
-						// console.log("shape type = "+ this.shapeType);
 						switch(this.shapeType) {
 							case ShapeType.SQUARE: 
 								geom = new THREE.CubeGeometry(1, height, 1);
@@ -413,19 +462,11 @@
 
 				// start tween if animation specified
 				if (this.animated) {
-					tween = new TWEEN.Tween(scale).to({y:1}, 5000);
+					tween = new TWEEN.Tween(scale).to({y:1}, this.animationTime);
 					tween.onUpdate(function () {
-						if (!cubeadded) { 
-							console.log('scale = ' + scale.y);
-							cubeadded = true;
-						}
 						buffermesh.scale.y = scale.y;	
 					});
 
-
-					tween.onComplete(function () {
-						console.log('completed tween with scale = ' + scale);				
-					});
 
 					tween.start();
 				}
@@ -437,34 +478,16 @@
 			// grabs pixel data from image source
 			ImageExtrusion.prototype.loadImageData = function(extrudeImage) {
 				var image = new Image();
-				console.log('trying to load image from source ' + this.imgsrc);
 				image.src = this.imgsrc;
 				var obj = this;
 				$(image).load(function () {
 					console.log("loaded");	
-//					document.write("<canvas id=\"imagecanvas\"></canvas>")	
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
 					ctxt.canvas.width = image.width;
 					ctxt.canvas.height = image.height;
 					ctxt.drawImage(image, 0, 0);
-
-					// scale image to data point size
-					/*console.log('currpoints = ' + currPoints);
-					var scale = Math.sqrt(obj.data.length/currPoints);
-					console.log('scale = ' + scale);
-
-					var scaledWidth = (image.width * scale);						
-					var scaledHeight = (image.height * scale);*/
-
-					/*var scaledWidth = image.width/4;
-					var scaledHeight = image.height/4;						
-
-					ctxt.canvas.width = scaledWidth;
-					ctxt.canvas.height = scaledHeight;
-
-					ctxt.drawImage(image, 0, 0, scaledWidth, scaledHeight);	*/
 
 					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
 					ctxt.canvas.width = 0;
@@ -475,10 +498,10 @@
 						// check that this pixel is not white
 						var color = rgbToHex(picdata[i], picdata[i+1], picdata[i+2], picdata[i+3]);
 						if (color == 0) {
-							numColoredPixels ++;
+							numColoredPixels++;
 						}
 					}				
-
+					
 					ctxt.canvas.height = 0;
 					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
 					obj.extrudeImage();
@@ -492,16 +515,6 @@
 			}
 
 			function render() {
-				
-				// gradually scale shapes along y axis if animation is specified
-				if (animated && scale < 100) {
-					for (var m = 0; m < meshes.length; m ++) {
-						var mesh = meshes[m];
-						mesh.scale.y += 0.01;
-					}				
-					scale ++;
-				}
-
 				if (tween) {
 					TWEEN.update();
 				}
