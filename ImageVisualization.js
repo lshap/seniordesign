@@ -57,8 +57,8 @@
 				// initialize 3D scene
 				scene = new THREE.Scene();
 				
-				var light = new THREE.DirectionalLight( 0xffffff );
-				light.position.set( 0, 0, 1 );
+				var light = new THREE.DirectionalLight( 0xffffff);
+				light.position.set( 0,0,1);
 				scene.add( light );
 			
 				camera = new THREE.PerspectiveCamera( 75, 
@@ -194,11 +194,11 @@
 				colors[index + 8] = 1;
 			}
 				
-			ImageExtrusion.prototype.addMesh = function(i, geom) {
+			ImageExtrusion.prototype.addMesh = function(i, geom, color) {
 				var faces = geom.faces;
 				for (var j = 0; j < faces.length; j++) {
 					var face = faces[j];
-
+					
 					var va = geom.vertices[face.a];
 					var vb = geom.vertices[face.b];	
 					var vc = geom.vertices[face.c];	
@@ -215,6 +215,18 @@
 					positions[index + 6] = vc.x;	
 					positions[index + 7] = vc.y;	
 					positions[index + 8] = vc.z;	
+
+					colors[index] =     color.r; 
+					colors[index + 1] = color.g; 
+					colors[index + 2] = color.b; 
+					
+					colors[index + 3] =  color.r;
+					colors[index + 4] =  color.g;
+					colors[index + 5] =  color.b;
+						
+					colors[index + 6] =  color.r;
+					colors[index + 7] =  color.g;
+					colors[index + 8] =  color.b;
 
 					var nx = face.normal.x;
 					var ny = face.normal.y;
@@ -311,7 +323,7 @@
 				}
 
 				var splinePts = [];
-				var sangle = (2 * Math.PI)/10;
+				var sangle = (2 * Math.PI)/height;
 				for (i = 0; i < height; i++) {
 					var x = Math.cos(sangle * i);
 					var y = Math.sin(sangle * i);
@@ -351,6 +363,7 @@
 				console.log(imgdata);
 				var imagedata = imgdata.data;
 				var ind = 0;
+				var vertexColors = {name: "colors", colors:[]};
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
 					
@@ -361,7 +374,7 @@
 						var height = Math.random() * 4;
 				
 						var colordecision = Math.floor(Math.random() * this.colorchoices.length);
-						var drawcolor = this.colorchoices[colordecision];
+						var drawcolor = new THREE.Color(this.colorchoices[colordecision]);
 	
 						var mesh, geom, mat;
 						// console.log("shape type = "+ this.shapeType);
@@ -385,14 +398,16 @@
 						var translate = new THREE.Matrix4();
 						translate.makeTranslation(x - imgdata.width/2, 0, z - imgdata.height/2);
 						geom.applyMatrix(translate);
-						this.addMesh(ind, geom);
+						this.addMesh(ind, geom, drawcolor);
 						ind += geom.faces.length * 9;
-
+					
 						numshapes++;
 					}
 				}
 
-				var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+//				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
+
+				var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors});
 				buffermesh = new THREE.Mesh(buffergeom, material);
 				scene.add(buffermesh);
 

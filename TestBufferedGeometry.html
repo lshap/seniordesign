@@ -191,7 +191,23 @@
 					addTriangle(i + 10, v1t, v4t, v1bt);
 					addTriangle(i + 11, v4t, v4bt, v1bt);
 				}
-			
+
+/*
+				var geometry = new THREE.CubeGeometry(1,1,1);
+				
+				for (var i = 0; i < geometry.faces.length; i++) {
+					var f = geometry.faces[i];
+					for (var j = 0; j < 3; j++) {
+						if (j %2 == 0) {
+							f.vertexColors[j] = new THREE.Color(0x00ff00);
+						}
+						else {
+							f.vertexColors[j] = new THREE.Color(0xff0000);
+						}
+					}
+
+				}
+				var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors});	*/
 				mesh = new THREE.Mesh(geometry, material);
 				scene.add(mesh);
 			}
