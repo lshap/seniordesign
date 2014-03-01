@@ -8,7 +8,7 @@
 			var renderer;
 			var frameCount = 0;
 			var controls;
-			var scale = 0;
+			var scale = {y : 0.1};
 			var imgdata;
 			var compressedImgData;
 			var numColoredPixels = 0;
@@ -28,7 +28,8 @@
 			var colors;
 			var shapeType;
 			var animated;
-	
+			var tween;
+
 			var ShapeType = {
 				SQUARE: 0,
 				CYLINDER: 1,
@@ -53,12 +54,12 @@
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
 				this.loadImageData(this.extrudeImage);
-					
+
 				// initialize 3D scene
 				scene = new THREE.Scene();
 				
 				var light = new THREE.DirectionalLight( 0xffffff);
-				light.position.set( 0,0,1);
+				light.position.set( 0,0,10);
 				scene.add( light );
 			
 				camera = new THREE.PerspectiveCamera( 75, 
@@ -405,12 +406,31 @@
 					}
 				}
 
-//				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
+				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
 
-				var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors});
+				//var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors});
 				buffermesh = new THREE.Mesh(buffergeom, material);
-				scene.add(buffermesh);
 
+				// start tween if animation specified
+				if (this.animated) {
+					tween = new TWEEN.Tween(scale).to({y:1}, 5000);
+					tween.onUpdate(function () {
+						if (!cubeadded) { 
+							console.log('scale = ' + scale.y);
+							cubeadded = true;
+						}
+						buffermesh.scale.y = scale.y;	
+					});
+
+
+					tween.onComplete(function () {
+						console.log('completed tween with scale = ' + scale);				
+					});
+
+					tween.start();
+				}
+
+				scene.add(buffermesh);
 				console.log("drew " + numshapes + " shapes");
 			}
 
@@ -482,6 +502,9 @@
 					scale ++;
 				}
 
+				if (tween) {
+					TWEEN.update();
+				}
 				renderer.render(scene, camera);
 				frameCount++;
 			}
