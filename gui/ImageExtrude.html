@@ -5,7 +5,16 @@
 		<script src="resources/OrbitControls.js"></script>
 		<script src="resources/tweenjs-0.5.1.min.js"></script>
 		<script src="ImageVisualization.js"></script>
+		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
+
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
 		<script type = "text/javascript"> 
+			// initialize parse	
+			Parse.initialize("wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm", "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
+
 			var colors = [];
 			colors.push(0x9933ff);
 			colors.push(0xff3399);
@@ -14,13 +23,13 @@
 				data.push(Math.random() * 40);
 			}
 
-			var imgExtrusion = new ImageExtrusion("happy.jpg", data, colors, ShapeType.EXTRUDE, true, 3000);
 			$(document).ready(function () {
-				imgExtrusion.init(); 
-	});
+				var imgExtrusion = new ImageExtrusion("testimages/happy.jpg", data, colors, ShapeType.EXTRUDE, true, 3000);
+				//imgExtrusion.init(); 
+			});
 		</script>
-	</head>
-	<body>
+
+		
 		<canvas id="canvas"></canvas>
 		<canvas id="imagecanvas"></canvas>
 	</body>
