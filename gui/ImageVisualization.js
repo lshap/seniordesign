@@ -66,12 +66,18 @@
 									1000 );
 				controls = new THREE.OrbitControls(camera);
 
-				var canvas = document.getElementById('canvas'); 
+				/*var canvas = document.getElementById('canvas'); 
 				renderer = new THREE.WebGLRenderer(canvas);
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+				document.body.appendChild( renderer.domElement );*/
 
+				var renderDiv = document.getElementById('renderDiv');
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				console.log("render size = " + renderDiv.offsetWidth, + " by " + renderDiv.offsetHeight);
+				renderer.setSize(renderDiv.offsetWidth, 400);
+				document.getElementById('renderDiv').appendChild( renderer.domElement );
 				camera.position.set(0, 50, 150);
 
 				// set up buffer geometry

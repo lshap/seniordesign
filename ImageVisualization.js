@@ -49,6 +49,7 @@
 	
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
+				console.log("got here");
 				this.loadImageData(this.extrudeImage);
 
 				// initialize 3D scene
@@ -66,13 +67,14 @@
 									1000 );
 				controls = new THREE.OrbitControls(camera);
 
-				var canvas = document.getElementById('canvas'); 
-				renderer = new THREE.WebGLRenderer(canvas);
+				var renderDiv = document.getElementById('renderDiv');
+				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				document.body.appendChild( renderer.domElement );
+				console.log("render size = " + renderDiv.offsetWidth, + " by " + renderDiv.offsetHeight);
+				renderer.setSize( renderDiv.offsetWidth, renderDiv.offsetHeight);
+				document.getElementById('renderDiv').appendChild( renderer.domElement );
 
-				camera.position.set(0, 50, 150);
+				camera.position.set(0, 50, 50);
 
 				// set up buffer geometry
 				buffergeom = new THREE.BufferGeometry();	

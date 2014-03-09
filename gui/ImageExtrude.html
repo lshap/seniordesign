@@ -2,35 +2,142 @@
 	<head>
 		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
 		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="resources/jquery.csv-0.71.min.js"></script>
 		<script src="resources/OrbitControls.js"></script>
 		<script src="resources/tweenjs-0.5.1.min.js"></script>
 		<script src="ImageVisualization.js"></script>
 		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
-
+		
 		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
 	</head>
 	<body>
 		<script type = "text/javascript"> 
 			// initialize parse	
 			Parse.initialize("wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm", "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
-
 			var colors = [];
 			colors.push(0x9933ff);
 			colors.push(0xff3399);
 			var data = [];
-			for (var i = 0; i < 5000; i++) {
+			var img;
+			var shapetype;
+			var animated = false;
+
+/*			for (var i = 0; i < 5000; i++) {
 				data.push(Math.random() * 40);
-			}
+			}*/
 
 			$(document).ready(function () {
-				var imgExtrusion = new ImageExtrusion("testimages/happy.jpg", data, colors, ShapeType.EXTRUDE, true, 3000);
-				//imgExtrusion.init(); 
+
+				$("#pickcolors").click(function () {
+
+				});
+				
+				$("#animated").click(function () {
+					$(this).toggleClass('active');
+					animated = !animated;
+				});
+
+				$("#visualize").click(function () {
+					console.log(" data.length = " + data.length); 
+					console.log("img = " + img);
+					if (data.length > 0 && img != undefined){
+						var imgExtrusion = new ImageExtrusion(img, data, colors, shapetype, animated, 3000);
+						imgExtrusion.init(); 
+						console.log('intialized visualization');
+					}
+				});
+
+				$("#imgsrc_in").change(function(evt) {
+					var file = evt.target.files[0];
+					var reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onload = function(event) {
+						img = event.target.result
+						$("#imgBtn").text(file.name);
+					}
+				});
+
+				$("#datasrc_in").change(function (evt){
+					var file = evt.target.files[0];
+					var reader = new FileReader();
+					reader.readAsText(file);
+					reader.onload = function(event) {
+						var csv = event.target.result;
+						data = $.csv.toArray(csv);
+						reader.onerror = function(){alert('Unable to read ' + file.fileName);}	
+						console.log('loaded data of length ' + data.length);
+						$("#dataBtn").text(file.name);
+					}
+
+				});
+
+
+				$("#color_pick").click(function() {
+
+				});
+		
+				$(".st_dropdown").click(function() {
+					$(".dropdown").removeClass("active");
+					$(this).addClass('active');
+					$("#shapetype").html(this.text + "<span class='caret'></span>");
+					shapetype = parseInt($(this).attr("value"));	
+					console.log('updated shapetype to ' + shapetype);
+				});
 			});
 		</script>
 
-		
-		<canvas id="canvas"></canvas>
-		<canvas id="imagecanvas"></canvas>
+
+		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="gui.html"> 3D Data Visualization</a>			
+				<ul class = "nav navbar-nav">
+					<li><a href = "ImageExtrude.html" class="active"> Image Extrusion </a></li>
+					<li><a href = "#"> Archive </a></li>
+				</ul>
+			</div>
+		</nav>
+
+		<div class="container">		
+
+			<div class = "row">
+				<div class="page-header">
+					<h1>Image Extrusion</h1>
+				</div> 
+			</div>
+
+			<div class = "row">
+				<input type="file" name="imgsrcfile" accept="image/*" style="visibility:hidden; width:0px;" id="imgsrc_in"/>
+				<input type="file" name="datafile" accept=".csv" style="visibility:hidden;width:0px;" id="datasrc_in"/>
+				<div class="btn-group">
+					<div class="input-append">
+						<button id="imgBtn" type = "button" class="btn btn-default" onclick = "$('#imgsrc_in').click();">
+						<span class="glyphicon glyphicon-folder-open"></span>  Choose Image</button>
+						<button id="dataBtn" type = "button" class="btn btn-default" onclick = "$('#datasrc_in').click();">
+						<span class="glyphicon glyphicon-folder-open"></span>  Choose Data</button>
+
+					<div class="btn-group">
+						<button id="pickcolors" type ="button" class= "btn btn-default" >Colors</button>
+					</div>
+
+
+					<div class="btn-group">
+						<button id="shapetype" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							Shape Type <span class="caret"></span></button>
+						 <ul class="dropdown-menu" role="menu">
+						    <li><a class="st_dropdown" value="0" href="#">Cube</a></li>
+						    <li><a class="st_dropdown" value="1" href="#">Cylinder</a></li>
+						    <li><a class="st_dropdown" value="2" href="#">Cone</a></li>				
+						    <li><a class="st_dropdown" value="3" href="#">Extrude</a></li>				
+						  </ul>
+					</div>
+					</div>
+				</div>
+				<button id="animated" type="button" class = "btn btn-default"> Animated </button>
+				<button id="visualize" type="button" class = "btn btn-primary"> Visualize </button>
+			</div>
+			<div class="row" id="renderDiv" style="height:400px;"></div>
+<!--			<canvas id="canvas" style="padding-top:0px; width:70%;border:1px solid black;"></canvas> -->
+			<canvas id="imagecanvas"></canvas>
+		</div>
 	</body>
 </html>
