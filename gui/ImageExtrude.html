@@ -43,6 +43,12 @@
 					console.log(" data.length = " + data.length); 
 					console.log("img = " + img);
 					if (data.length > 0 && img != undefined){
+						$("#renderDiv").empty();
+
+						var colors = [];
+						colors.push(0x9933ff);
+						colors.push(0xff3399);
+
 						var imgExtrusion = new ImageExtrusion(img, data, colors, shapetype, animated, 3000);
 						imgExtrusion.init(); 
 						console.log('intialized visualization');
@@ -136,7 +142,6 @@
 				<button id="visualize" type="button" class = "btn btn-primary"> Visualize </button>
 			</div>
 			<div class="row" id="renderDiv" style="height:400px;"></div>
-<!--			<canvas id="canvas" style="padding-top:0px; width:70%;border:1px solid black;"></canvas> -->
 			<canvas id="imagecanvas"></canvas>
 		</div>
 	</body>
