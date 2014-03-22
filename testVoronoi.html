@@ -1,8 +1,8 @@
 <html>
 	<head>
-<!--		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script> -->
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script> 
 		<script src="resources/jquery-1.11.0.min.js"></script>
-<!--		<script src="resources/OrbitControls.js"></script>-->
+		<script src="resources/OrbitControls.js"></script>
 		<script src = "resources/voronoi-core.min.js"></script>
 	</head>	
 
@@ -15,8 +15,6 @@
 			var renderer;
 			var frameCount = 0;
 			var controls;
-			var voronoi;			
-			var diagram;
 
 			function VoronoiDiagram(pts) {
 				var maxX = -1;
@@ -39,9 +37,191 @@
 				console.log(this.diagram.cells[0]);
 			}
 
-			VoronoiDiagram.prototype.draw = function() {
+			VoronoiDiagram.prototype.initScene = function () {
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 75, 
+									window.innerWidth / window.innerHeight,
+									0.1,
+									1000 );
+				controls = new THREE.OrbitControls(camera);
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setSize( window.innerWidth, window.innerHeight);
+				$(renderer.domElement).css("position", "fixed");
+				$(renderer.domElement).css("top", "100px");
+				$(renderer.domElement).css("left", "0px");
+				document.body.appendChild( renderer.domElement );
+
+
+				var sphereGeom = new THREE.SphereGeometry(0.2, 24,24);
+				var mat = new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.5});
+				var sphere = new THREE.Mesh(sphereGeom, mat);
+				scene.add(sphere);
+				camera.position.set(0.5, 1, 0);
+				
+				/*var XaxisMat = new THREE.LineBasicMaterial({color:0xff0000});
+				var YaxisMat = new THREE.LineBasicMaterial({color:0x00ff00});
+				var ZaxisMat = new THREE.LineBasicMaterial({color:0x0000ff});
+
+				var xGeom = new THREE.Geometry();
+				var yGeom = new THREE.Geometry();
+				var zGeom = new THREE.Geometry();
+
+				xGeom.vertices.push(new THREE.Vector3(-10, 0, 0));
+				xGeom.vertices.push(new THREE.Vector3(-10, 0, 0));
+				var X = new THREE.Line(xGeom, XaxisMat);
+				scene.add(X);	
+
+				yGeom.vertices.push(new THREE.Vector3(0, -10, 0));
+				yGeom.vertices.push(new THREE.Vector3(0, 10, 0));
+				var Y = new THREE.Line(yGeom, YaxisMat);
+				scene.add(Y);
+				
+				zGeom.vertices.push(new THREE.Vector3(0, 0, -10));
+				zGeom.vertices.push(new THREE.Vector3(0, 0, 10));
+				var Z = new THREE.Line(zGeom, ZaxisMat);
+				scene.add(Z);	*/
+
+
+				this.createDiagram();
+				animate();
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			function render() {
+				renderer.render(scene, camera);
+				frameCount++;
+			}
+			
+			function lineGeometry(start, end, thickness) {
+				var geometry = new THREE.Geometry();
+				var slopeDenom = end.y - start.y;
+				var offsetx, offsety;
+				if (slopeDenom == 0) {
+					offsety = 0;
+					offsetx = thickness;
+				}
+				else {
+					var slope = (end.x - start.x)/slopeDenom;
+					if (slope > 0) {
+						offsetx = thickness/Math.sqrt(2);
+						offsety = -offsetx;
+					}
+					else if (slope < 0) {
+						offsety = -thickness/Math.sqrt(2);
+						offsetx = offsety;
+					}
+					else {
+						offsetx = 0;
+						offsety = thickness;
+					}
+				}	
+
+				var v1 = new THREE.Vector3(start.x, 0, start.y);
+				var v2 = new THREE.Vector3(end.x, 0, end.y);
+				var v3 = new THREE.Vector3(end.x + offsetx, 0, end.y + offsety);
+				var v4 = new THREE.Vector3(startx + offsetx, 0, start.y + offsety);
+					
+				var v5 = new THREE.Vector3(start.x, thickness, start.y);
+				var v6 = new THREE.Vector3(end.x, thickness, end.y);
+				var v7 = new THREE.Vector3(end.x + offsetx, thickness, end.y + offsety);
+				var v8 = new THREE.Vector3(startx + offsetx, thickness, start.y + offsety);
+
+				return geometry;
+			}
+
+	
+			VoronoiDiagram.prototype.createDiagram = function() {
 				var cells = this.diagram.cells;
-				var canvas = document.getElementById('canvas');	
+				var logged = false;
+
+				for (var i = 0; i < cells.length; i++) {
+				//for (var i = 0; i < 1; i++) {
+					// get next site
+					var halfedges = cells[i].halfedges;
+
+					// add each edge to mesh
+					for (var j = 0; j < halfedges.length; j++) {
+					//for (var j = 0; j < 1; j++) {
+						var edge = halfedges[j];
+						var start = edge.getStartpoint();
+						var end = edge.getEndpoint();
+						var angle = 0;
+	
+						var slopeDenom = end.x - start.x;
+						if (slopeDenom == 0) {
+							angle = Math.PI / 2;	
+						} 
+						else {
+							var dx = start.x - end.x;
+							var dy = start.y - end.y;
+							angle = -1 * Math.atan(dy/dx);	
+
+							/*console.log("values : ");
+							console.log(start);
+							console.log(end);
+							console.log(angle); */
+						}
+	
+						// bottom
+						var d = 0.01;
+						var w = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+						var h = 0.01;
+						var geometry = new THREE.CubeGeometry(w,h,d);
+				
+						var t1 = new THREE.Matrix4();
+						var firsttrans;
+
+						t1.makeTranslation(w/2,0,0);
+						geometry.applyMatrix(t1);
+
+						var translate = new THREE.Matrix4();
+						translate.makeTranslation(start.x , 0,start.y);
+						
+						var rotate = new THREE.Matrix4();
+						rotate.makeRotationY(angle);
+
+						geometry.applyMatrix(rotate);
+						geometry.applyMatrix(translate);
+						
+						var linegeometry = new THREE.Geometry();
+						linegeometry.vertices.push(new THREE.Vector3(start.x, 0, start.y));
+						linegeometry.vertices.push(new THREE.Vector3(end.x, 0, end.y));
+						var linemat = new THREE.LineBasicMaterial({color:0xff0000});
+						var line = new THREE.Line(linegeometry,linemat);
+						scene.add(line);
+
+						if (!logged) {
+							console.log(geometry.vertices);
+							console.log(linegeometry.vertices);
+							logged = true;
+						}
+
+						var p1 = geometry.vertices[0];
+						var p2 = linegeometry.vertices[0];
+						var dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+						var material;
+						if (dist > 0.006) {
+/*							console.log("dist = " + dist);
+							console.log(geometry.vertices);
+							console.log(linegeometry.vertices); */
+							material = new THREE.MeshBasicMaterial({color:0xffff00});
+						}
+
+						else {
+							material = new THREE.MeshLambertMaterial({color: 0x0000ff, transparent: true, opacity: 0.5});
+						}
+						var nextLine = new THREE.Mesh(geometry, material);
+						scene.add(nextLine); 
+					}
+
+				}
+			
+				/*var canvas = document.getElementById('canvas');	
 				var ctxt = canvas.getContext('2d');
 				canvas.width = 800;
 				canvas.height = 800;
@@ -62,7 +242,7 @@
 						ctxt.lineTo(end.x, end.y);
 						ctxt.stroke();
 					}
-				}
+				}*/
 			}
 			
 			$(document).ready(function(){
@@ -70,17 +250,17 @@
 
 
 				for (var i = 0; i < 100; i++) {
-					var x = Math.random() * 800;
-					var y = Math.random() * 800;
+					var x = Math.random();
+					var y = Math.random();
 					pts.push({x:x, y:y});
 				}
 
 				var v = new VoronoiDiagram(pts);
-				v.draw();
+				v.initScene();
 			});
 
 		</script>
 		<h1>Test Voronoi</h1>
-		<canvas id="canvas"></canvas>
+		<canvas id="canvas"></canvas>	
 	</body>
 </html>
