@@ -1,0 +1,86 @@
+<html>
+	<head>
+<!--		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script> -->
+		<script src="resources/jquery-1.11.0.min.js"></script>
+<!--		<script src="resources/OrbitControls.js"></script>-->
+		<script src = "resources/voronoi-core.min.js"></script>
+	</head>	
+
+	<body>
+		<script>
+		</script>
+		<script>
+			var scene;
+			var camera;
+			var renderer;
+			var frameCount = 0;
+			var controls;
+			var voronoi;			
+			var diagram;
+
+			function VoronoiDiagram(pts) {
+				var maxX = -1;
+				var maxY = -1;
+			
+				for (var i = 0; i < pts.length; i++) {
+					var p = pts[i];
+					if (p.x > maxX) {
+						maxX = p.x;
+				}
+					if (p.y > maxY) {
+						maxY = p.y;
+					}
+				} 
+				
+				this.voronoi = new Voronoi();
+				console.log("max x = " + maxX + " maxy = " + maxY);
+				var bbox = {xl:0, xr:maxX, yt:0, yb:maxY};
+				this.diagram = this.voronoi.compute(pts, bbox);	
+				console.log(this.diagram.cells[0]);
+			}
+
+			VoronoiDiagram.prototype.draw = function() {
+				var cells = this.diagram.cells;
+				var canvas = document.getElementById('canvas');	
+				var ctxt = canvas.getContext('2d');
+				canvas.width = 800;
+				canvas.height = 800;
+				ctxt.strokeStyle = "#00ff00";
+				console.log("numcells = " + cells.length);
+				ctxt.fillStyle = "#ff0000";
+				ctxt.rect(0, 0, 800, 800);
+				ctxt.fill();
+				for (var i = 0; i < cells.length; i++) {
+					var halfedges = cells[i].halfedges;	
+					ctxt.beginPath();
+	
+					for(var j = 0; j < halfedges.length; j++) {
+						var edge = halfedges[j];						
+						var start = edge.getStartpoint();
+						var end = edge.getEndpoint();
+						ctxt.moveTo(start.x, start.y);
+						ctxt.lineTo(end.x, end.y);
+						ctxt.stroke();
+					}
+				}
+			}
+			
+			$(document).ready(function(){
+				var pts = [];
+
+
+				for (var i = 0; i < 100; i++) {
+					var x = Math.random() * 800;
+					var y = Math.random() * 800;
+					pts.push({x:x, y:y});
+				}
+
+				var v = new VoronoiDiagram(pts);
+				v.draw();
+			});
+
+		</script>
+		<h1>Test Voronoi</h1>
+		<canvas id="canvas"></canvas>
+	</body>
+</html>
