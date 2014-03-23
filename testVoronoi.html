@@ -37,6 +37,7 @@
 				console.log(this.diagram.cells[0]);
 			}
 
+
 			VoronoiDiagram.prototype.initScene = function () {
 				scene = new THREE.Scene();
 				camera = new THREE.PerspectiveCamera( 75, 
@@ -50,14 +51,10 @@
 				$(renderer.domElement).css("position", "fixed");
 				$(renderer.domElement).css("top", "100px");
 				$(renderer.domElement).css("left", "0px");
+				$(renderer.domElement).css("bottom", "0px");
 				document.body.appendChild( renderer.domElement );
 
-
-				var sphereGeom = new THREE.SphereGeometry(0.2, 24,24);
-				var mat = new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.5});
-				var sphere = new THREE.Mesh(sphereGeom, mat);
-				scene.add(sphere);
-				camera.position.set(0.5, 1, 0);
+				camera.position.set(0.25, 0.9, 0);
 				
 				/*var XaxisMat = new THREE.LineBasicMaterial({color:0xff0000});
 				var YaxisMat = new THREE.LineBasicMaterial({color:0x00ff00});
@@ -133,7 +130,6 @@
 					}
 				}	
 
-				console.log("slopeDenom = " + slopeDenom);
 				var v1 = new THREE.Vector3(start.x, 0, start.y);
 				var v2 = new THREE.Vector3(end.x, 0, end.y);
 				var v3 = new THREE.Vector3(end.x + offsetx, 0, end.y + offsety);
@@ -204,25 +200,95 @@
 				return geometry;
 			}
 
+			function extrudeGeom(halfedges) {
+				var pts = [];
+
+				var h = halfedges[0];
+				var hs = h.getStartpoint();
+				var he = h.getEndpoint();
+				pts.push(new THREE.Vector2(hs.x, hs.y));	
+				pts.push(new THREE.Vector2(he.x, he.y));	
+
+				var last = he;
+				for (var i = 1; i < halfedges.length; i++) {
+					var h = halfedges[i];
+					var hs = h.getStartpoint();
+					var he = h.getEndpoint();
+					if (hs.x == last.x && hs.y == last.y) {
+						pts.push(new THREE.Vector2(he.x, he.y));
+						last = he;
+					}
+					else if (he.x == last.x && he.y == last.y) {
+						pts.push(new THREE.Vector2(hs.x, hs.y));
+						last = hs;
+					}
+					else {
+						console.log("neither equal");
+					}
+				}
+			
+				if (pts[0].x == pts[pts.length - 1].x && 
+					pts[0].y == pts[pts.length - 1].y) {
+					pts.splice(pts.length -1, 1);
+				}
+
+				var extrudeSettings = {amount:0.1, steps: 1, bevelEnabled:false};
+				var shape = new THREE.Shape(pts);
+				var shape3d = shape.extrude(extrudeSettings);
+				console.log("verts = " );
+				console.log(shape3d.vertices);
+
+				var scalemat = new THREE.Matrix4();
+				var amount = Math.random() * 0.1 + 1;
+				scalemat.makeScale(0.9, 0.9, amount);
+				shape3d.applyMatrix(scalemat);
+
+				var rotmat = new THREE.Matrix4();
+				rotmat.makeRotationX(3 * Math.PI/2);
+				shape3d.applyMatrix(rotmat);
+
+				return shape3d;	
+			}
 	
 			VoronoiDiagram.prototype.createDiagram = function() {
 				var cells = this.diagram.cells;
 				var logged = false;
 
 				for (var i = 0; i < cells.length; i++) {
+				//for (var i = 0; i < 1; i++) {
 					// get next site
 					var halfedges = cells[i].halfedges;
 
+					/*if (!logged) {
+						console.log(halfedges);
+						logged = true;
+					}*/
+
+					var geom = extrudeGeom(halfedges);
+					console.log(geom);
+					var colors = [];
+					colors.push(0x00ff00);
+					colors.push(0xffff00);
+					colors.push(0x0000ff);
+					var colorInd = Math.floor(Math.random() * colors.length);
+					var col = colors[colorInd];
+
+					var mat = new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0.25});
+					// var mat = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
+					var extmesh = new THREE.Mesh(geom, mat);
+					scene.add(extmesh);
+
 					// add each edge to mesh
-					for (var j = 0; j < halfedges.length; j++) {
+					/*for (var j = 0; j < halfedges.length; j++) {
 						var edge = halfedges[j];
 						var start = edge.getStartpoint();
 						var end = edge.getEndpoint();
+
 						var geom = lineGeometry(start, end, 0.01);
-						var mat = new THREE.MeshBasicMaterial({color:0x00ff00, transparent:true, opacity:0.5});
+						var mat = new THREE.MeshBasicMaterial({color:0x00ff00, transparent:true, opacity:0.25});
 						var linemesh = new THREE.Mesh(geom, mat);
 						scene.add(linemesh); 
-					}
+					}*/
 
 				}
 			}
