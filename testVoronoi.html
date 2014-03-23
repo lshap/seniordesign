@@ -96,17 +96,29 @@
 				renderer.render(scene, camera);
 				frameCount++;
 			}
-			
+		
+			function calculateNormal(v1,v2,v3) {
+				var v1v2 = new THREE.Vector3();
+				var v1v3 = new THREE.Vector3();
+				v1v2.subVectors(v2, v1);
+				v1v3.subVectors(v3, v1);
+
+				var normal = new THREE.Vector3();
+				normal.crossVectors(v1v2,v1v3);
+				normal.normalize();
+				return normal;
+			}
+	
 			function lineGeometry(start, end, thickness) {
 				var geometry = new THREE.Geometry();
-				var slopeDenom = end.y - start.y;
+				var slopeDenom = end.x - start.x;
 				var offsetx, offsety;
 				if (slopeDenom == 0) {
 					offsety = 0;
 					offsetx = thickness;
 				}
 				else {
-					var slope = (end.x - start.x)/slopeDenom;
+					var slope = (end.y - start.y)/slopeDenom;
 					if (slope > 0) {
 						offsetx = thickness/Math.sqrt(2);
 						offsety = -offsetx;
@@ -121,16 +133,74 @@
 					}
 				}	
 
+				console.log("slopeDenom = " + slopeDenom);
 				var v1 = new THREE.Vector3(start.x, 0, start.y);
 				var v2 = new THREE.Vector3(end.x, 0, end.y);
 				var v3 = new THREE.Vector3(end.x + offsetx, 0, end.y + offsety);
-				var v4 = new THREE.Vector3(startx + offsetx, 0, start.y + offsety);
+				var v4 = new THREE.Vector3(start.x + offsetx, 0, start.y + offsety);
 					
 				var v5 = new THREE.Vector3(start.x, thickness, start.y);
 				var v6 = new THREE.Vector3(end.x, thickness, end.y);
 				var v7 = new THREE.Vector3(end.x + offsetx, thickness, end.y + offsety);
-				var v8 = new THREE.Vector3(startx + offsetx, thickness, start.y + offsety);
+				var v8 = new THREE.Vector3(start.x + offsetx, thickness, start.y + offsety);
+				
+				geometry.vertices.push(v1);
+				geometry.vertices.push(v2);
+				geometry.vertices.push(v3);
+				geometry.vertices.push(v4);
 
+				geometry.vertices.push(v5);
+				geometry.vertices.push(v6);
+				geometry.vertices.push(v7);
+				geometry.vertices.push(v8); 
+
+				// bottom: v1, v2, v3, v4
+				geometry.faces.push(new THREE.Face3(0, 1, 2));
+				var n1 = calculateNormal(v1, v2, v3);
+				geometry.faces[0].normal = n1;
+
+				geometry.faces.push(new THREE.Face3(2, 3, 0));
+				geometry.faces[1].normal = n1;
+
+				// top: v5, v6, v7, v8
+				geometry.faces.push(new THREE.Face3(4, 7, 6));
+				var n2 = calculateNormal(v5, v8, v7);
+				geometry.faces[2].normal = n2;
+
+				geometry.faces.push(new THREE.Face3(6, 5, 4));
+				geometry.faces[3].normal = n2;
+
+				// up: v5, v6, v2, v1
+				geometry.faces.push(new THREE.Face3(4, 5, 1));
+				var n3 = calculateNormal(v5, v6, v2);
+				geometry.faces[4].normal = n3;
+
+				geometry.faces.push(new THREE.Face3(1, 0, 4));
+				geometry.faces[5].normal = n3;
+
+				// down: v4, v3 v7, v8
+				geometry.faces.push(new THREE.Face3(3, 2, 6));
+				var n4 = calculateNormal(v4, v3, v7);
+				geometry.faces[6].normal = n4;
+
+				geometry.faces.push(new THREE.Face3(6, 7, 3));
+				geometry.faces[7].normal = n4;
+
+				// left: v1, v5, v8, v4
+				geometry.faces.push(new THREE.Face3(0, 4, 7));
+				var n5 = calculateNormal(v1, v5, v8);
+				geometry.faces[8].normal = n5;
+
+				geometry.faces.push(new THREE.Face3(7, 3, 0));
+				geometry.faces[9].normal = n5;
+
+				// right: v2, v6, v7, v3
+				geometry.faces.push(new THREE.Face3(1, 5, 6)); 
+				var n6 = calculateNormal(v2, v6, v7);
+				geometry.faces[10].normal = n6;
+
+				geometry.faces.push(new THREE.Face3(6, 2, 1)); 
+				geometry.faces[11].normal = n6;
 				return geometry;
 			}
 
@@ -139,8 +209,16 @@
 				var cells = this.diagram.cells;
 				var logged = false;
 
-				for (var i = 0; i < cells.length; i++) {
-				//for (var i = 0; i < 1; i++) {
+				var testStart = {x:-0.5, y:0};
+				var testEnd = {x:0.5, y:0};
+				var testLineGeom = lineGeometry(testStart,testEnd, 0.5);
+				console.log(testLineGeom);
+				var mat = new THREE.MeshBasicMaterial({color:0xff0000});
+				var testLine = new THREE.Mesh(testLineGeom, mat);
+				scene.add(testLine);
+				
+			//	for (var i = 0; i < cells.length; i++) {
+				for (var i = 0; i < 0; i++) {
 					// get next site
 					var halfedges = cells[i].halfedges;
 
@@ -205,7 +283,7 @@
 						var p2 = linegeometry.vertices[0];
 						var dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 						var material;
-						if (dist > 0.006) {
+						if (dist > 0.1) {
 /*							console.log("dist = " + dist);
 							console.log(geometry.vertices);
 							console.log(linegeometry.vertices); */
