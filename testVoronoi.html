@@ -49,12 +49,12 @@
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight);
 				$(renderer.domElement).css("position", "fixed");
-				$(renderer.domElement).css("top", "100px");
+				$(renderer.domElement).css("top", "0px");
 				$(renderer.domElement).css("left", "0px");
-				$(renderer.domElement).css("bottom", "0px");
+				$(renderer.domElement).css("bottom", "800px");
 				document.body.appendChild( renderer.domElement );
 
-				camera.position.set(0.25, 0.9, 0);
+				camera.position.set(0.5, 0.9, 0.5);
 				
 				/*var XaxisMat = new THREE.LineBasicMaterial({color:0xff0000});
 				var YaxisMat = new THREE.LineBasicMaterial({color:0x00ff00});
@@ -135,10 +135,10 @@
 				var v3 = new THREE.Vector3(end.x + offsetx, 0, end.y + offsety);
 				var v4 = new THREE.Vector3(start.x + offsetx, 0, start.y + offsety);
 					
-				var v5 = new THREE.Vector3(start.x, 0.5, start.y);
-				var v6 = new THREE.Vector3(end.x, 0.5, end.y);
-				var v7 = new THREE.Vector3(end.x + offsetx, 0.5, end.y + offsety);
-				var v8 = new THREE.Vector3(start.x + offsetx, 0.5, start.y + offsety);
+				var v5 = new THREE.Vector3(start.x, 0.2, start.y);
+				var v6 = new THREE.Vector3(end.x, 0.2, end.y);
+				var v7 = new THREE.Vector3(end.x + offsetx, 0.2, end.y + offsety);
+				var v8 = new THREE.Vector3(start.x + offsetx, 0.2, start.y + offsety);
 				
 				geometry.vertices.push(v1);
 				geometry.vertices.push(v2);
@@ -235,8 +235,6 @@
 				var extrudeSettings = {amount:0.1, steps: 1, bevelEnabled:false};
 				var shape = new THREE.Shape(pts);
 				var shape3d = shape.extrude(extrudeSettings);
-				console.log("verts = " );
-				console.log(shape3d.vertices);
 
 				var scalemat = new THREE.Matrix4();
 				var amount = Math.random() * 0.1 + 1;
@@ -284,6 +282,13 @@
 						var start = edge.getStartpoint();
 						var end = edge.getEndpoint();
 
+						var lineGeom = new THREE.Geometry();
+						lineGeom.vertices.push(new THREE.Vector3(start.x, 0, start.y));				
+						lineGeom.vertices.push(new THREE.Vector3(end.x, 0, end.y));				
+						var linemat = new THREE.LineBasicMaterial({color:0xff0000});
+						var line = new THREE.Line(lineGeom, linemat);
+						scene.add(line);
+
 						var geom = lineGeometry(start, end, 0.01);
 						var mat = new THREE.MeshBasicMaterial({color:0x00ff00, transparent:true, opacity:0.25});
 						var linemesh = new THREE.Mesh(geom, mat);
@@ -297,7 +302,7 @@
 				var pts = [];
 
 
-				for (var i = 0; i < 100; i++) {
+				for (var i = 0; i < 500; i++) {
 					var x = Math.random();
 					var y = Math.random();
 					pts.push({x:x, y:y});
@@ -308,7 +313,6 @@
 			});
 
 		</script>
-		<h1>Test Voronoi</h1>
 		<canvas id="canvas"></canvas>	
 	</body>
 </html>
