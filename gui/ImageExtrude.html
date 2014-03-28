@@ -68,8 +68,6 @@
 //					console.log(" data.length = " + data.length); 
 //					console.log("img = " + img);
 					if (data.length > 0 && img != undefined){
-						console.log("colorInputs: ");
-						console.log(colorInputs);
 						$("#renderDiv").empty();
 						var imgExtrusion = new ImageExtrusion(img, data, colorInputs, shapetype, animated, 3000);
 						imgExtrusion.init(); 
@@ -102,13 +100,12 @@
 				});
 
 
-				$(".shapetypeOption").click(function() {
+				$(".shapetypeOption").click(function(event) {
 					$(".dropdown").removeClass("active");
 					$(this).addClass('active');
 					$("#shapetype").html(this.text + "<span class='caret'></span>");
 					shapetype = parseInt($(this).attr("value"));	
-					console.log('updated shapetype to ' + shapetype);
-					
+					event.preventDefault();	
 				});
 			});
 		</script>
@@ -162,8 +159,8 @@
 						    <li><a class="st_dropdown shapetypeOption" value="0" href="#">Cube</a></li>
 						    <li><a class="st_dropdown shapetypeOption" value="1" href="#">Cylinder</a></li>
 						    <li><a class="st_dropdown shapetypeOption" value="2" href="#">Cone</a></li>				
-						    <li><a class="st_dropdown shapetypeOption" value="3" href="#">Extrude</a></li>				
-						  </ul>
+						   <!-- <li><a class="st_dropdown shapetypeOption" value="3" href="#">Extrude</a></li>-->
+						</ul>
 					</div>
 					</div>
 				</div>
