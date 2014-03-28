@@ -18,8 +18,9 @@
 		<script type = "text/javascript"> 
 			// initialize parse	
 			Parse.initialize("wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm", "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
-			var colors = [];
-			colors.push(0xff0000);
+			var colorInputs = [];
+			colorInputs.push(0xff0000);
+
 			var data = [];
 			var img;
 			var shapetype;
@@ -29,9 +30,7 @@
 				data.push(Math.random() * 40);
 			}*/
 
-			$(document).ready(function () {
-				
-				// init color selection
+			function initColors() {
 				$(".colorinput").spectrum({showInputs:true});
 				
 				$(".colorinput").change(function(){
@@ -40,13 +39,24 @@
 					var stringval = this.value;	
 					var hexstring = "0x" + stringval.substring(1);	
 					var hexval = parseInt(hexstring, 16);
-					console.log(stringval);
-					console.log(hexval.toString(16));
+					colorInputs[index] = hexval;
 				});
+			}
 
-				$("#addColor").click(function () {
-					var nextColorNum = colors.length + 1;		
-						
+
+			$(document).ready(function () {
+				
+				// init color selection
+				initColors();
+
+				$("#addColor").click(function (event) {
+					var nextColorNum = colorInputs.length + 1;		
+					var newColorInput = "<li><input type=\"color\" class=\"colorinput st_dropdown\" id=\"color" + 
+							     nextColorNum + "\" value=\"#ff0000\"/></li>";
+					$(this).before(newColorInput);
+					colorInputs.push(0xff0000);
+					initColors();
+					event.stopPropagation();
 				});
 				
 				$("#animated").click(function () {
@@ -55,18 +65,15 @@
 				});
 
 				$("#visualize").click(function () {
-					console.log(" data.length = " + data.length); 
-					console.log("img = " + img);
+//					console.log(" data.length = " + data.length); 
+//					console.log("img = " + img);
 					if (data.length > 0 && img != undefined){
+						console.log("colorInputs: ");
+						console.log(colorInputs);
 						$("#renderDiv").empty();
-
-						var colors = [];
-						colors.push(0x9933ff);
-						colors.push(0xff3399);
-
-						var imgExtrusion = new ImageExtrusion(img, data, colors, shapetype, animated, 3000);
+						var imgExtrusion = new ImageExtrusion(img, data, colorInputs, shapetype, animated, 3000);
 						imgExtrusion.init(); 
-						console.log('intialized visualization');
+					//	console.log('intialized visualization');
 					}
 				});
 
@@ -101,6 +108,7 @@
 					$("#shapetype").html(this.text + "<span class='caret'></span>");
 					shapetype = parseInt($(this).attr("value"));	
 					console.log('updated shapetype to ' + shapetype);
+					
 				});
 			});
 		</script>
@@ -133,9 +141,9 @@
 						<span class="glyphicon glyphicon-folder-open"></span>  Choose Data</button>
 
 					<div class="btn-group">
-						<button id="pickcolors" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						<button id="pickcolorInputs" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 							Colors <span class="caret"></span></button>
-						 <ul class="dropdown-menu" role="menu">
+						 <ul id="colordropdown" class="dropdown-menu" role="menu">
 						    <li>
 							<input type="color" class="colorinput st_dropdown" id="color1" value="#ff0000"/>
 						    </li>
