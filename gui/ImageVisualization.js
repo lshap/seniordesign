@@ -64,13 +64,13 @@
 									window.innerWidth / window.innerHeight,
 									0.1,
 									1000 );
-				controls = new THREE.OrbitControls(camera);
 
 				var renderDiv = document.getElementById('renderDiv');
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize(document.getElementById('renderDiv').offsetWidth, 400);
 				document.getElementById('renderDiv').appendChild( renderer.domElement );
+				controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
 				camera.position.set(0, 50, 150);
 
 				// set up buffer geometry
@@ -310,8 +310,8 @@
 				console.log('num colored pixels = ' + numColoredPixels);
 				var numpix = numColoredPixels;	
 				var imdata = imgdata.data;
-				console.log('imagedata in resize:');
-				console.log(imgdata);
+				//console.log('imagedata in resize:');
+				//console.log(imgdata);
 				var numdatapts = this.data.length;
 				var p = 0;
 
@@ -471,6 +471,11 @@
 				scene.add(buffermesh);
 			}
 
+			// returns the scene
+			ImageExtrusion.prototype.getScene = function() {
+				return scene;
+			}
+
 			// grabs pixel data from image source
 			ImageExtrusion.prototype.loadImageData = function(extrudeImage) {
 				var image = new Image();
@@ -504,7 +509,11 @@
 				});	
 			}
 		
-			
+			ImageExtrusion.prototype.screenshot = function (imagename) {
+				var dataUrl = renderer.domElement.toDataURL(imagename + ".png");
+				return dataUrl;
+			}		
+	
 			function animate() {
 				requestAnimationFrame(animate);
 				render();

@@ -18,13 +18,22 @@
 		<script type = "text/javascript"> 
 			// initialize parse	
 			Parse.initialize("wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm", "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
+			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
+			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
+
 			var colorInputs = [];
 			colorInputs.push(0xff0000);
 
+			$('#saveBtn').addClass('disabled');
 			var data = [];
 			var img;
+			var imgFilename;
 			var shapetype;
 			var animated = false;
+			var imgExtrusion;
+			var Visualization = Parse.Object.extend("Visualization");
+			var TestObject = Parse.Object.extend("TestObject");
+
 
 /*			for (var i = 0; i < 5000; i++) {
 				data.push(Math.random() * 40);
@@ -65,22 +74,138 @@
 				});
 
 				$("#visualize").click(function () {
-//					console.log(" data.length = " + data.length); 
-//					console.log("img = " + img);
 					if (data.length > 0 && img != undefined){
 						$("#renderDiv").empty();
-						var imgExtrusion = new ImageExtrusion(img, data, colorInputs, shapetype, animated, 3000);
+						imgExtrusion = new ImageExtrusion(img, data, colorInputs, shapetype, animated, 3000);
 						imgExtrusion.init(); 
-					//	console.log('intialized visualization');
+
+						if ($("#saveBtn").hasClass("disabled")) {
+							$("#saveBtn").removeClass("disabled");
+						}
+
+						$("#saveas").val("");
 					}
+				});
+
+
+				$("#save").click(function () {
+					if (data.length > 0 && img != undefined){
+						var name = $("#saveas").val(); 
+						if (name.length == 0) {
+							name = "Untitled";
+						}
+						var previewFilename = name + ".png";
+						var screenshot = imgExtrusion.screenshot(previewFilename);
+						$("#saveBtn").addClass("disabled");
+							
+						var previewServerurl = "https://api.parse.com/1/files/" + previewFilename;
+						var imgServerurl = "https://api.parse.com/1/files/" + imgFilename;
+						var objectServerurl = "https://api.parse.com/1/classes/Visualization";
+						var loadedpreview = false;
+						var loadedimg = false;
+	
+						var vis = new Visualization();
+						vis.set("type", "ImageExtrusion");	 
+						vis.set("name", name);
+						vis.set("colors", colorInputs);
+						vis.set("data", data);
+						vis.set("shapetype", shapetype);
+
+						// post the preview image data to Parse using their REST API
+						$.ajax({
+							 type: "POST",
+							 beforeSend: function(request) {
+								  request.setRequestHeader("X-Parse-Application-Id", MY_APP_ID);
+								  request.setRequestHeader("X-Parse-REST-API-Key", MY_REST_API_ID);
+								  request.setRequestHeader("Content-Type", screenshot.type);
+								},
+							 url:previewServerurl,
+							 data: screenshot,
+							 processData:false,
+							 contentType:false,
+							 success: function (response1) {
+								// post the base image data to Parse using their REST API
+								console.log("loaded preview image");
+								$.ajax({
+									 type: "POST",
+									 beforeSend: function(request) {
+										  request.setRequestHeader("X-Parse-Application-Id", MY_APP_ID);
+										  request.setRequestHeader("X-Parse-REST-API-Key", MY_REST_API_ID);
+										  request.setRequestHeader("Content-Type", img.type);
+										},
+									 url:imgServerurl,
+									 data: img,
+									 processData:false,
+									 contentType:false,
+									 success: function (response2) {
+										vis.set("previewImage", {
+											"name":previewFilename,
+											"url":response1.url,
+											"__type": "File"
+										});
+										vis.set("baseImage", {
+											"name":imgFilename,
+											"url":response2.url,
+											"__type": "File"
+										});
+
+										vis.save(null, {success:function(data){
+											console.log("saved test object");
+										},error:function(data, error){
+											console.log("error saving test object " + error.description); 
+										}});
+										/*	vis.set("type", "ImageExtrusion");	 
+											vis.set("name", name);
+											vis.set("colors", colors);
+											vis.set("data", data);
+											vis.set("shapetype", shapetype);
+											vis.set("previewImage", {
+												name:previewFilename,
+												url:response1.url,
+												__type: "File"
+											});
+											vis.set("baseImage", {
+												name:imgFilename,
+												url:response2.url,
+												__type: "File"
+											});
+									
+											vis.save(null, {
+												success: function (data) {
+													console.log("successfully created object");
+
+												 },
+												 error:function(data) {
+													console.log("error creating object");
+												 }
+											 });*/
+									  },
+									 error:function(data) {
+										console.log("error loading base image");
+								var obj = jQuery.parseJSON(data);
+										console.log(obj.error);
+									}
+								});
+							},
+							 error:function(data) {
+          							var obj = jQuery.parseJSON(data);
+								console.log("error loading preview image");
+								console.log(obj.error);
+							}
+						});
+					}
+
+					$("#save-modal").modal('hide');
 				});
 
 				$("#imgsrc_in").change(function(evt) {
 					var file = evt.target.files[0];
+					imgFilename = file.name;
+
 					var reader = new FileReader();
 					reader.readAsDataURL(file);
 					reader.onload = function(event) {
-						img = event.target.result
+						img = event.target.result;
 						$("#imgBtn").text(file.name);
 					}
 				});
@@ -145,8 +270,8 @@
 							<input type="color" class="colorinput st_dropdown" id="color1" value="#ff0000"/>
 						    </li>
 						    <!--<button id="delColor2" class="btn btn-default">delete</button>-->
-						    <li><button id="addColor" class="btn btn-default">add color
-							</button>
+						    <li><a id="addColor" href="#" class="btn btn-default">add color
+							</a>
 						    </li>
 						  </ul>
 					</div>
@@ -166,9 +291,32 @@
 				</div>
 				<button id="animated" type="button" class = "btn btn-default"> Animated </button>
 				<button id="visualize" type="button" class = "btn btn-primary"> Visualize </button>
+				<button id="saveBtn" type="button" class = "btn btn-secondary disabled" data-toggle="modal" data-target ="#save-modal"> 
+					Save 
+				</button>
+				<div id="save-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby"Save As" aria-hidden="true">
+					<div class="modal-dialog modal-sm" style="z-index: 10">
+						<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h4 class="modal-title">Save As</h4>
+								</div>
+								<div class="modal-body">
+									<input type="text" name="saveasname" id="saveas"/>
+								</div>	
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+									<button id="save" type="button" class="btn btn-primary">Save changes</button>
+								 </div>
+   							 </div>
+						</div>
+					</div>
+				</div>
+
 			</div>
 			<div class="row" id="renderDiv" style="height:400px;"></div>
 			<canvas id="imagecanvas"></canvas>
+			
 		</div>
 	</body>
 </html>
