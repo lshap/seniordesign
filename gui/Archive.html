@@ -1,0 +1,64 @@
+<html>
+	<head>
+		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
+			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
+			Parse.initialize(MY_APP_ID, "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
+			var results;
+			var query = new Parse.Query("Visualization");
+			query.find({success:function(data) { 
+					results = data;
+					console.log("successfully retrieved data:");
+					console.log(results[0].get("previewImage").url());
+					console.log(results);
+
+					var numResults = results.length;
+					var appendTo = $("#container");
+					for (var i = 0; i < numResults; i++) {
+						// add new row
+						if (i % 4 == 0) {
+							var newId = "row" + (i / 4);
+							var newRow = "<div class=\'row\' id= \'" + newId + "\'> </div>";
+							appendTo.append(newRow);
+							appendTo = $("#" + newId);
+						}	
+						
+						var nextResult = results[i];
+						var nextUrl = nextResult.get("previewImage").url();
+						var nextImage = new Image();
+						nextImage.src = nextUrl;
+
+						var newId = "image" + i;
+						var newCol = "<div class=\'col-md-3\'><a href=\"#\" id=\'" + newId + "\'class=\'thumbnail\'></a></div>";
+						appendTo.append(newCol);
+
+						$(nextImage).load(function(){
+							console.log('got here');
+							console.log(nextImage);
+							$("#" + newId).append(nextImage);	
+						});
+					}
+
+					},
+				    error:function(error){
+					console.log("error retrieving data");
+					console.log(error);
+				   }});
+		});
+	</script>
+	<body>
+		<div id="container" class="container">
+			<div class = "row">
+				<div class="page-header">
+					<h1>Archive </h1>
+				</div> 
+			</div>
+		</div>
+	</body>
+</html>

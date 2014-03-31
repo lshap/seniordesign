@@ -509,8 +509,10 @@
 				});	
 			}
 		
+
 			ImageExtrusion.prototype.screenshot = function (imagename) {
-				var dataUrl = renderer.domElement.toDataURL(imagename + ".png");
+				filename= imagename + ".png";
+				var dataUrl = renderer.domElement.toDataURL(filename);
 				return dataUrl;
 			}		
 	

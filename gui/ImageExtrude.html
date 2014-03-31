@@ -13,6 +13,8 @@
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		<link href="spectrum.css" rel="stylesheet">
 
+
+
 	</head>
 	<body>
 		<script type = "text/javascript"> 
@@ -27,7 +29,7 @@
 			$('#saveBtn').addClass('disabled');
 			var data = [];
 			var img;
-			var imgFilename;
+			var imgFile;
 			var shapetype;
 			var animated = false;
 			var imgExtrusion;
@@ -87,6 +89,15 @@
 					}
 				});
 
+				function dataURItoBlob(dataURL) {
+					var data = atob( dataURL.substring( "data:image/png;base64,".length ) ), asArray = new Uint8Array(data.length);
+					for( var i = 0, len = data.length; i < len; ++i ) {
+    						asArray[i] = data.charCodeAt(i);    
+					}
+
+					var blob = new Blob( [ asArray.buffer ], {type: "image/png"} );
+					return blob;
+				}
 
 				$("#save").click(function () {
 					if (data.length > 0 && img != undefined){
@@ -96,8 +107,12 @@
 						}
 						var previewFilename = name + ".png";
 						var screenshot = imgExtrusion.screenshot(previewFilename);
+						var screenshotFile = dataURItoBlob(screenshot);
+			
+
 						$("#saveBtn").addClass("disabled");
-							
+						var imgFilename = imgFile.name;
+								
 						var previewServerurl = "https://api.parse.com/1/files/" + previewFilename;
 						var imgServerurl = "https://api.parse.com/1/files/" + imgFilename;
 						var objectServerurl = "https://api.parse.com/1/classes/Visualization";
@@ -120,7 +135,7 @@
 								  request.setRequestHeader("Content-Type", screenshot.type);
 								},
 							 url:previewServerurl,
-							 data: screenshot,
+							 data: screenshotFile,
 							 processData:false,
 							 contentType:false,
 							 success: function (response1) {
@@ -134,51 +149,26 @@
 										  request.setRequestHeader("Content-Type", img.type);
 										},
 									 url:imgServerurl,
-									 data: img,
+									 data: imgFile,
 									 processData:false,
 									 contentType:false,
 									 success: function (response2) {
 										vis.set("previewImage", {
-											"name":previewFilename,
+											"name":response1.name,
 											"url":response1.url,
 											"__type": "File"
 										});
 										vis.set("baseImage", {
-											"name":imgFilename,
+											"name":response2.name,
 											"url":response2.url,
 											"__type": "File"
 										});
 
-										vis.save(null, {success:function(data){
+										vis.save(null, { success:function(data){
 											console.log("saved test object");
-										},error:function(data, error){
+										}, error: function(data, error){
 											console.log("error saving test object " + error.description); 
 										}});
-										/*	vis.set("type", "ImageExtrusion");	 
-											vis.set("name", name);
-											vis.set("colors", colors);
-											vis.set("data", data);
-											vis.set("shapetype", shapetype);
-											vis.set("previewImage", {
-												name:previewFilename,
-												url:response1.url,
-												__type: "File"
-											});
-											vis.set("baseImage", {
-												name:imgFilename,
-												url:response2.url,
-												__type: "File"
-											});
-									
-											vis.save(null, {
-												success: function (data) {
-													console.log("successfully created object");
-
-												 },
-												 error:function(data) {
-													console.log("error creating object");
-												 }
-											 });*/
 									  },
 									 error:function(data) {
 										console.log("error loading base image");
@@ -200,7 +190,7 @@
 
 				$("#imgsrc_in").change(function(evt) {
 					var file = evt.target.files[0];
-					imgFilename = file.name;
+					imgFile = file;
 
 					var reader = new FileReader();
 					reader.readAsDataURL(file);
@@ -239,7 +229,7 @@
 		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="gui.html"> 3D Data Visualization</a>			
 				<ul class = "nav navbar-nav">
 					<li><a href = "ImageExtrude.html" class="active"> Image Extrusion </a></li>
-					<li><a href = "#"> Archive </a></li>
+					<li><a href = "Archive.html"> Archive </a></li>
 				</ul>
 			</div>
 		</nav>
