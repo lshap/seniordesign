@@ -14,8 +14,14 @@
 			var query = new Parse.Query("Visualization");
 			query.find({success:function(data) { 
 					results = data;
-
+					var pics = [];
 					var numResults = results.length;
+
+					for (var i = 0; i < numResults; i++) {
+						pics.push(new Image());
+					}
+					
+
 					var appendTo = $("#container");
 					for (var i = 0; i < numResults; i++) {
 						// add new row
@@ -27,19 +33,18 @@
 						}	
 						
 						var nextResult = results[i];
-						console.log(nextResult);
 						var nextUrl = nextResult.get("previewImage").url();
-						var nextImage = new Image();
-						nextImage.src = nextUrl;
+						pics[i].src = nextUrl;
 
 						var newId = "image" + i;
 						var newCol = "<div class=\'col-md-3\'><a href=\"Visualization.html?objectId=" + 
-							      nextResult.id + "\" id=\'" + newId + "\'class=\'thumbnail\'></a></div>";
+							      nextResult.id + "\" id=\'" + newId + "\'class=\'thumbnail\'><img src=\"" + nextUrl + "\"></a></div>";
 						appendTo.append(newCol);
 
-						$(nextImage).load(function(){
-							$("#" + newId).append(nextImage);	
+						/*$(pics[i]).load(function(){
+							$("#" + newId).append(pics[i]);	
 						});
+						console.log(pics[i]);*/
 					}
 
 					},

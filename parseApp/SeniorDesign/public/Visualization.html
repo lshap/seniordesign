@@ -1,7 +1,8 @@
 <html>
 	<head>
 		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
-		<script src="resources/jquery-1.11.0.min.js"></script>
+		<!--<script src="resources/jquery-1.11.0.min.js"></script>-->
+		<script src="resources/jquery-1.11.0.js"></script>
 		<script src="resources/OrbitControls.js"></script>
 		<script src="resources/tweenjs-0.5.1.min.js"></script>
 		<script src="ImageVisualization.js"></script>
@@ -39,9 +40,10 @@
 					var object = query.get(objectId, {
 						success:function (obj) {
 							console.log("success");
+							console.log("current location:");
+							console.log(window.location.host);
 							console.log(obj);
 							var attributes = obj.attributes;
-							var pixelBlob = attributes.baseImage;
 								
 							visType = attributes.type;
 							visColors = attributes.colors;
@@ -50,6 +52,7 @@
 
 							if (visType === "ImageExtrusion") {
 								visBaseImage = attributes.baseImage.url();
+								console.log(visBaseImage);
 								visShapeType = attributes.shapetype;	
 								var imgExtrusion = new ImageExtrusion(visBaseImage, visData, visColors, visShapeType, false, 3000);
 								imgExtrusion.init();
