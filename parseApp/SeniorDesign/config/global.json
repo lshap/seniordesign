@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "Senior Design": {
+            "applicationId": "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm", 
+            "masterKey": "JhGC4jgPmDszPmr7nnQUviQLsLQTIYBJmqvqeDk7"
+        }, 
+        "_default": {
+            "link": "Senior Design"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.2.18"
+    }
+}
