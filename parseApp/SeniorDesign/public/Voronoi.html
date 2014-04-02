@@ -23,7 +23,7 @@
 			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
 			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
 			$('#saveBtn').addClass('disabled');
-			var data = [];
+			var pts = [];
 
 			var colorInputs = [];
 
@@ -61,25 +61,47 @@
 					event.stopPropagation();
 				});
 
+				$("#datasrc_in").change(function (evt){
+					var file = evt.target.files[0];
+					var reader = new FileReader();
+					reader.readAsText(file);
+					reader.onload = function(event) {
+						var csv = event.target.result;
+						var ptArrs = $.csv.toArrays(csv);
+						for (var i = 0; i < ptArrs.length; i++) {
+							if (ptArrs[i].length == 2) {
+								var x = parseFloat(ptArrs[i][0]);
+								var y = parseFloat(ptArrs[i][1]);
+								pts.push({x:x, y:y});
+							}
+						}
+						console.log("ptArrs = " );
+						console.log(ptArrs);
+						console.log("pts = " );
+						console.log(pts);
+
+						reader.onerror = function(){alert('Unable to read ' + file.fileName);}	
+						console.log('loaded data of length ' + ptArrs.length);
+						$("#dataBtn").text(file.name);
+					}
+				});
+
 				$("#visualize").click(function () {
-					$("#renderDiv").empty();
-					var pts = [];
+					/*var pts = [];
 
 					for (var i = 0; i < 500; i++) {
 						var x = Math.random();
 						var y = Math.random();
 						pts.push({x:x, y:y});
-					}
+					}*/
 
+					if (pts.length > 0){
+						console.log("pts = ");
+						console.log(pts);
+						$("#renderDiv").empty();
 
-					var v = new VoronoiDiagram(pts, colorInputs);
-					v.initScene();
-					
-					if (data.length > 0){
-						//$("#renderDiv").empty();
-
-						//TODO:CREATE VIS WITH DATA
-						
+						var v = new VoronoiDiagram(pts, colorInputs);
+						v.initScene();
 						
 						if ($("#saveBtn").hasClass("disabled")) {
 							$("#saveBtn").removeClass("disabled");
