@@ -24,6 +24,7 @@
 			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
 			$('#saveBtn').addClass('disabled');
 			var pts = [];
+			var v;
 
 			var colorInputs = [];
 
@@ -47,6 +48,16 @@
 				});
 			}
 
+			function dataURItoBlob(dataURL) {
+				var data = atob( dataURL.substring( "data:image/png;base64,".length ) ), asArray = new Uint8Array(data.length);
+				for( var i = 0, len = data.length; i < len; ++i ) {
+					asArray[i] = data.charCodeAt(i);    
+				}
+
+				var blob = new Blob( [ asArray.buffer ], {type: "image/png"} );
+				return blob;
+			}
+
 			$(document).ready(function(){
 				// init color selection
 				initColors();
@@ -59,6 +70,56 @@
 					colorInputs.push(0xff0000);
 					initColors();
 					event.stopPropagation();
+				});
+
+				$("#save").click(function () {
+					var name = $("#saveas").val(); 
+					if (name.length == 0) {
+						name = "Untitled";
+					}
+
+					var previewFilename = name + ".png";
+					var screenshot = v.screenshot(name)
+					var screenshotFile = dataURItoBlob(screenshot);
+					var previewServerurl = "https://api.parse.com/1/files/" + previewFilename;
+
+					var vis = new Visualization();
+					vis.set("type", "VoronoiDiagram");	 
+					vis.set("name", name);
+					vis.set("colors", colorInputs);
+					vis.set("data", pts);
+					
+					$.ajax({
+						 type: "POST",
+						 beforeSend: function(request) {
+							  request.setRequestHeader("X-Parse-Application-Id", MY_APP_ID);
+							  request.setRequestHeader("X-Parse-REST-API-Key", MY_REST_API_ID);
+							  request.setRequestHeader("Content-Type", screenshot.type);
+							},
+						 url:previewServerurl,
+						 data: screenshotFile,
+						 processData:false,
+						 contentType:false,
+						 success: function (response) {
+							console.log("loaded preview image");
+							vis.set("previewImage", {
+								"name":response.name,
+								"url":response.url,
+								"__type": "File"
+							});
+
+							vis.save(null, { success:function(data){
+								console.log("saved test object with id " +data.id);
+
+							}, error: function(data, error){
+								console.log("error saving test object " + error.description); 
+							}});
+						  },
+						 error: function(error) {
+							console.log("error loading preview image");
+							console.log(error.description);
+						  }		
+					});
 				});
 
 				$("#datasrc_in").change(function (evt){
@@ -87,20 +148,12 @@
 				});
 
 				$("#visualize").click(function () {
-					/*var pts = [];
-
-					for (var i = 0; i < 500; i++) {
-						var x = Math.random();
-						var y = Math.random();
-						pts.push({x:x, y:y});
-					}*/
-
 					if (pts.length > 0){
 						console.log("pts = ");
 						console.log(pts);
 						$("#renderDiv").empty();
 
-						var v = new VoronoiDiagram(pts, colorInputs);
+						v = new VoronoiDiagram(pts, colorInputs);
 						v.initScene();
 						
 						if ($("#saveBtn").hasClass("disabled")) {
@@ -158,6 +211,24 @@
 				<button id="saveBtn" type="button" class = "btn btn-secondary disabled" data-toggle="modal" data-target ="#save-modal"> 
 					Save 
 				</button>
+				<div id="save-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby"Save As" aria-hidden="true">
+					<div class="modal-dialog modal-sm" style="z-index: 10">
+						<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h4 class="modal-title">Save As</h4>
+								</div>
+								<div class="modal-body">
+									<input type="text" name="saveasname" id="saveas"/>
+								</div>	
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+									<button id="save" type="button" class="btn btn-primary">Save changes</button>
+								 </div>
+   							 </div>
+						</div>
+					</div>
+				</div>
 			<div class="row" id="renderDiv" style="height:400px;">
 			</div>
 

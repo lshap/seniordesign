@@ -242,6 +242,12 @@
 
 				return shape3d;	
 			}
+
+			VoronoiDiagram.prototype.screenshot = function (imagename) {
+				filename= imagename + ".png";
+				var dataUrl = renderer.domElement.toDataURL(filename);
+				return dataUrl;
+			}		
 	
 			VoronoiDiagram.prototype.createDiagram = function() {
 				var cells = this.diagram.cells;

@@ -120,8 +120,6 @@
 								
 						var previewServerurl = "https://api.parse.com/1/files/" + previewFilename;
 						var imgServerurl = "https://api.parse.com/1/files/" + imgFilename;
-						var loadedpreview = false;
-						var loadedimg = false;
 					
 						var imgData = imgExtrusion.getPixelData();
 						console.log("imgdata stuff:");
@@ -135,8 +133,6 @@
 						vis.set("data", data);
 						vis.set("shapetype", shapetype);
 						vis.set("animated", animated);
-						vis.save();
-						console.log("id = " + vis.id);
 						
 						// post the preview image data to Parse using their REST API
 						$.ajax({
@@ -246,7 +242,7 @@
 		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="index.html"> 3D Data Visualization</a>			
 				<ul class = "nav navbar-nav">
 					<li><a href = "#" class="active"> Image Extrusion </a></li>
-					<li><a href = "Vornoi.html" > Voronoi </a></li>
+					<li><a href = "Voronoi.html" > Voronoi </a></li>
 					<li><a href = "Archive.html"> Archive </a></li>
 				</ul>
 			</div>
