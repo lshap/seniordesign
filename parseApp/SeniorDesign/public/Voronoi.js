@@ -34,7 +34,7 @@
 									window.innerWidth / window.innerHeight,
 									0.1,
 									1000 );
-				controls = new THREE.OrbitControls(camera);
+				controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight);

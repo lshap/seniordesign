@@ -23,7 +23,7 @@
 			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
 			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
 			$('#saveBtn').addClass('disabled');
-			var pts = [];
+			var vpts = [];
 			var v;
 
 			var colorInputs = [];
@@ -87,7 +87,7 @@
 					vis.set("type", "VoronoiDiagram");	 
 					vis.set("name", name);
 					vis.set("colors", colorInputs);
-					vis.set("data", pts);
+					vis.set("data", vpts);
 					
 					$.ajax({
 						 type: "POST",
@@ -120,6 +120,9 @@
 							console.log(error.description);
 						  }		
 					});
+
+					$("#saveBtn").addClass("disabled");
+					$("#save-modal").modal('hide');
 				});
 
 				$("#datasrc_in").change(function (evt){
@@ -133,13 +136,13 @@
 							if (ptArrs[i].length == 2) {
 								var x = parseFloat(ptArrs[i][0]);
 								var y = parseFloat(ptArrs[i][1]);
-								pts.push({x:x, y:y});
+								vpts.push({x:x, y:y});
 							}
 						}
 						console.log("ptArrs = " );
 						console.log(ptArrs);
-						console.log("pts = " );
-						console.log(pts);
+						console.log("vpts = " );
+						console.log(vpts);
 
 						reader.onerror = function(){alert('Unable to read ' + file.fileName);}	
 						console.log('loaded data of length ' + ptArrs.length);
@@ -148,12 +151,12 @@
 				});
 
 				$("#visualize").click(function () {
-					if (pts.length > 0){
-						console.log("pts = ");
-						console.log(pts);
+					if (vpts.length > 0){
+						console.log("vpts = ");
+						console.log(vpts);
 						$("#renderDiv").empty();
 
-						v = new VoronoiDiagram(pts, colorInputs);
+						v = new VoronoiDiagram(vpts, colorInputs);
 						v.initScene();
 						
 						if ($("#saveBtn").hasClass("disabled")) {
