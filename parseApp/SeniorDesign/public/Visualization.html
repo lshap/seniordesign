@@ -49,12 +49,14 @@
 							visColors = attributes.colors;
 							visName = attributes.name;
 							visData = attributes.data;
+							visAnimate = attributes.animated;
 
 							if (visType === "ImageExtrusion") {
 								visBaseImage = attributes.baseImage.url();
 								console.log(visBaseImage);
 								visShapeType = attributes.shapetype;	
-								var imgExtrusion = new ImageExtrusion(visBaseImage, visData, visColors, visShapeType, false, 3000);
+								
+								var imgExtrusion = new ImageExtrusion(visBaseImage, visData, visColors, visShapeType, visAnimate, 3000);
 								imgExtrusion.init();
 							}
 						},

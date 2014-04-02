@@ -14,14 +14,7 @@
 			var query = new Parse.Query("Visualization");
 			query.find({success:function(data) { 
 					results = data;
-					var pics = [];
 					var numResults = results.length;
-
-					for (var i = 0; i < numResults; i++) {
-						pics.push(new Image());
-					}
-					
-
 					var appendTo = $("#container");
 					for (var i = 0; i < numResults; i++) {
 						// add new row
@@ -34,17 +27,11 @@
 						
 						var nextResult = results[i];
 						var nextUrl = nextResult.get("previewImage").url();
-						pics[i].src = nextUrl;
 
 						var newId = "image" + i;
 						var newCol = "<div class=\'col-md-3\'><a href=\"Visualization.html?objectId=" + 
 							      nextResult.id + "\" id=\'" + newId + "\'class=\'thumbnail\'><img src=\"" + nextUrl + "\"></a></div>";
 						appendTo.append(newCol);
-
-						/*$(pics[i]).load(function(){
-							$("#" + newId).append(pics[i]);	
-						});
-						console.log(pics[i]);*/
 					}
 
 					},
@@ -57,8 +44,9 @@
 	<body>
 		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="index.html"> 3D Data Visualization</a>			
 				<ul class = "nav navbar-nav">
-					<li><a href = "ImageExtrude.html" class="active"> Image Extrusion </a></li>
-					<li><a href = "#"> Archive </a></li>
+					<li><a href = "ImageExtrude.html" > Image Extrusion </a></li>
+					<li><a href = "#" class="active"> Archive </a></li>
+					<li><a href = "Vornoi.html" > Voronoi </a></li>
 				</ul>
 			</div>
 		</nav>

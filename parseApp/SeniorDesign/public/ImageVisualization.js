@@ -21,6 +21,7 @@
 			var imgsrc;
 			var data;
 			var colorchoices;
+			var hexPixelData = [];
 
 			var positions;
 			var normals;
@@ -422,6 +423,7 @@
 				var vertexColors = {name: "colors", colors:[]};
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
+					hexPixelData.push(color);
 					if (color == 0) {
 						var pix = i/4;
 						var x =  pix % imgdata.width;
@@ -481,8 +483,10 @@
 				return scene;
 			}
 
+
 			ImageExtrusion.prototype.getPixelData = function() {
-				return this.pixelData;
+//				return this.pixelData;
+				return hexPixelData;
 			}
 
 			ImageExtrusion.prototype.exportScene = function() {
@@ -505,10 +509,9 @@
 					ctxt.canvas.width = image.width;
 					ctxt.canvas.height = image.height;
 					ctxt.drawImage(image, 0, 0);
-
 					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
+
 					ctxt.canvas.width = 0;
-					var picdata = imgdata.data;
 
 					// count how many pixels to draw there are 
 					/*for (var i = 0; i < picdata.length; i+=4) {
