@@ -12,7 +12,9 @@
 			var mesh;
 			var camera;
 			var renderer;
-		
+			var vertices = [];
+			var faceInds = [];
+			var normals = [];	
 
 			function init()  {
 				scene = new THREE.Scene();
@@ -25,13 +27,42 @@
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
-				
+					
 				addGeometry();
-			
 				camera.position.set(0, 1, 1);
 				animate();
 			}
 
+			function readData(file) {
+				if (window.File && window.FileReader && window.FileList && window.Blob) {
+					var reader = new FileReader();
+					reader.readAsText(file);	
+					var filestring;
+					reader.onload = function(event) {
+						filestring = event.target.result;
+						var shapestrings = filestring.split("\n\n");	
+						for (var i = 0; i < shapestrings.length; i++) {
+							// vertices, faceInds, normals
+							var components = shapestrings[i].split("\n");
+							var vertString = components[0];
+							if (i == 1) 
+								console.log(components);
+							var faceIndString = components[1];
+							var normalString = components[2];
+							
+							vertString = vertString.replace(/\(/g, "new THREE.Vector3(");
+							vertString = vertString.replace(/\)/g, "),");
+							vertices = eval("[" + vertString + "]");
+							//console.log("vertices:");
+							//console.log(vertices);
+						}
+					}	
+
+				} else {
+				  conosle.log("file api is not supported on this browser");
+				}
+			}
+	
 
 			function addGeometry(){
 				/*var cubegeom = new THREE.CubeGeometry(1,1,1);
@@ -102,8 +133,14 @@
 			}
 
 			$(document).ready(function () {
+				$("#data").change(function(evt) {
+					var file = evt.target.files[0];
+					readData(file);
+				});
+
 				init();
 			});
 		</script>
+		<input type="file" name="datafile" accept=".txt" id="data"/>
 	</body>
 </html>
