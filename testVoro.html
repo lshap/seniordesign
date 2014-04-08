@@ -28,7 +28,7 @@
 				
 				addGeometry();
 			
-				camera.position.set(0, 5, 15);
+				camera.position.set(0, 1, 1);
 				animate();
 			}
 
@@ -56,7 +56,7 @@
 				              new THREE.Vector3(-0.774572,0.0558497,0.630015), 
 					      new THREE.Vector3(-0.76162,0.438132,0.477467), 
 					      new THREE.Vector3(0.0307665,0.996484,0.077927)];
-
+				
 				var faces = [];	
 				var color = new THREE.Color(0xff0000);
 				for (var i = 0; i < faceInds.length; i++) {
@@ -65,15 +65,29 @@
 						faces.push(newfaces[j]);
 					}
 				}		
-					
+
+				var geom = new THREE.Geometry();
+				geom.vertices = vertices;
+				geom.faces = faces;
+				console.log(geom);
+				var mat = new THREE.MeshBasicMaterial({color:0xff0000});
+				var mesh = new THREE.Mesh(geom, mat);
+				scene.add(mesh);
 			}
 
 			function triangulateFace(faceInds, normal, color, verts) {
 				var faces = [];
 				if (faceInds.length == 3) {
 					faces.push(new THREE.Face3(faceInds[0], faceInds[1], faceInds[2], normal, color, 0));
-					return faces;
 				}	
+
+				else {
+					var origin = faceInds[0];
+					for (var i = 1; i < faceInds.length - 1; i++) {
+						var newface = new THREE.Face3(origin, faceInds[i], faceInds[i+1], normal, color, 0);
+						faces.push(newface);
+					}
+				}
 
 				return faces;
 			}
