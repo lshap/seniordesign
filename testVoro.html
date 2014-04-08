@@ -12,9 +12,7 @@
 			var mesh;
 			var camera;
 			var renderer;
-			var vertices = [];
-			var faceInds = [];
-			var normals = [];	
+	
 
 			function init()  {
 				scene = new THREE.Scene();
@@ -28,7 +26,7 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
 					
-				addGeometry();
+				//addGeometry();
 				camera.position.set(0, 1, 1);
 				animate();
 			}
@@ -41,21 +39,28 @@
 					reader.onload = function(event) {
 						filestring = event.target.result;
 						var shapestrings = filestring.split("\n\n");	
-						for (var i = 0; i < shapestrings.length; i++) {
+						for (var i = 0; i < shapestrings.length -1; i++) {
 							// vertices, faceInds, normals
 							var components = shapestrings[i].split("\n");
-							var vertString = components[0];
-							if (i == 1) 
-								console.log(components);
-							var faceIndString = components[1];
-							var normalString = components[2];
+							var startind = (i==0) ? 0 : 1;
+							var vertString = components[startind];
+							var faceIndString = components[startind + 1];
+							var normalString = components[startind + 2];
 							
 							vertString = vertString.replace(/\(/g, "new THREE.Vector3(");
 							vertString = vertString.replace(/\)/g, "),");
-							vertices = eval("[" + vertString + "]");
-							//console.log("vertices:");
-							//console.log(vertices);
-						}
+							var vertices = eval("[" + vertString + "]");
+	
+							faceIndString = faceIndString.replace(/\(/g, "["); 
+							faceIndString = faceIndString.replace(/\)/g, "],"); 
+							var faceInds = eval("[" + faceIndString + "]");
+
+							normalString = normalString.replace(/\(/g, "new THREE.Vector3(");
+							normalString = normalString.replace(/\)/g, "),");
+							var normals = eval("[" + normalString + "]");
+							addGeometry(vertices, faceInds, normals);
+						} 
+
 					}	
 
 				} else {
@@ -64,12 +69,12 @@
 			}
 	
 
-			function addGeometry(){
+			function addGeometry(vertices, faceInds, normals){
 				/*var cubegeom = new THREE.CubeGeometry(1,1,1);
 				var cubemat = new THREE.MeshBasicMaterial({color:0xff0000});
 				var cubemesh = new THREE.Mesh(cubegeom, cubemat);
 				scene.add(cubemesh);*/
-				var vertices = [new THREE.Vector3(-0.379203,0.515907,-0.106923),
+				/*var vertices = [new THREE.Vector3(-0.379203,0.515907,-0.106923),
 						new THREE.Vector3(0.338069,-0.0691442,-0.106923), 
 						new THREE.Vector3(-0.083422,-0.0691442,0.820691), 
 						new THREE.Vector3(-0.715762,-0.0691442,-0.106923), 
@@ -86,7 +91,7 @@
 					      new THREE.Vector3(0.175425,0.590115,0.788029), 
 				              new THREE.Vector3(-0.774572,0.0558497,0.630015), 
 					      new THREE.Vector3(-0.76162,0.438132,0.477467), 
-					      new THREE.Vector3(0.0307665,0.996484,0.077927)];
+					      new THREE.Vector3(0.0307665,0.996484,0.077927)];*/
 				
 				var faces = [];	
 				var color = new THREE.Color(0xff0000);
@@ -100,9 +105,11 @@
 				var geom = new THREE.Geometry();
 				geom.vertices = vertices;
 				geom.faces = faces;
-				console.log(geom);
-				var mat = new THREE.MeshBasicMaterial({color:0xff0000});
+
+				//console.log(geom);
+				var mat = new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.5});
 				var mesh = new THREE.Mesh(geom, mat);
+
 				scene.add(mesh);
 			}
 
