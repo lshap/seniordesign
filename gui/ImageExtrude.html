@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script src="resources/three.js"></script>
 		<script src="resources/jquery-1.11.0.min.js"></script>
 		<script src="resources/jquery.csv-0.71.min.js"></script>
 		<script src="resources/OrbitControls.js"></script>
@@ -117,6 +117,12 @@
 
 						$("#saveBtn").addClass("disabled");
 						var imgFilename = imgFile.name;
+						var imgCopy = new Image();
+						imgCopy.src = img.src;
+						imgCopy.id = "imgCopy";
+						$(document).append(imgCopy);
+						var imgToSave = document.getElementById('imgCopy');
+						console.log(imgToSave);
 								
 						var previewServerurl = "https://api.parse.com/1/files/" + previewFilename;
 						var imgServerurl = "https://api.parse.com/1/files/" + imgFilename;

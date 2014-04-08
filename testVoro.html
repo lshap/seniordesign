@@ -1,0 +1,95 @@
+<html>
+	<head>
+		<style>canvas { width: 100%; height: 100% }</style> 
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="resources/OrbitControls.js"></script>
+	</head>
+	<body>
+		<script type = "text/javascript">
+			var scene;
+			var controls;
+			var mesh;
+			var camera;
+			var renderer;
+		
+
+			function init()  {
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 75, 
+									window.innerWidth / window.innerHeight,
+									0.1,
+									1000 );
+				controls = new THREE.OrbitControls(camera);
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+				
+				addGeometry();
+			
+				camera.position.set(0, 5, 15);
+				animate();
+			}
+
+
+			function addGeometry(){
+				/*var cubegeom = new THREE.CubeGeometry(1,1,1);
+				var cubemat = new THREE.MeshBasicMaterial({color:0xff0000});
+				var cubemesh = new THREE.Mesh(cubegeom, cubemat);
+				scene.add(cubemesh);*/
+				var vertices = [new THREE.Vector3(-0.379203,0.515907,-0.106923),
+						new THREE.Vector3(0.338069,-0.0691442,-0.106923), 
+						new THREE.Vector3(-0.083422,-0.0691442,0.820691), 
+						new THREE.Vector3(-0.715762,-0.0691442,-0.106923), 
+						new THREE.Vector3(-0.0783725,0.465473,0.419219), 
+						new THREE.Vector3(0.338069,0.493761,-0.106923), 
+						new THREE.Vector3(-0.30506,-0.0691442,0.548198), 
+						new THREE.Vector3(0.338069,0.459516,0.330975), 
+						new THREE.Vector3(0.338069,-0.0691442,0.726862), 
+						new THREE.Vector3(-0.120448,0.0122925,0.76795)];
+				var faceInds = [[1,5,0,3], [1,8,7,5], [1,3,6,2,8], [2,9,4,7,8], [2,6,9], [3,0,4,9,6], [4,0,5,7]];
+				var normals =[new THREE.Vector3(-0,0,-1), 
+					      new THREE.Vector3(1,0,0), 
+					      new THREE.Vector3(0,-1,0), 
+					      new THREE.Vector3(0.175425,0.590115,0.788029), 
+				              new THREE.Vector3(-0.774572,0.0558497,0.630015), 
+					      new THREE.Vector3(-0.76162,0.438132,0.477467), 
+					      new THREE.Vector3(0.0307665,0.996484,0.077927)];
+
+				var faces = [];	
+				var color = new THREE.Color(0xff0000);
+				for (var i = 0; i < faceInds.length; i++) {
+					var newfaces = triangulateFace(faceInds[i], normals[i], color, vertices);
+					for (var j = 0; j < newfaces.length; j++) {
+						faces.push(newfaces[j]);
+					}
+				}		
+					
+			}
+
+			function triangulateFace(faceInds, normal, color, verts) {
+				var faces = [];
+				if (faceInds.length == 3) {
+					faces.push(new THREE.Face3(faceInds[0], faceInds[1], faceInds[2], normal, color, 0));
+					return faces;
+				}	
+
+				return faces;
+			}
+
+			function animate()  {
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			function render()  {
+				renderer.render(scene, camera);
+			}
+
+			$(document).ready(function () {
+				init();
+			});
+		</script>
+	</body>
+</html>

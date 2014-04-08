@@ -1,15 +1,9 @@
 <html>
 	<head>
-		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script src="resources/three.js"></script>
 		<script src="resources/jquery-1.11.0.min.js"></script>
 		<script src="resources/jquery.csv-0.71.min.js"></script>
 		<script src="resources/OrbitControls.js"></script>
-
-		<script src="resources/ObjectExporter.js"></script>
-		<script src="resources/GeometryExporter.js"></script>
-		<script src="resources/BufferGeometryExporter.js"></script>
-		<script src="resources/SceneExporter.js"></script>
-		<script src="resources/MaterialExporter.js"></script>
 
 		<script src="resources/spectrum.js"></script>
 		<script src="resources/tweenjs-0.5.1.min.js"></script>
@@ -94,6 +88,11 @@
 					}
 				});
 
+				function arrayToBlob(arr) {
+					var blob = new Blob(arr, {type: 'plain/text'});
+					return blob;
+				}
+
 				function dataURItoBlob(dataURL) {
 					var data = atob( dataURL.substring( "data:image/png;base64,".length ) ), asArray = new Uint8Array(data.length);
 					for( var i = 0, len = data.length; i < len; ++i ) {
@@ -122,9 +121,32 @@
 						var imgServerurl = "https://api.parse.com/1/files/" + imgFilename;
 					
 						var imgData = imgExtrusion.getPixelData();
+						var imgBlob = arrayToBlob(imgData);
+
+						$.ajax({
+							type:"POST",
+							beforeSend: function(request) {
+								  request.setRequestHeader("X-Parse-Application-Id", MY_APP_ID);
+								  request.setRequestHeader("X-Parse-REST-API-Key", MY_REST_API_ID);
+								  request.setRequestHeader("Content-Type", imgBlob.type);
+								},
+							url: "https://api.parse.com/1/files/blob",
+							data:imgBlob,
+							processData:false,
+							contentType:false,
+							sucess: function(response) {
+								console.log("sucess saving blob");
+							},
+							error: function(data) {
+								console.log("error saving blob: " + data.description); 
+							}
+						});
+
+						console.log(imgBlob);
 						console.log("imgdata stuff:");
 						console.log(typeof(imgData));
 						console.log(imgData.length);
+
 
 						var vis = new Visualization();
 						vis.set("type", "ImageExtrusion");	 
@@ -135,7 +157,7 @@
 						vis.set("animated", animated);
 						
 						// post the preview image data to Parse using their REST API
-						$.ajax({
+						/*$.ajax({
 							 type: "POST",
 							 beforeSend: function(request) {
 								  request.setRequestHeader("X-Parse-Application-Id", MY_APP_ID);
@@ -195,7 +217,7 @@
 								console.log("error loading preview image");
 								console.log(obj.error);
 							}
-						});
+						});*/
 					}
 
 					$("#save-modal").modal('hide');
@@ -209,6 +231,7 @@
 					reader.readAsDataURL(file);
 					reader.onload = function(event) {
 						img = event.target.result;
+						console.log(img);
 						$("#imgBtn").text(file.name);
 					}
 				});

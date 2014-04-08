@@ -139,10 +139,6 @@
 								vpts.push({x:x, y:y});
 							}
 						}
-						console.log("ptArrs = " );
-						console.log(ptArrs);
-						console.log("vpts = " );
-						console.log(vpts);
 
 						reader.onerror = function(){alert('Unable to read ' + file.fileName);}	
 						console.log('loaded data of length ' + ptArrs.length);
@@ -152,8 +148,6 @@
 
 				$("#visualize").click(function () {
 					if (vpts.length > 0){
-						console.log("vpts = ");
-						console.log(vpts);
 						$("#renderDiv").empty();
 
 						v = new VoronoiDiagram(vpts, colorInputs);
