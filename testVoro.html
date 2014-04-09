@@ -59,6 +59,12 @@
 							normalString = normalString.replace(/\)/g, "),");
 							var normals = eval("[" + normalString + "]");
 							addGeometry(vertices, faceInds, normals);
+							if (i == 0) {
+								console.log(shapestrings[i]);
+								console.log(vertices);
+								console.log(faceInds);
+						
+							}
 						} 
 
 					}	
@@ -94,20 +100,24 @@
 					      new THREE.Vector3(0.0307665,0.996484,0.077927)];*/
 				
 				var faces = [];	
-				var color = new THREE.Color(0xff0000);
+				var colors = [new THREE.Color(0xffff00), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff)];
+				var colorchoice = Math.floor(Math.random() * colors.length);
+				var color = colors[colorchoice];
+				//for (var i = 0; i < faceInds.length; i++) {
 				for (var i = 0; i < faceInds.length; i++) {
 					var newfaces = triangulateFace(faceInds[i], normals[i], color, vertices);
 					for (var j = 0; j < newfaces.length; j++) {
 						faces.push(newfaces[j]);
 					}
-				}		
+				}	
+
+							//console.log(geom);
 
 				var geom = new THREE.Geometry();
 				geom.vertices = vertices;
 				geom.faces = faces;
 
-				//console.log(geom);
-				var mat = new THREE.MeshBasicMaterial({color:0xff0000, transparent:true, opacity:0.5});
+				var mat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity:0.5});
 				var mesh = new THREE.Mesh(geom, mat);
 
 				scene.add(mesh);
@@ -126,6 +136,15 @@
 						faces.push(newface);
 					}
 				}
+				
+				var linegeom = new THREE.Geometry();	
+				for (var i = 0; i < faceInds.length; i++) {
+					var newVert = verts[faceInds[i]];
+					linegeom.vertices.push(newVert);
+				}
+				var linemat = new THREE.LineBasicMaterial({color:0xff0000});
+				//scene.add (new THREE.Line(linegeom, linemat));
+
 
 				return faces;
 			}
