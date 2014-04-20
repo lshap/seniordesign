@@ -63,5 +63,5 @@
  
          // Import the irregular particle packing
 	    con.import("particles_from_server");
-	    con.print_custom("%P\n%t\n%l\n\n", stdout);
+	    con.print_custom("new THREE.Vector3(%x, %y, %z)\n%P\n%t\n%l\n\n", stdout);
 }
