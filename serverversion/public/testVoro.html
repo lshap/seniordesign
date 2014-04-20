@@ -145,13 +145,13 @@
 					}
 				}
 				
-				/*var linegeom = new THREE.Geometry();	
+				var linegeom = new THREE.Geometry();	
 				for (var i = 0; i < faceInds.length; i++) {
 					var newVert = verts[faceInds[i]];
 					linegeom.vertices.push(newVert);
 				}
-				var linemat = new THREE.LineBasicMaterial({color:0xff0000});
-				scene.add (new THREE.Line(linegeom, linemat)); */
+				var linemat = new THREE.LineBasicMaterial({color:0x0000ff});
+				scene.add (new THREE.Line(linegeom, linemat)); 
 
 				return faces;
 			}

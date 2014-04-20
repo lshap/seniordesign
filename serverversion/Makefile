@@ -9,7 +9,7 @@ include config.mk
 
 # List of executables
 #EXECUTABLES=single_cell platonic random_points test import
-EXECUTABLES=test 
+EXECUTABLES=test irregular
 
 # Makefile rules
 all: $(EXECUTABLES)
@@ -25,6 +25,9 @@ random_points: random_points.cc
 
 test: test.cc
 	$(CXX) $(CFLAGS) $(E_INC) $(E_LIB) -o test test.cc -lvoro++
+
+test: irregular.cc
+	$(CXX) $(CFLAGS) $(E_INC) $(E_LIB) -o irregular irregular.cc -lvoro++
 
 import: import.cc
 	$(CXX) $(CFLAGS) $(E_INC) $(E_LIB) -o import import.cc -lvoro++

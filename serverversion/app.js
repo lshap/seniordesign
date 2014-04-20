@@ -44,8 +44,8 @@ app.post('/data', function(req, res) {
 			}
 			else {
 				res.writeHead(200, {'Content-Type':'text/plain'});
-				child_process.execFile('./test', function(error, stdout, stderror){
-					console.log(stdout);
+				child_process.execFile('./irregular', function(error, stdout, stderror){
+					//console.log(stdout);
 					res.write(stdout);
 					res.end();	
 
