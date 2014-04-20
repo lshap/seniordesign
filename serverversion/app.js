@@ -35,8 +35,8 @@ app.get('/testVoro.html', function(req, res) {
 });
 
 app.post('/data', function(req, res) {
-	console.log(req.body);
-	fs.writeFile("particles_from_server", req.body, 
+	var jsondata = req.body["data"];
+	fs.writeFile("particles_from_server",jsondata, 
 			function(err) {
 			if (err) {
 				console.log(err);
@@ -44,14 +44,12 @@ app.post('/data', function(req, res) {
 			}
 			else {
 				res.writeHead(200, {'Content-Type':'text/plain'});
-				res.write('finished writing file');
-				res.end();	
-				/*child_process.execFile('./test', function(error, stdout, stderror){
+				child_process.execFile('./test', function(error, stdout, stderror){
 					console.log(stdout);
 					res.write(stdout);
 					res.end();	
 
-				});*/
+				});
 			}
 
 	});
