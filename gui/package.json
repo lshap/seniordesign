@@ -1,0 +1,9 @@
+{ 
+	"name": "senior-design",
+	"description":"3d data visualizations",
+	"version":"0.0.1",
+	"private":true,
+	"dependencies": {
+		"express":"4.0"
+	}
+}

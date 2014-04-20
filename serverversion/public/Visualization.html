@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<!--<script src="resources/jquery-1.11.0.min.js"></script>-->
+		<script src="resources/jquery-1.11.0.js"></script>
+		<script src="resources/OrbitControls.js"></script>
+		<script src="resources/tweenjs-0.5.1.min.js"></script>
+		<script src="ImageVisualization.js"></script>
+		<script src="resources/voronoi-core.min.js"></script>
+		<script src="Voronoi.js"></script>
+		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
+	</head>
+	<body>
+		<script type ="text/javascript">
+			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
+			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
+			Parse.initialize(MY_APP_ID, "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
+
+			$(document).ready(function () {
+				var VisualizationType = {
+					IMAGE_EXTRUSION: 0,
+					VORONOI: 1
+				};
+
+				var visType;
+				var visColors;
+				var visData;
+				var visAnimate;
+				var visName; 
+				var visBaseImage; // only for image extrusion
+				var visShapeType; // only for image extrusion
+				var objectId;
+
+				
+				var results;
+				
+				var search = self.location.search;
+				var index = search.indexOf("=");
+				if (index != -1) {
+					objectId = search.substring(index + 1);
+					var query = new Parse.Query("Visualization");
+					var object = query.get(objectId, {
+						success:function (obj) {
+							console.log("success");
+							console.log("current location:");
+							console.log(window.location.host);
+							console.log(obj);
+							var attributes = obj.attributes;
+								
+							visType = attributes.type;
+							visColors = attributes.colors;
+							visName = attributes.name;
+							visData = attributes.data;
+							visAnimate = attributes.animated;
+
+							if (visType === "ImageExtrusion") {
+								visBaseImage = attributes.baseImage.url();
+								console.log(visBaseImage);
+								visShapeType = attributes.shapetype;	
+								
+								var imgExtrusion = new ImageExtrusion(visBaseImage, visData, visColors, visShapeType, visAnimate, 3000);
+								imgExtrusion.init();
+							}
+							else if (visType === "VoronoiDiagram") {
+								v = new VoronoiDiagram(visData, visColors);
+								v.initScene();
+							}
+						},
+						error: function (error) {
+							console.log(error.description);
+						}
+					});
+				}
+
+			});
+		</script>
+		<div class="row" id="renderDiv" style="width:100%; height:100%;"></div>
+		<canvas id="imagecanvas"></canvas>
+	</body>
+</html>

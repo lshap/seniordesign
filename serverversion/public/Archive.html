@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
+			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
+			Parse.initialize(MY_APP_ID, "A9kkHfGasI2IkaVdtK2uYG8RADxkgJ0HMZ69c3QR"); 
+			var results;
+			var query = new Parse.Query("Visualization");
+			query.find({success:function(data) { 
+					results = data;
+					var numResults = results.length;
+					var appendTo = $("#container");
+					for (var i = 0; i < numResults; i++) {
+						// add new row
+						if (i % 4 == 0) {
+							var newId = "row" + (i / 4);
+							var newRow = "<div class=\'row\' id= \'" + newId + "\'> </div>";
+							appendTo.append(newRow);
+							appendTo = $("#" + newId);
+						}	
+						
+						var nextResult = results[i];
+						var nextUrl = nextResult.get("previewImage").url();
+
+						var newId = "image" + i;
+						var newCol = "<div class=\'col-md-3\'><a href=\"Visualization.html?objectId=" + 
+							      nextResult.id + "\" id=\'" + newId + "\'class=\'thumbnail\'><img style='width:263px;height:94px' src=\"" + nextUrl + "\"></a></div>";
+						appendTo.append(newCol);
+					}
+
+					},
+				    error:function(error){
+					console.log("error retrieving data");
+					console.log(error);
+				   }});
+		});
+	</script>
+	<body>
+		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="index.html"> 3D Data Visualization</a>			
+				<ul class = "nav navbar-nav">
+					<li><a href = "ImageExtrude.html" > Image Extrusion </a></li>
+					<li><a href = "Voronoi.html" > Voronoi </a></li>
+					<li><a href = "#" class="active"> Archive </a></li>
+				</ul>
+			</div>
+		</nav>
+		<div id="container" class="container">
+			<div class = "row">
+				<div class="page-header">
+					<h1>Archive </h1>
+				</div> 
+			</div>
+		</div>
+	</body>
+</html>
