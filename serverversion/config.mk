@@ -9,12 +9,13 @@
 
 # C++ compiler
 CXX=g++
+#CXX=python ~/emsdk_portable/emscripten/1.13.0/emcc
 # Flags for the C++ compiler
 CFLAGS=-Wall -ansi -pedantic -O3
 
 # Relative include and library paths for compilation of the examples
-E_INC=-I../src
-E_LIB=-L../src
+E_INC=-Isrc
+E_LIB=-Lsrc
 
 # Installation directory
 PREFIX=/usr/local

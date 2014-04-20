@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var child_process = require('child_process');
+var fs = require('fs');
 
 app.use(bodyParser());
 
@@ -34,10 +35,25 @@ app.get('/testVoro.html', function(req, res) {
 });
 
 app.post('/data', function(req, res) {
-	res.writeHead(200, {'Content-Type':'text/plain'});
-	child_process.execFile('./test', function(error, stdout, stderror){
-		res.write(stdout);
-		res.end();	
-	});	
+	console.log(req.body);
+	fs.writeFile("particles_from_server", req.body, 
+			function(err) {
+			if (err) {
+				console.log(err);
+				res.end();
+			}
+			else {
+				res.writeHead(200, {'Content-Type':'text/plain'});
+				res.write('finished writing file');
+				res.end();	
+				/*child_process.execFile('./test', function(error, stdout, stderror){
+					console.log(stdout);
+					res.write(stdout);
+					res.end();	
+
+				});*/
+			}
+
+	});
 });
 app.listen(8000);
