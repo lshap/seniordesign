@@ -4,6 +4,9 @@ var mesh;
 var camera;
 var renderer;
 var particles;
+var colorchoices;
+var centercolor;
+var showcenters;
 
 function getFile() {
 	console.log('got here');
@@ -38,7 +41,7 @@ function init()  {
 function readDataString(filestring) {
 	var partGeom = new THREE.Geometry();
 	var shapestrings = filestring.split("\n\n");	
-	var colors = [new THREE.Color(0xffff00), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff)];
+	//colors = [new THREE.Color(0xffff00), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff)];
 	for (var i = 0; i < shapestrings.length -1; i++) {
 		// vertices, faceInds, normals
 		var components = shapestrings[i].split("\n");
@@ -48,9 +51,11 @@ function readDataString(filestring) {
 		var faceIndString = components[startind + 2];
 		var normalString = components[startind + 3];
 		
-		var nextpos = eval(posString);
-		partGeom.vertices.push(nextpos);
-		addParticle(nextpos);					
+		if (showcenters) {
+			var nextpos = eval(posString);
+			partGeom.vertices.push(nextpos);
+			addParticle(nextpos);				
+		}	
 
 		vertString = vertString.replace(/\(/g, "new THREE.Vector3(");
 		vertString = vertString.replace(/\)/g, "),");
@@ -63,13 +68,13 @@ function readDataString(filestring) {
 		normalString = normalString.replace(/\(/g, "new THREE.Vector3(");
 		normalString = normalString.replace(/\)/g, "),");
 		var normals = eval("[" + normalString + "]");
-		addGeometry(vertices, faceInds, normals, colors[i%3]);
+		addGeometry(vertices, faceInds, normals, colorchoices[i%3]);
 	} 
 }
 
 function addParticle(point) {
 	var geom = new THREE.SphereGeometry(0.03, 8, 6);
-	var mat = new THREE.MeshBasicMaterial({color:0x0000ff, transparent:true, opacity:0.6});
+	var mat = new THREE.MeshBasicMaterial({color:centercolor, transparent:true, opacity:0.6});
 	var mesh = new THREE.Mesh(geom, mat);
 	var transmat = new THREE.Matrix4();
 	transmat.makeTranslation(point.x, point.y, point.z);
@@ -177,9 +182,13 @@ function render()  {
 	renderer.render(scene, camera);
 }
 
-function Voronoi3D(file) {
+function Voronoi3D(file, colors, showCenters, centerColor) {
 	var reader = new FileReader();
 	var filestring;
+	colorchoices = colors;
+	centercolor = centerColor;
+	showcenters = showCenters;
+
 	reader.readAsText(file);	
 	reader.onload = function(event) {
 		filestring = event.target.result;

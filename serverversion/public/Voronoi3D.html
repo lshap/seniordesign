@@ -132,7 +132,7 @@
 
 				$("#visualize").click(function () {
 					$("#renderDiv").empty();
-					var voronoiDiagram = Voronoi3D(file); 
+					var voronoiDiagram = Voronoi3D(file, colorInputs, true, 0x0000ff); 
 					if ($("#saveBtn").hasClass("disabled")) {
 						$("#saveBtn").removeClass("disabled");
 					}
