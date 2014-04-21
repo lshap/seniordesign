@@ -1,20 +1,16 @@
-
 <html>
 	<head>
 		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
 		<script src="resources/jquery-1.11.0.min.js"></script>
-		<script src="resources/jquery.csv-0.71.min.js"></script>
 		<script src="resources/OrbitControls.js"></script>
-		<script src="resources/voronoi-core.min.js"></script>
 
 		<script src="resources/spectrum.js"></script>
-		<script src="resources/tweenjs-0.5.1.min.js"></script>
-		<script src="resources/Voronoi.js"></script>
+		<script src="resources/Voronoi3D.js"></script>
 		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
 		
 		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="spectrum.css" rel="stylesheet">
+		<link href="resources/spectrum.css" rel="stylesheet">
 	</head>
 	<body>
 		<script type="text/javascript">
@@ -23,7 +19,6 @@
 			var MY_APP_ID = "wXAin9oHZpf2dzdV4JY14kYHRQB6O2nw9RhpYFJm";
 			var MY_REST_API_ID = "luGqhHanKCHJnQwWkKRFGru3XexioAvk6diyqQQZ";
 			$('#saveBtn').addClass('disabled');
-			var vpts = [];
 			var v;
 
 			var colorInputs = [];
@@ -126,39 +121,23 @@
 				});
 
 				$("#datasrc_in").change(function (evt){
-					var file = evt.target.files[0];
+					file = evt.target.files[0];
 					var reader = new FileReader();
 					reader.readAsText(file);
 					reader.onload = function(event) {
-						var csv = event.target.result;
-						var ptArrs = $.csv.toArrays(csv);
-						for (var i = 0; i < ptArrs.length; i++) {
-							if (ptArrs[i].length == 2) {
-								var x = parseFloat(ptArrs[i][0]);
-								var y = parseFloat(ptArrs[i][1]);
-								vpts.push({x:x, y:y});
-							}
-						}
-
 						reader.onerror = function(){alert('Unable to read ' + file.fileName);}	
-						console.log('loaded data of length ' + ptArrs.length);
 						$("#dataBtn").text(file.name);
 					}
 				});
 
 				$("#visualize").click(function () {
-					if (vpts.length > 0){
-						$("#renderDiv").empty();
-
-						v = new VoronoiDiagram(vpts, colorInputs);
-						v.initScene();
-						
-						if ($("#saveBtn").hasClass("disabled")) {
-							$("#saveBtn").removeClass("disabled");
-						}
-
-						$("#saveas").val("");
+					$("#renderDiv").empty();
+					var voronoiDiagram = Voronoi3D(file); 
+					if ($("#saveBtn").hasClass("disabled")) {
+						$("#saveBtn").removeClass("disabled");
 					}
+
+					$("#saveas").val("");
 				});
 
 			});
@@ -166,8 +145,8 @@
 		<nav class="navbar navbar-default" role="navigation"> <div class="navbar-header"> <a class="navbar-brand" href="index.html"> 3D Data Visualization</a>			
 				<ul class = "nav navbar-nav">
 					<li><a href = "ImageExtrude.html"> Image Extrusion </a></li>
-					<li><a href = "#" class="active"> Voronoi </a></li>
-					<li><a href = "Voronoi3D.html" class="active"> Voronoi 3D </a></li>
+					<li><a href = "Voronoi.html" class="active"> Voronoi </a></li>
+					<li><a href = "#" class="active"> Voronoi 3D </a></li>
 					<li><a href = "Archive.html"> Archive </a></li>
 				</ul>
 			</div>
@@ -176,12 +155,12 @@
 
 			<div class = "row">
 				<div class="page-header">
-					<h1>Voronoi Diagram</h1>
+					<h1>3D Voronoi Diagram</h1>
 				</div> 
 			</div>
 
 			<div class = "row">
-				<input type="file" name="datafile" accept=".csv" style="visibility:hidden;width:0px;" id="datasrc_in"/>
+				<input type="file" name="datafile" accept=".txt" style="visibility:hidden;width:0px;" id="datasrc_in"/>
 				<div class="btn-group">
 					<div class="input-append">
 						<button id="dataBtn" type = "button" class="btn btn-default" onclick = "$('#datasrc_in').click();">

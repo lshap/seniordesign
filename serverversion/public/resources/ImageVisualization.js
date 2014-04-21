@@ -21,7 +21,6 @@
 			var imgsrc;
 			var data;
 			var colorchoices;
-			var hexPixelData = [];
 
 			var positions;
 			var normals;
@@ -29,7 +28,10 @@
 			var shapeType;
 			var animated;
 			var animationTime;
+			var triangles;
 			var tween;
+			var transformtween1;
+			var transformtween2;
 
 			var ShapeType = {
 				SQUARE: 0,
@@ -60,7 +62,7 @@
 				
 				var light = new THREE.DirectionalLight( 0xffffff);
 				light.position.set( 0,10,0);
-				scene.add( light );
+				//scene.add( light );
 				var amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 				scene.add( amblight );	
 
@@ -72,7 +74,7 @@
 				var renderDiv = document.getElementById('renderDiv');
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
-				renderer.setSize(document.getElementById('renderDiv').offsetWidth, 400);
+				renderer.setSize(document.getElementById('renderDiv').offsetWidth, 500);
 				document.getElementById('renderDiv').appendChild( renderer.domElement );
 				controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
 				camera.position.set(0, 50, 150);
@@ -96,7 +98,7 @@
 				break;
 				}
 
-				var triangles = numshapetriangles * this.data.length; // 12 triangles per cube
+				triangles = numshapetriangles * this.data.length; // 12 triangles per cube
 				buffergeom.attributes = {
 					position: {
 						itemSize: 3,
@@ -413,6 +415,136 @@
 				return shape3d;
 			}
 
+			function extrudeBufferGeometry(pixelData, shapetype, colorChoices) {
+				var ind = 0;
+				var buffG = new THREE.BufferGeometry();	
+
+				buffG.attributes = {
+					position: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					normal: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					color: {
+						itemSize: 3,
+						array: new Float32Array( triangles * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					}
+
+				}
+
+				var vertexColors = {name: "colors", colors:[]};
+				var picData = pixelData.data;
+
+				for (var i = 0; i < picData.length; i+= 4) {
+					var color = rgbToHex(picData[i], picData[i + 1], picData[i + 2], picData[i + 3]);
+					if (color == 0) {
+						var pix = i/4;
+						var x =  pix % pixelData.width;
+						var z = pix / pixelData.width;
+						var height = Math.random() * 4;
+				
+						var colordecision = Math.floor(Math.random() * colorChoices.length);
+						var drawcolor = new THREE.Color(colorChoices[colordecision]);
+	
+						var mesh, geom, mat;
+						switch(shapetype) {
+							case ShapeType.SQUARE: 
+								geom = new THREE.CubeGeometry(1, height, 1);
+							break;	
+							case ShapeType.CYLINDER: 
+								geom = new THREE.CylinderGeometry(0.5, 0.5, height, 8, 1, false);
+							break;	
+							case ShapeType.CONE: 
+								geom = new THREE.CylinderGeometry(0.005, 0.5, height, 8, 1, false);
+							break;	
+							case ShapeType.EXTRUDE:
+								geom = this.getExtrudeGeometry(height);					 
+							break;
+							default:
+								geom = new THREE.CubeGeometry(1, height, 1);
+						}
+
+						var translate = new THREE.Matrix4();
+						translate.makeTranslation(x - pixelData.width/2, 0, z - pixelData.height/2);
+						geom.applyMatrix(translate);
+
+						addMeshToGeom(ind, geom, buffG, drawcolor);
+						ind += geom.faces.length * 9;
+					}
+				}
+				return buffG;
+			}
+
+			ImageExtrusion.prototype.transform = function(newimage) {
+				console.log('calculating new obj...');
+				this.getImageObject(newimage, this.colorchoices, this.shapeType, extrudeBufferGeometry);
+			};
+
+			function addMeshToGeom(i, geomToAdd, bufferG, vertexCol) {
+				var faces = geomToAdd.faces;
+				var bpositions = bufferG.attributes.position.array;
+				var bnormals = bufferG.attributes.normal.array;
+				var bcolors = bufferG.attributes.color.array;
+				
+				for (var j = 0; j < faces.length; j++) {
+					var face = faces[j];
+					
+					var va = geomToAdd.vertices[face.a];
+					var vb = geomToAdd.vertices[face.b];	
+					var vc = geomToAdd.vertices[face.c];	
+					
+					var index =  i + j * 9;  
+					bpositions[index] = va.x;	
+					bpositions[index + 1] = va.y;	
+					bpositions[index + 2] = va.z;	
+					
+					bpositions[index + 3] = vb.x;	
+					bpositions[index + 4] = vb.y;	
+					bpositions[index + 5] = vb.z;	
+						
+					bpositions[index + 6] = vc.x;	
+					bpositions[index + 7] = vc.y;	
+					bpositions[index + 8] = vc.z;	
+
+					bcolors[index] =     vertexCol.r; 
+					bcolors[index + 1] = vertexCol.g; 
+					bcolors[index + 2] = vertexCol.b; 
+					
+					bcolors[index + 3] =  vertexCol.r;
+					bcolors[index + 4] =  vertexCol.g;
+					bcolors[index + 5] =  vertexCol.b;
+						
+					bcolors[index + 6] =  vertexCol.r;
+					bcolors[index + 7] =  vertexCol.g;
+					bcolors[index + 8] =  vertexCol.b;
+
+					var nx = face.normal.x;
+					var ny = face.normal.y;
+					var nz = face.normal.z	
+
+					// set normals
+					bnormals[index] = nx;	
+					bnormals[index + 1] = ny;	
+					bnormals[index + 2] = nz;	
+					
+					bnormals[index + 3] = nx;	
+					bnormals[index + 4] = ny;	
+					bnormals[index + 5] = nz;	
+						
+					bnormals[index + 6] = nx;	
+					bnormals[index + 7] = ny;	
+					bnormals[index + 8] = nz;;
+				}
+			}
+	
 			// converts pixel data to a 3D scene
 			ImageExtrusion.prototype.extrudeImage = function() {
 				var imagedata;
@@ -423,7 +555,6 @@
 				var vertexColors = {name: "colors", colors:[]};
 				for (var i = 0; i < imagedata.length; i+= 4) {
 					var color = rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
-					hexPixelData.push(color);
 					if (color == 0) {
 						var pix = i/4;
 						var x =  pix % imgdata.width;
@@ -483,10 +614,8 @@
 				return scene;
 			}
 
-
 			ImageExtrusion.prototype.getPixelData = function() {
-//				return this.pixelData;
-				return hexPixelData;
+				return this.pixelData;
 			}
 
 			ImageExtrusion.prototype.exportScene = function() {
@@ -494,6 +623,79 @@
 				var obj = exporter.parse(scene);
 				var json = JSON.stringify(obj);
 				return json;
+			}
+
+
+			ImageExtrusion.prototype.getImageObject = function(newimgsrc, colors, shapetype, extrudeBufferGeometry) {
+				var image = new Image();
+				image.src = newimgsrc;
+				$(image).load(function() {
+					
+				console.log("loaded new image with source = " + newimgsrc); 
+				var imgcanvas = document.getElementById('imagecanvas');
+					var ctxt = imgcanvas.getContext('2d');
+					
+					ctxt.canvas.width = image.width;
+					ctxt.canvas.height = image.height;
+					ctxt.drawImage(image, 0, 0);
+
+					var pixelData = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
+					ctxt.canvas.width = 0;
+
+					ctxt.canvas.height = 0;
+					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
+					var targetgeom = extrudeBufferGeometry(pixelData, shapetype, colors);
+					var targetpos1 = targetgeom.attributes.position.array;
+					var targetpos2 = positions; 
+	
+					var currpositions = [];
+					for (var i = 0; i < targetpos1.length; i++) {
+						currpositions[i] = positions[i];
+					} 
+
+					//console.log(targetpos);
+					
+					transformtween1 = new TWEEN.Tween(currpositions).to(targetpos1, 4000)
+							  .delay(1000)
+							  .yoyo(true)
+							  .repeat(Infinity)
+							  .easing(TWEEN.Easing.Cubic.In);
+					transformtween1.onUpdate(function () {
+						for (var i = 0; i < positions.length; i++) {
+							if (i < targetpos1.length) {
+								positions[i] = currpositions[i]; 
+							}
+						
+						}
+
+						buffergeom.attributes.position.needsUpdate = true;
+					});
+
+					transformtween1.start();
+
+					transformtween2 = new TWEEN.Tween(currpositions).to(targetpos2, 4000)
+							  .delay(6000)
+							  .yoyo(true)
+							  .repeat(Infinity)
+							  .easing(TWEEN.Easing.Cubic.In);
+					transformtween2.onUpdate(function() {
+						for (var i = 0; i < positions.length; i++) {
+							if (i < targetpos1.length) {
+								positions[i] = currpositions[i]; 
+							}
+						
+						}
+
+						buffergeom.attributes.position.needsUpdate = true;
+					});
+
+					/*scene.remove(buffermesh);
+					var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, 
+							vertexColors: THREE.VertexColors});	
+
+					var newmesh = new THREE.Mesh(b, material);
+					scene.add(newmesh);*/
+				});
 			}
 
 			// grabs pixel data from image source
@@ -509,9 +711,10 @@
 					ctxt.canvas.width = image.width;
 					ctxt.canvas.height = image.height;
 					ctxt.drawImage(image, 0, 0);
-					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
 
+					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
 					ctxt.canvas.width = 0;
+					//var picdata = imgdata.data;
 
 					// count how many pixels to draw there are 
 					/*for (var i = 0; i < picdata.length; i+=4) {
@@ -544,6 +747,11 @@
 				if (tween) {
 					TWEEN.update();
 				}
+				
+				if (transformtween1) {
+					TWEEN.update();
+				}
+
 				renderer.render(scene, camera);
 				frameCount++;
 			}

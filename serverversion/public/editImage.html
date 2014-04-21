@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="resources/pixastic.custom.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<script type="text/javascript">
+				$(document).ready(function(){
+					$("#mosaic").click(function(){
+						$("#image").pixastic("mosaic", {blockSize:10});
+					});	
+					$("#desaturate").click(function(){
+						$("#image").pixastic("desaturate");
+					});	
+
+					$("#reset").click(function(){
+						window.location.reload();
+					});
+				});
+		</script>
+		<div class = "container">
+			<div class = "row" style ="margin-top:100px">
+				<div class = "col-md-3">
+					<img id="image" src="testimages/flower.jpeg"/>
+				</div>
+				<div class="col-md-1">
+					<button id="mosaic" type="button" class="btn btn-default">Mosaic</button>
+					<button id="desaturate" type="button" class="btn btn-default">Desaturate</button>
+					<button id="reset" type="button" class="btn btn-primary">Reset</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

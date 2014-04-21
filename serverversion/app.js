@@ -8,6 +8,10 @@ app.use(bodyParser());
 
 
 // get all resources
+app.get('/testimages/*', function(req, res) {
+	res.sendfile('public/testimages/' + req.params[0]);
+});
+
 app.get('/resources/*', function(req, res) {
 	res.sendfile('public/resources/' + req.params[0]);
 });
@@ -30,12 +34,24 @@ app.get('/ImageExtrude.html', function(req, res) {
 app.get('/Voronoi.html', function(req, res) {
 	res.sendfile('public/Voronoi.html');
 });
+app.get('/Voronoi3D.html', function(req, res) {
+	res.sendfile('public/Voronoi3D.html');
+});
 app.get('/testVoro.html', function(req, res) {
 	res.sendfile('public/testVoro.html');
 });
 
+app.get('/testDoubleImageExtrude.html', function(req, res) {
+	res.sendfile('public/testDoubleImageExtrude.html');
+});
+
+app.get('/editImage.html', function(req, res) {
+	res.sendfile('public/editImage.html');
+});
+
 app.post('/data', function(req, res) {
 	var jsondata = req.body["data"];
+	//console.log(req.body);
 	fs.writeFile("particles_from_server",jsondata, 
 			function(err) {
 			if (err) {
@@ -45,7 +61,7 @@ app.post('/data', function(req, res) {
 			else {
 				res.writeHead(200, {'Content-Type':'text/plain'});
 				child_process.execFile('./irregular', function(error, stdout, stderror){
-					//console.log(stdout);
+					console.log(stdout);
 					res.write(stdout);
 					res.end();	
 

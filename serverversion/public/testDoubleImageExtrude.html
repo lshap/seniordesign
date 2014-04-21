@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="resources/jquery.csv-0.71.min.js"></script>
+		<script src="resources/OrbitControls.js"></script>
+
+
+		<script src="resources/spectrum.js"></script>
+		<script src="resources/tweenjs-0.5.1.min.js"></script>
+		<script src="resources/ImageVisualization.js"></script>
+		<script type="text/javascript" src="http://www.parsecdn.com/js/parse-1.2.17.min.js"></script>	
+		
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<link href="resources/spectrum.css" rel="stylesheet">
+	</head>
+	<body> 
+			<script type="text/javascript">
+				$(document).ready(function(){
+					var testData = [];
+					for ( var i = 0; i < 5000; i++) {
+						testData.push(Math.random() * 20);
+					}
+
+					image1 = "testimages/obamahopeblacksmall.jpg";
+					var imgExtrusion = new ImageExtrusion(image1, testData, [0xff0000], 0 , false, 3000);   							 imgExtrusion.init();
+
+				$("#transform").click(function() {
+					imgExtrusion.transform("testimages/hope.jpg");
+				});
+				});
+
+			</script>
+			<button type="button" class = "btn btn-primary" id="transform">Transform</button>
+			<div class="row" id="renderDiv"></div>
+			<canvas id="imagecanvas"></canvas>
+	</body>
+</html>
