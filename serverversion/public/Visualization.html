@@ -65,6 +65,9 @@
 								v = new VoronoiDiagram(visData, visColors);
 								v.initScene();
 							}
+							else if (visType === "VoronoiDiagram3D") {
+								v = new Voronoi3D(visData, visColors, true, 0x0000ff);
+							}
 						},
 						error: function (error) {
 							console.log(error.description);
