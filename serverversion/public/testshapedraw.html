@@ -13,7 +13,8 @@
 			var renderer;
 			var frameCount = 0;
 			var controls;
-			
+			var helper;
+	
 			function init() {
 				$("#testsvg").hide();
 				scene = new THREE.Scene();
@@ -27,17 +28,21 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
 
-				camera.position.set(0, 500, 500);
+				camera.position.set(0, 0, 500);
+				helper = new THREE.CameraHelper(camera);
+				//scene.add(helper);
 				var shapes = parsePaths();
 				var meshes = extrudeShapes(shapes);
-
+		
+				var index = 0;
 				for (var i = 0; i < meshes.length; i++) {
 					scene.add(meshes[i]);
 				}
-
+		
+				positionCamera(meshes);	
 				animate();
 			}
-		
+
 			function calculateCentroid(points) {
 				//get x-z center
 				var x_tot = 0;	
@@ -56,7 +61,6 @@
 				return centroid;
 			}
 	
-
 			function extrudeShapes(shapes) {
 				var meshes = [];
 				console.log("there are " + shapes.length + " shapes");
@@ -80,15 +84,64 @@
 			
 					// translate to center
 					var transmat = new THREE.Matrix4();
-					transmat.makeTranslation(-centroid.x, -centroid.y, -centroid.z);
-					//extrudemesh.applyMatrix(transmat);
+					transmat.makeTranslation(0, amount, 0);
+					extrudemesh.applyMatrix(transmat);
 					meshes.push(extrudemesh); 
 				}
 
 				return meshes;
 			}
 
+
+			function positionCamera(meshes) {
+				var avgCentroid = new THREE.Vector3(0,0,0);
+				var numfaces = 0;
+				for (var i = 0; i < meshes.length; i++) {
+					var nextgeom = meshes[i].geometry;
+					nextgeom.computeCentroids();
+					numfaces += nextgeom.faces.length;
+
+					for (var j = 0; j < nextgeom.faces.length; j++) {
+						avgCentroid.x += nextgeom.faces[j].centroid.x;
+						avgCentroid.y += nextgeom.faces[j].centroid.y;
+						avgCentroid.z += nextgeom.faces[j].centroid.z;
+					}
+				}
+				avgCentroid.x /= numfaces;
+				avgCentroid.y /= numfaces;
+				avgCentroid.z /= numfaces;
+				console.log("average centroid = ");
+				console.log(avgCentroid);
+				camera.lookAt(avgCentroid);
+				controls.target = avgCentroid;				
+
+				var scenegeom = new THREE.Geometry();
+				var numvertices = 0;
+				for (var i = 0; i < meshes.length; i++) {
+					var nextgeom = meshes[i].geometry;
+					for (var j = 0; j < nextgeom.vertices.length; j++) {
+						scenegeom.vertices.push(nextgeom.vertices[j]);
+					}
+
+					for (var j = 0; j < nextgeom.faces.length; j++) {
+						var nextface = nextgeom.faces[j];
+						var newface = new THREE.Face3();
+						newface.a = nextface.a + numvertices;
+						newface.b = nextface.b + numvertices;
+						newface.c = nextface.c + numvertices;
+						scenegeom.faces.push(newface);
+					}
+
+					numvertices += scenegeom.vertices.length;
+				}
+				
+				scenegeom.computeBoundingSphere();
+				console.log("bounding spheere :");
+				console.log(scenegeom.boundingSphere);
+			}
+
 			function animate()  {
+				helper.update();
 				requestAnimationFrame(animate);
 				render();
 			}
