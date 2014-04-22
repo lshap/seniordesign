@@ -79,7 +79,7 @@ function transformSVGPath(pathStr) {
       case 'z':
         canRepeat = false;
         if (x !== firstX || y !== firstY)
-          //path.lineTo(firstX, firstY);
+          //path.lineTo(firstX, firstY); //can't close path because of extrude geometry
         break;
         // - lines!
       case 'L':
@@ -214,8 +214,8 @@ function transformSVGPath(pathStr) {
         throw new Error("weird path command: " + activeCmd);
     }
     if (firstX === null) {
-      firstX = x;
-      firstY = y;
+      //firstX = x;
+      //firstY = y;
     }
     // just reissue the command
     if (canRepeat && nextIsNum())
