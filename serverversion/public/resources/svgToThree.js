@@ -1,5 +1,5 @@
 function transformSVGPath(pathStr) {
- 
+  var seenpoints = []; 
   const DIGIT_0 = 48, DIGIT_9 = 57, COMMA = 44, SPACE = 32, PERIOD = 46,
       MINUS = 45;
  
@@ -44,6 +44,18 @@ function transformSVGPath(pathStr) {
     return isFloat ? parseFloat(s) : parseInt(s);
   }
   
+  function contains(arr, pt) {
+	for (var i = 0; i < arr.length; i++) {
+		if (Math.abs(arr[i].x - pt.x) < 0.001 && 
+		    Math.abs(arr[i].y - pt.y) < 0.001){
+				return true;
+		}
+	}
+
+	return false;
+  }
+
+
   function nextIsNum() {
     var c;
     // do permanently eat any delims...
@@ -66,13 +78,19 @@ function transformSVGPath(pathStr) {
       case 'M':
         x = eatNum();
         y = eatNum();
-        path.moveTo(x, y);
+	if (contains(seenpoints, new THREE.Vector2(x, y)) == false) {
+        	path.moveTo(x, y);
+		seenpoints.push(new THREE.Vector2(x, y));
+	}
         activeCmd = 'L';
         break;
       case 'm':
         x += eatNum();
         y += eatNum();
-        path.moveTo(x, y);
+	if (contains(seenpoints, new THREE.Vector2(x, y)) == false) {
+		path.moveTo(x, y);
+		seenpoints.push(new THREE.Vector2(x, y));
+	}
         activeCmd = 'l';
         break;
       case 'Z':
@@ -87,7 +105,11 @@ function transformSVGPath(pathStr) {
       case 'V':
         nx = (activeCmd === 'V') ? x : eatNum();
         ny = (activeCmd === 'H') ? y : eatNum();
-        path.lineTo(nx, ny);
+	if (contains(seenpoints, new THREE.Vector2(nx, ny)) == false) {
+		
+        	path.lineTo(nx, ny);
+		seenpoints.push(new THREE.Vector2(nx, ny));
+	}
         x = nx;
         y = ny;
         break;
@@ -96,7 +118,10 @@ function transformSVGPath(pathStr) {
       case 'v':
         nx = (activeCmd === 'v') ? x : (x + eatNum());
         ny = (activeCmd === 'h') ? y : (y + eatNum());
-        path.lineTo(nx, ny);
+	if (contains(seenpoints, new THREE.Vector2(nx, ny)) == false) {
+		path.lineTo(nx, ny);
+		seenpoints.push(new THREE.Vector2(nx, ny));
+	}
         x = nx;
         y = ny;
         break;
@@ -111,7 +136,7 @@ function transformSVGPath(pathStr) {
         y2 = eatNum();
         nx = eatNum();
         ny = eatNum();
-        path.bezierCurveTo(x1, y1, x2, y2, nx, ny);
+	path.bezierCurveTo(x1, y1, x2, y2, nx, ny);
         x = nx; y = ny;
         break;
       case 'c':

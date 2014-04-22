@@ -1,6 +1,7 @@
 <html>
 	<head>
-		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<!--<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>-->
+		<script src="resources/three.min.js"></script>
 		<script src="resources/jquery-1.11.0.js"></script>
 		<script src="resources/OrbitControls.js"></script>
 		<script src="resources/svgToThree.js"></script>
@@ -61,9 +62,12 @@
 				console.log("there are " + shapes.length + " shapes");
 				for (var i = 0; i < shapes.length; i++) {
 					var shape = shapes[i].shape;
+					//console.log(shape.extractPoints().shape);
+
 					var color = shapes[i].color;
+					//var amount = shapes[i].amount;
 					var amount = 10 + Math.random() * 90;
-					console.log(amount);
+
 					var extrudegeom = new THREE.ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false});
 					var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity:0.5});
 					var extrudemesh = new THREE.Mesh(extrudegeom, extrudeMat);
@@ -113,17 +117,12 @@
 		</script>
 
 <svg id="testsvg" width="640" height="480" xmlns="http://www.w3.org/2000/svg">
- <title>United States Map with States</title>
- <metadata id="metadata7">image/svg+xml</metadata>
- <g>
-  <title>Layer 1</title>
-  <g id="layer1"/>
   <path fill="#ff00ff" stroke="#000000" stroke-width="1px" id="path2833" d="m557,98l3,-6l-1,-9l0,-8l3,-8l3,0l2,1l5,-4l4,1l3,6l2,9l2,3l4,1l2,4l4,1l2,3l-6,6l-8,7l-1,4l-4,5l-5,5l-2,8l-6,-9l-3,-8l-3,-12z"/>
  <path fill="#ffff00" stroke="#000000" stroke-width="1px" id="path3607" d="m553,102l4,-4l3,12l3,8l6,9l-1,4l-6,2l-9,4l-2,-9l1,-13l2,-4l-1,-3l0,-6z"/>
   <path fill="#00ffff" stroke="#000000" stroke-width="1px" id="path3609" d="m546,138l7,-1l-2,-9l1,-13l2,-4l-1,-3l0,-3l-8,1l-8,3l0,5l2,5l1,8l2,0l2,9l2,2z"/>
   <path fill="#ff00ff" stroke="#000000" stroke-width="1px" id="path3611" d="m546,148l0,-10l7,-1l15,-6l3,1l-1,4l3,3l4,3l3,0l-2,-3l3,0l2,3l-1,2l-4,3l1,3l-4,0l-1,-3l-3,0l-5,-4l-20,5z"/>
   <path fill="#ff00ff" stroke="#000000" stroke-width="1px" id="path3613" d="m565,153l-2,-9l3,-1l3,3l0,5l-4,2z"/>
-  <path fill="#fff0ff" stroke="#000000" stroke-width="1px" id="path3615" d="m549,163l12,-8l4,0l0,-2l-2,-9l-17,4l0,4l3,11z"/>
+  <path fill="#ff00ff" stroke="#000000" stroke-width="1px" id="path3615" d="m549,163l12,-8l4,0l0,-2l-2,-9l-17,4l0,4l3,11z"/>
   <path fill="#f00fff" stroke="#000000" stroke-width="1px" id="path3617" d="m485,165l0,-5l7,-6l-3,-9l16,-1l9,-7l0,-7l-3,-2l13,-15l13,-4l0,5l2,5l1,8l2,0l2,9l2,2l0,10l0,4l3,11l4,0l9,-5l2,1l-12,9l-4,-1l0,-3l-7,-2l-9,-2l-1,-4l-4,-1l-6,0l-12,5l-4,0l-20,5z"/>
   <path fill="#ffff00" stroke="#000000" stroke-width="1px" id="path3619" d="m537,161l-2,6l1,6l4,4l-6,8l2,5l1,-1l6,4l4,-7l1,-5l0,-5l-1,-4l-2,-2l1,-2l2,-1l0,-3l-11,-3z"/>
   <path fill="#fff00f" stroke="#000000" stroke-width="1px" id="path3642" d="m544,200l-8,-9l0,-1l-2,-4l1,6c0,0 2,10 2,10l7,0l0,-2z"/>
@@ -137,7 +136,7 @@
   <path fill="#ffff00" stroke="#000000" stroke-width="1px" id="path3658" d="m466,266l0,4l2,2l3,0l5,6l12,10l3,3l1,3l3,3l2,3l2,0l1,-5l1,-2l4,0l3,-3l0,-3l3,-3l3,-2l0,-4l3,-4l3,-4l-3,0l-9,-8l-4,-1l-7,1l-2,2l-3,0l0,-3l-2,-2l-3,1l-10,0l-5,2l-6,4z"/>
   <path fill="#0000ff" stroke="#000000" stroke-width="1px" id="path3660" d="m439,269l3,-1l11,-2l13,0l0,4l2,2l3,0l5,6l15,13l1,3l3,3l2,3l-1,3l-2,3l0,13l-6,0l-1,5l-9,0l-23,1l-3,-3l-2,-11l2,-6l-8,-19l-5,-17z"/>
   <path fill="#fff000" stroke="#000000" stroke-width="1px" id="path3662" d="m425,334l-3,-8l13,-2l17,-2l3,3l23,-1l9,0l1,-5l6,0l4,13l9,12l1,6l10,14l2,3l1,20l-2,4l-6,1l-3,-1l-5,-6l-5,-1l-2,-7l-2,-1l-1,-4l-3,0l-3,-5l0,-6l-1,-2l-3,0l-2,1l-1,-3l2,-3l0,-8l-8,-5l-7,-6l-6,-1l-8,8l-4,-1l-4,-7l-7,-1l-3,-1l-12,2z"/>
-  <path fill="#f0fff0" stroke="#000000" stroke-width="1px" id="path3664" d="m411,273c2,0 16,-2 16,-2l12,-2l5,17l8,19l-2,6l2,11l-30,4l3,8l-5,3l-6,0l-2,-25l-1,-39z"/>
+  <path fill="#00fff0" stroke="#000000" stroke-width="1px" id="path3664" d="m411,273c2,0 16,-2 16,-2l12,-2l5,17l8,19l-2,6l2,11l-30,4l3,8l-5,3l-6,0l-2,-25l-1,-39z"/>
   <path fill="#f00fff" stroke="#000000" stroke-width="1px" id="path3666" d="m404,342l1,-2l7,0l2,-3l-2,-25l-1,-39l-22,1l-4,3l0,6l-6,9l1,15l3,4l-1,3l-4,4l-2,8l0,4l15,-1l5,-1l1,6l2,1l2,5l3,2z"/>
   <path fill="#fff00f" stroke="#000000" stroke-width="1px" id="path3668" d="m350,348c1,-1 2,-7 2,-7l-1,-5l3,-5l-4,-7l-3,-7l0,-13l21,0l12,-1l0,4l3,4l-1,3l-4,4l-2,8l0,4l15,-1l5,-1l1,6l2,1l2,5l3,2l-2,4l-1,1l0,2l7,2l0,3l-2,2l-4,-2l-5,-4l0,3l-3,1l-5,-1l-4,2l-4,-1l-4,-5l-2,-2l-3,2l-6,1l-5,-2l-11,0z"/>
   <path fill="#ffff00" stroke="#000000" stroke-width="1px" id="path3670" d="m347,297l0,7l21,0l12,-1l-1,-11l6,-9l0,-6l4,-3l0,-7l2,-3l-1,-3l-2,-2l1,-4l-8,0l-2,1l-14,0l-26,1l0,2l1,9l1,5l1,23l5,0l0,1z"/>
@@ -146,7 +145,7 @@
   <path fill="#0000ff" stroke="#000000" stroke-width="1px" id="path3676" d="m409,235l0,-7l3,-5l1,-4l-1,-2l0,-4l1,-3l-1,-1l0,-7l-1,-3l-1,-6l0,-11l5,0l2,-2l9,-2l10,0l5,34l0,5l-2,2l-4,0l0,2l-3,4l-1,4l-2,1l-2,-2l-2,0l0,3l-6,1l-9,1l-1,2z"/>
   <path fill="#00ff00" stroke="#000000" stroke-width="1px" id="path3678" d="m417.233002,180.059998l8.766998,-2.059998l10,0l3,-1l12,-2l0,-6l6,-7l0,-6l-2,-4l-2,-8l-2,-2l-2,2l-6,7l-2,-1l-1,-3l4,-6l1,-1l0,-6l-2,-2l0,-4l-3,-1l-4,-1l-5,-3l-2,0l-3,2l0,4l-1,1l-1,4l-1,3l-4,0l-1,2l0,5l-2,4l0,7l2,4l2,3l0,3l0,7l-2,4l-0.766998,4.059998z"/>
   <path fill="#00ffff" stroke="#000000" stroke-width="1px" id="path3680" d="m402,135l-1,-4l-1,-3l-5,-4l-6,0l-1,-1l-8,-1l-4,-5l9,-4l9,-8l2,1l-3,4l0,3l6,-1l5,4l7,0l3,-3l9,-3l1,3l3,0l6,-1l1,4l-1,3l-8,1l-3,-1l-5,3l-4,0l-2,3l-3,1l-6,9z"/>
-  <path fill="#000000" stroke="#000000" stroke-width="1px" id="path3682" d="m404.194,171.115997c-0.194,-0.115997 -27.194,1.884003 -27.194,1.884003l-5,-3l-2,-2l0,-7l-1,-6l-9,-8l-6,-2l-1,-11l-1,-1l1,-4l4,-2l0,-8l3,-2l6,-2l3,1l7,1l4,5l8,1l1,1l6,0l5,4l2,10l-2,2l0,4l4,-4l3,-4l-1,5l-1,7l-2,4l1.194,19.115997l0,0z"/>
+  <path fill="#0000ff" stroke="#000000" stroke-width="1px" id="path3682" d="m404.194,171.115997c-0.194,-0.115997 -27.194,1.884003 -27.194,1.884003l-5,-3l-2,-2l0,-7l-1,-6l-9,-8l-6,-2l-1,-11l-1,-1l1,-4l4,-2l0,-8l3,-2l6,-2l3,1l7,1l4,5l8,1l1,1l6,0l5,4l2,10l-2,2l0,4l4,-4l3,-4l-1,5l-1,7l-2,4l1.194,19.115997l0,0z"/>
   <path fill="#0000ff" stroke="#000000" stroke-width="1px" id="path3684" d="m404,171l6,11l0,11l1,6l1,3l0,7l1,1l-1,3l0,4l1,2l-1,4l-3,5l0,6l-5,9l-5,0l-1,2l-1,1l-2,0l-3,-9l-2,-3l-5,-1l-2,-3l1,-2l0,-6l-4,-1l-1,-3l-8,-7l-1,-9l1,-3l3,-4l1,-3l-2,-1l1,-2l5,-3l3,-5l0,-2l-5,-6l27,-2z"/>
   <path fill="#00ff00" stroke="#000000" stroke-width="1px" id="path3686" d="m339,257l25,-1l15,0l2,-1l8,0l-1,4l2,2l1,3l3,-7l0,-2l2,-2l2,-3l0,-5l-1,1l-2,0l-3,-9l-2,-3l-5,-1l-2,-3l1,-2l0,-6l-4,-1l-1,-3l-8,-7l-1,-9l-3,-1l-17,0l-25,0l1,4l7,6l2,1l-1,2l-1,2l1,3l4,3c0,0 0,27 0,28c0,1 1.216003,7.108002 1,7z"/>
   <path fill="#ff00ff" stroke="#000000" stroke-width="1px" id="path3688" d="m318,162l0,13l4,11l3,15l42,0l3,1l1,-3l3,-4l1,-3c0,0 -2,-1 -2,-1l1,-2l5,-3l3,-5l0,-2l-5,-6l-5,-3l-2,-2l0,-7l0,-1l-23,1l-29,1z"/>
@@ -173,7 +172,6 @@
   <path fill="#ffff00" stroke="#000000" stroke-width="1px" id="path3730" d="m44,289l2,-1l-1,-2l-2,1l1,2z"/>
   <path fill="#00ffff" stroke="#000000" stroke-width="1px" id="path3732" d="m36.844799,285.016998l1.155201,-1.016998l-2,-1l0.844799,2.016998z"/>
   <path fill="#00ff00" stroke="#000000" stroke-width="1px" id="path3734" d="m141.694,377.904999l-0.694,-45.904999l-10,-1l-11,-6l-7,0l-7,6l-4,-1l-2,3l7,10l-2,3l-4,-4l-5,0l-2,3l1,5l6,3l3,2l-2,2l-5,0l-6,5l-1,5l2,5l3,2l-1,5l6,2l7,0l0,3l-6,4l-8,5l-8,3l-9,3l21,-3l6,-4l6,-5l4,-2l2,-4l-2,-3l5,-2l-1,5l5,0l1,-3l3,1l0,-5l4,0l4,4l7.694,-0.095001l0,0z"/> 
-
 
 
 		<!--<svg id="testsvg">
