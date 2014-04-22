@@ -28,7 +28,6 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
 
-				camera.position.set(0, 0, 500);
 				helper = new THREE.CameraHelper(camera);
 				//scene.add(helper);
 				var shapes = parsePaths();
@@ -138,6 +137,9 @@
 				scenegeom.computeBoundingSphere();
 				console.log("bounding spheere :");
 				console.log(scenegeom.boundingSphere);
+				var radius = scenegeom.boundingSphere.radius;
+				camera.position.set(0, radius, radius);
+				controls.maxDistance = radius;
 			}
 
 			function animate()  {
