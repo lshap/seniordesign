@@ -15,9 +15,13 @@
 			var buffermesh;
 			var buffergeom;
 			var numshapes = 0;
+			var numshapetriangles;
 			var cubeadded = false;
 			var projector, raycaster, mouse, line;
-				
+			var changed = false;			
+			var testgeom;
+			var ocolors;
+	
 			// inputted fields
 			var imgsrc;
 			var data;
@@ -74,24 +78,18 @@
 					var intersects = raycaster.intersectObject( buffermesh );
 
 					if ( intersects.length > 0 ) {
+						var intersect = intersects[0];
+						var shapenum = Math.floor(intersect.indices[0]/(numshapetriangles * 9));
 
-						var intersect = intersects[ 0 ];
-
-						var object = intersect.object;
-						var positions = object.geometry.attributes.position.array;
-						for ( var i = 0, j = 0; i < 4; i ++, j += 3 ) {
-
-							var index = intersect.indices[ i % 3 ] * 3;
-
-							line.geometry.attributes.position.array[ j ] =   positions[ index ] ;
-							line.geometry.attributes.position.array[ j + 1 ] = positions[ index + 1 ];
-							line.geometry.attributes.position.array[ j + 2 ] = positions[ index + 2 ];
-							line.geometry.attributes.position.array[ j + 3 ] = positions[ index + 3 ];
-
+						console.log("shape number = " + shapenum);
+						for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
+							var index = shapenum * (numshapetriangles * 9) + i;
+							colors[index] = 1;
+							colors[index + 1] = 1;
+							colors[index + 2] = 1;	
 						}
 
-						line.visible = true;
-						line.geometry.attributes.position.needsUpdate = true;
+						buffergeom.attributes.color.needsUpdate = true;
 					}
 				}
 			}
@@ -143,7 +141,7 @@
 				// set up buffer geometry
 				buffergeom = new THREE.BufferGeometry();	
 
-				var numshapetriangles;
+				numshapetriangles;
 				switch (this.shapeType) {
 				case ShapeType.SQUARE:
 					numshapetriangles = 12;
@@ -180,7 +178,42 @@
 					}
 
 				}
+			
+
+				// starting test code here ----	
+				/*testgeom = new THREE.BufferGeometry();	
+				testgeom.attributes = {
+					position: {
+						itemSize: 3,
+						array: new Float32Array( 12 * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					normal: {
+						itemSize: 3,
+						array: new Float32Array( 12 * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					},
+
+					color: {
+						itemSize: 3,
+						array: new Float32Array( 12 * 3 * 3 ),
+						numItems: triangles * 3 * 3
+					}
+
+				}
+
+				opositions = testgeom.attributes.position.array;
+				ocolors = testgeom.attributes.color.array;
+
+				var cubeGeom = new THREE.CubeGeometry(50, 50, 50);	
+				addMeshToGeom(0, cubeGeom, testgeom, new THREE.Color(1,1,0));	
 				
+				var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
+				var testmesh = new THREE.Mesh(testgeom,material);
+				scene.add(testmesh); 	
+				// end test code ----*/
+
 				positions = buffergeom.attributes.position.array;
 				normals = buffergeom.attributes.normal.array;
 				colors = buffergeom.attributes.color.array;
