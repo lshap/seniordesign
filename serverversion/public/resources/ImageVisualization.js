@@ -65,12 +65,12 @@
 			function onMouseDown(event) {
 				event.preventDefault();
 				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-				mouse.y = ( event.clientY / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 				var cpos = camera.position;
 				var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
-				if (camera.rotation.x < 0.5 && distance < 120 || camera.rotation.x > 0.5 && distance < 30) {
-					var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+				//if (camera.rotation.x < 0.5 && distance < 120 || camera.rotation.x > 0.5 && distance < 30) {
+					var vector = new THREE.Vector3( mouse.x, mouse.y, 1);
 					projector.unprojectVector( vector, camera );
 
 					raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
@@ -79,7 +79,7 @@
 
 					if ( intersects.length > 0 ) {
 						var intersect = intersects[0];
-						var shapenum = Math.floor(intersect.indices[0]/(numshapetriangles * 9));
+						var shapenum = Math.floor(intersect.indices[0]/(numshapetriangles * 3));
 
 						console.log("shape number = " + shapenum);
 						for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
@@ -91,7 +91,7 @@
 
 						buffergeom.attributes.color.needsUpdate = true;
 					}
-				}
+				//}
 			}
 
 
