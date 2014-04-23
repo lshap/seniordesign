@@ -16,7 +16,8 @@
 			var buffergeom;
 			var numshapes = 0;
 			var cubeadded = false;
-			
+			var projector, raycaster, mouse, line;
+				
 			// inputted fields
 			var imgsrc;
 			var data;
@@ -51,20 +52,31 @@
 				this.animationTime = time;	
 			} 
 	
+			function onMouseMove(event) {
+				event.preventDefault();
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = ( event.clientY / window.innerWidth ) * 2 - 1;
+			}
+
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
 				if (this.initWithImage) {
 					this.loadImageData(this.extrudeImage);
 				}
-
+				
 				// initialize 3D scene
 				scene = new THREE.Scene();
-				
+				projector = new THREE.Projector();
+				raycaster = new THREE.Raycaster();
+
+				mouse = new THREE.Vector2();
+	
 				var light = new THREE.DirectionalLight( 0xffffff);
 				light.position.set( 0,10,0);
 				scene.add( light );
 				var amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 				scene.add( amblight );	
+				document.addEventListener( 'mousemove', onMouseMove, false );
 
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
@@ -127,6 +139,20 @@
 				positions = buffergeom.attributes.position.array;
 				normals = buffergeom.attributes.normal.array;
 				colors = buffergeom.attributes.color.array;
+	
+				var linegeometry = new THREE.BufferGeometry();
+				linegeometry.attributes = {
+					position: {
+						itemSize: 3,
+						array: new Float32Array(3 * 3),
+						numItems: 3 * 3
+					}
+				}
+
+
+				var linematerial = new THREE.LineBasicMaterial({color:0xffffff});
+				line = new THREE.Line(linegeometry, linematerial);
+				scene.add(line);
 				animate();
 			}
 
@@ -728,7 +754,6 @@
 							numColoredPixels++;
 						}
 					}*/
-					
 					ctxt.canvas.height = 0;
 					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
 					obj.extrudeImage();
@@ -756,7 +781,38 @@
 					TWEEN.update();
 				}
 
+				var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+				projector.unprojectVector( vector, camera );
+
+				raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+				var intersects = raycaster.intersectObject( buffermesh );
+
+				if ( intersects.length > 0 ) {
+
+					var intersect = intersects[ 0 ];
+
+					var object = intersect.object;
+					var positions = object.geometry.attributes.position.array;
+					for ( var i = 0, j = 0; i < 4; i ++, j += 3 ) {
+
+						var index = intersect.indices[ i % 3 ] * 3;
+
+						line.geometry.attributes.position.array[ j ] =   positions[ index ] ;
+						line.geometry.attributes.position.array[ j + 1 ] = positions[ index + 1 ];
+						line.geometry.attributes.position.array[ j + 2 ] = positions[ index + 2 ];
+
+					}
+					line.visible = true;
+					line.geometry.attributes.position.needsUpdate = true;
+				}
+				else {
+					line.visible = false;
+				}
+
+
 				renderer.render(scene, camera);
 				frameCount++;
 			}
-			
+		
+				
