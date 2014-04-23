@@ -58,6 +58,49 @@
 				mouse.y = ( event.clientY / window.innerWidth ) * 2 - 1;
 			}
 
+			function onMouseDown(event) {
+				event.preventDefault();
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = ( event.clientY / window.innerWidth ) * 2 - 1;
+
+				var cpos = camera.position;
+				var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
+				if (camera.rotation.x < 0.5 && distance < 120 || camera.rotation.x > 0.5 && distance < 30) {
+					var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+					projector.unprojectVector( vector, camera );
+
+					raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+
+					var intersects = raycaster.intersectObject( buffermesh );
+
+					if ( intersects.length > 0 ) {
+
+						var intersect = intersects[ 0 ];
+
+						var object = intersect.object;
+						var positions = object.geometry.attributes.position.array;
+						for ( var i = 0, j = 0; i < 4; i ++, j += 3 ) {
+
+							var index = intersect.indices[ i % 3 ] * 3;
+
+							line.geometry.attributes.position.array[ j ] =   positions[ index ] ;
+							line.geometry.attributes.position.array[ j + 1 ] = positions[ index + 1 ];
+							line.geometry.attributes.position.array[ j + 2 ] = positions[ index + 2 ];
+							line.geometry.attributes.position.array[ j + 3 ] = positions[ index + 3 ];
+
+						}
+
+						line.visible = true;
+						line.geometry.attributes.position.needsUpdate = true;
+					}
+				}
+			}
+
+
+			function onMouseUp(event) {
+				line.visible = false;
+			}
+
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
 				if (this.initWithImage) {
@@ -77,6 +120,8 @@
 				var amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 				scene.add( amblight );	
 				document.addEventListener( 'mousemove', onMouseMove, false );
+				document.addEventListener( 'mousedown', onMouseDown, false );
+				document.addEventListener( 'mouseup', onMouseUp, false );
 
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
@@ -144,8 +189,8 @@
 				linegeometry.attributes = {
 					position: {
 						itemSize: 3,
-						array: new Float32Array(3 * 3),
-						numItems: 3 * 3
+						array: new Float32Array(4 * 3),
+						numItems: 4 * 3
 					}
 				}
 
@@ -786,7 +831,7 @@
 
 				raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
 
-				var intersects = raycaster.intersectObject( buffermesh );
+				/*var intersects = raycaster.intersectObject( buffermesh );
 
 				if ( intersects.length > 0 ) {
 
@@ -801,6 +846,7 @@
 						line.geometry.attributes.position.array[ j ] =   positions[ index ] ;
 						line.geometry.attributes.position.array[ j + 1 ] = positions[ index + 1 ];
 						line.geometry.attributes.position.array[ j + 2 ] = positions[ index + 2 ];
+						line.geometry.attributes.position.array[ j + 3 ] = positions[ index + 3 ];
 
 					}
 					line.visible = true;
@@ -808,7 +854,7 @@
 				}
 				else {
 					line.visible = false;
-				}
+				}*/
 
 
 				renderer.render(scene, camera);
