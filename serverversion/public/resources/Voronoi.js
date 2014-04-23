@@ -195,6 +195,11 @@
 				return geometry;
 			}
 
+
+			function clipGeom(halfedges) {
+
+			}
+
 			function extrudeGeom(halfedges) {
 				var pts = [];
 

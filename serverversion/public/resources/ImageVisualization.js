@@ -62,7 +62,7 @@
 				
 				var light = new THREE.DirectionalLight( 0xffffff);
 				light.position.set( 0,10,0);
-				//scene.add( light );
+				scene.add( light );
 				var amblight = new THREE.AmbientLight( 0x404040 ); // soft white light
 				scene.add( amblight );	
 
@@ -74,9 +74,13 @@
 				var renderDiv = document.getElementById('renderDiv');
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
+				/*
 				renderer.setSize(document.getElementById('renderDiv').offsetWidth, 500);
-				document.getElementById('renderDiv').appendChild( renderer.domElement );
-				controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
+				document.getElementById('renderDiv').appendChild( renderer.domElement );*/
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+				//controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
+				controls = new THREE.OrbitControls(camera);
 				camera.position.set(0, 50, 150);
 
 				// set up buffer geometry

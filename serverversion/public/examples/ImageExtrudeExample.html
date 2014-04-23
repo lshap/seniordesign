@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+		<script src="../resources/jquery-1.11.0.min.js"></script>
+		<script src="../resources/OrbitControls.js"></script>
+		<script src="../resources/tweenjs-0.5.1.min.js"></script>
+		<script src="../resources/ImageVisualization.js"></script>
+		<script type = "text/javascript"> 
+			var colors = [];
+			colors.push(0x0000ff);
+			colors.push(0xff0000);
+			var data = [];
+			for (var i = 0; i < 5000; i++) {
+				data.push(25 + Math.random() * 200);
+			}
+
+			var imgExtrusion = new ImageExtrusion("../testimages/obamahopeblacksmall.jpg", data, colors, ShapeType.SQUARE, false, 3000);
+			$(document).ready(function () {
+				imgExtrusion.init(); 
+	});
+		</script>
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<canvas id="imagecanvas"></canvas>
+	</body>
+</html>
