@@ -21,6 +21,9 @@
 			var changed = false;			
 			var testgeom;
 			var ocolors;
+			var selectedshapeindex;
+			var oldcolor;
+			var intersected;
 	
 			// inputted fields
 			var imgsrc;
@@ -79,25 +82,42 @@
 
 					if ( intersects.length > 0 ) {
 						var intersect = intersects[0];
-						var shapenum = Math.floor(intersect.indices[0]/(numshapetriangles * 3));
+						selectedshapeindex = Math.floor(intersect.indices[0]/(numshapetriangles * 3));
 
-						console.log("shape number = " + shapenum);
+						console.log("shape number = " + selectedshapeindex);
 						for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
-							var index = shapenum * (numshapetriangles * 9) + i;
+							var index = selectedshapeindex * (numshapetriangles * 9) + i;
+							if (i==0) {
+								oldcolor = new THREE.Color(colors[index], 
+											   colors[index + 1], 
+											   colors[index + 2]);
+							}
 							colors[index] = 1;
 							colors[index + 1] = 1;
 							colors[index + 2] = 1;	
 						}
 
 						buffergeom.attributes.color.needsUpdate = true;
+						intersected = true;
 					}
 				//}
 			}
 
 
 			function onMouseUp(event) {
-				line.visible = false;
-			}
+
+				if (intersected) {
+					for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
+						var index = selectedshapeindex * (numshapetriangles * 9) + i;
+						colors[index] = oldcolor.r;
+						colors[index + 1] = oldcolor.g;
+						colors[index + 2] = oldcolor.b;	
+					}
+
+					buffergeom.attributes.color.needsUpdate = true;
+					intersected = false;
+				}
+			}			
 
 			// init function: initializes image extrusion scene 
 			ImageExtrusion.prototype.init = function() {
