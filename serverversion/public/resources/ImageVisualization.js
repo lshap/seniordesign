@@ -60,9 +60,29 @@
 			} 
 	
 			function onMouseMove(event) {
-				event.preventDefault();
-				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-				mouse.y = ( event.clientY / window.innerWidth ) * 2 - 1;
+				if (intersected) {
+					for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
+						var index = selectedshapeindex * (numshapetriangles * 9) + i;
+						colors[index] = oldcolor.r;
+						colors[index + 1] = oldcolor.g;
+						colors[index + 2] = oldcolor.b;	
+					}
+
+					buffergeom.attributes.color.needsUpdate = true;
+					intersected = false;
+				}
+			}
+
+			function addLabel(text, x, y) {
+				var label = document.getElementById('tooltip');
+				$(label).show();
+				label.style.position = 'absolute';
+				label.style.width = 100;
+				label.style.height = 40;
+				label.style.backgroundColor = "#EFEFEF";	
+				label.innerHTML = "hello";
+				label.style.top = y;
+				label.style.left = x;
 			}
 
 			function onMouseDown(event) {
@@ -84,7 +104,6 @@
 						var intersect = intersects[0];
 						selectedshapeindex = Math.floor(intersect.indices[0]/(numshapetriangles * 3));
 
-						console.log("shape number = " + selectedshapeindex);
 						for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
 							var index = selectedshapeindex * (numshapetriangles * 9) + i;
 							if (i==0) {
@@ -97,6 +116,9 @@
 							colors[index + 2] = 1;	
 						}
 
+						
+						
+						addLabel("hello", event.clientX, event.clientY);
 						buffergeom.attributes.color.needsUpdate = true;
 						intersected = true;
 					}
@@ -105,7 +127,6 @@
 
 
 			function onMouseUp(event) {
-
 				if (intersected) {
 					for (var i = 0; i < numshapetriangles * 9; i+=3 ) {
 						var index = selectedshapeindex * (numshapetriangles * 9) + i;
@@ -117,6 +138,7 @@
 					buffergeom.attributes.color.needsUpdate = true;
 					intersected = false;
 				}
+				$("#tooltip").hide();
 			}			
 
 			// init function: initializes image extrusion scene 
@@ -131,6 +153,9 @@
 				raycaster = new THREE.Raycaster();
 
 				mouse = new THREE.Vector2();
+				var label = document.createElement("div");
+				label.id = "tooltip";
+				document.body.appendChild(label);
 	
 				var light = new THREE.DirectionalLight( 0xffffff);
 				light.position.set( 0,10,0);
@@ -154,6 +179,8 @@
 				document.getElementById('renderDiv').appendChild( renderer.domElement );*/
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
+
+
 				//controls = new THREE.OrbitControls(camera, document.getElementById('renderDiv'));
 				controls = new THREE.OrbitControls(camera);
 				camera.position.set(0, 50, 150);
@@ -449,7 +476,7 @@
 				var numdatapts = this.data.length;
 				var p = 0;
 
-				// condense image if it is too large for data
+				// condense imag../resources/e if it is too large for data
 				var scale = Math.floor(numpix/numdatapts);	
 				console.log('scale = '+ scale);
 				var imgsize = imgdata.height * imgdata.width;
@@ -760,6 +787,8 @@
 				$(image).load(function() {
 					
 				console.log("loaded new image with source = " + newimgsrc); 
+				$("body").append("<canvas id='imagecanvas'></canvas>");
+				console.log($(document));
 				var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
@@ -772,6 +801,8 @@
 
 					ctxt.canvas.height = 0;
 					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
+					console.log('got here');
+					$("#imagecanvas").remove();
 					var targetgeom = extrudeBufferGeometry(pixelData, shapetype, colors);
 					var targetpos1 = targetgeom.attributes.position.array;
 					var targetpos2 = positions; 
@@ -833,6 +864,7 @@
 				var obj = this;
 				$(image).load(function () {
 					console.log("loaded");	
+					$("body").append("<canvas id='imagecanvas'></canvas>");
 					var imgcanvas = document.getElementById('imagecanvas');
 					var ctxt = imgcanvas.getContext('2d');
 					
@@ -841,7 +873,7 @@
 					ctxt.drawImage(image, 0, 0);
 
 					imgdata = ctxt.getImageData(0,0, ctxt.canvas.width, ctxt.canvas.height);
-					ctxt.canvas.width = 0;
+					$("#imagecanvas").hide();
 					//var picdata = imgdata.data;
 
 					// count how many pixels to draw there are 
@@ -852,8 +884,6 @@
 							numColoredPixels++;
 						}
 					}*/
-					ctxt.canvas.height = 0;
-					ctxt.clearRect(0, 0, ctxt.canvas.width, ctxt.canvas.height);
 					obj.extrudeImage();
 				});	
 			}
