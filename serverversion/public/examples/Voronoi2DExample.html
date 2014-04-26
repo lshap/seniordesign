@@ -1,0 +1,30 @@
+
+<html>
+	<head>
+		<!--<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>-->
+		<script src="../resources/three.min.js"></script>
+		<script src="../resources/jquery-1.11.0.js"></script>
+		<script src="../resources/OrbitControls.js"></script>
+		<script src="../resources/svgToThree.js"></script>
+		<script src="../resources/voronoi-core.min.js"></script>
+		<script src="../resources/VoronoiClipped.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var points = [];
+				var cols =  [];
+				cols.push(0x00ff00);
+				cols.push(0xffff00);
+				cols.push(0x0000ff);
+				for (var i = 0; i < 50; i++) {
+					var next = {x: Math.random() * 5, y: Math.random() * 5};
+					points.push(next);
+				}
+
+				var v = new VoronoiDiagram(points, cols);
+				v.initScene();
+			});
+		</script>
+	</body>
+</html>

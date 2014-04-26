@@ -100,7 +100,7 @@ function transformSVGPath(pathStr) {
           //path.lineTo(firstX, firstY); //can't close path because of extrude geometry
         break;
         // - lines!
-      case 'L':
+      case 'L': 
       case 'H':
       case 'V':
         nx = (activeCmd === 'V') ? x : eatNum();
@@ -236,7 +236,9 @@ function transformSVGPath(pathStr) {
         y = ny;
         break;
       default:
-        throw new Error("weird path command: " + activeCmd);
+	if (activeCmd !== " ") {
+        	throw new Error("weird path command: " + activeCmd);
+	}
     }
     if (firstX === null) {
       //firstX = x;

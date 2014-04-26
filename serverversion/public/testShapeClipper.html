@@ -1,0 +1,65 @@
+<html>
+	<head>
+		<script src="resources/three.min.js"></script>
+		<script src="resources/jquery-1.11.0.js"></script>
+		<script src="resources/OrbitControls.js"></script>
+		<script src="resources/ShapeClipper.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+		$(document).ready(function(){
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight,
+									0.1,
+									1000 );
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setClearColor(0xffffff, 1);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			controls = new THREE.OrbitControls(camera);
+			camera.position.set(0, 5, 5);
+		
+			var sqrpts = [];
+			sqrpts.push(new THREE.Vector2(1, 1));
+			sqrpts.push(new THREE.Vector2(-1, 1));
+			sqrpts.push(new THREE.Vector2(-1, -1));
+			sqrpts.push(new THREE.Vector2(1, -1));
+
+			var shape1 = new THREE.Shape(sqrpts);	
+			var shapeMat = new THREE.MeshBasicMaterial({color:0xff0000});
+			var shapegeom = new THREE.ShapeGeometry(shape1);
+			scene.add(new THREE.Mesh(shapegeom, shapeMat));
+
+
+			var circpts = [];
+			for (var i = 0; i < Math.PI * 2; i+= Math.PI / 12) {
+				circpts.push(new THREE.Vector2(2 * Math.cos(i), 2 * Math.sin(i)));
+			}
+	
+			var shape2 = new THREE.Shape(circpts);
+			shapeMat = new THREE.MeshBasicMaterial({color:0x00ff00});
+			var transmat = new THREE.Matrix4();
+			transmat.makeTranslation(1, 0, 0);
+			shapegeom = new THREE.ShapeGeometry(shape2);
+			shapegeom.applyMatrix(transmat);
+
+			var clipper = new ShapeClipper(shape1, shape2);
+			var shapes = clipper.getClippedShapes();
+			console.log(shapes);	
+
+			scene.add(new THREE.Mesh(shapegeom, shapeMat));
+
+			animate();
+
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+			}
+			
+			function render() {
+				renderer.render(scene, camera);
+			}
+		});	
+		</script>
+	</body>
+</html>

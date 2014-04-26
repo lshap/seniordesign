@@ -70,6 +70,7 @@
 
 					buffergeom.attributes.color.needsUpdate = true;
 					intersected = false;
+					$("#tooltip").hide();
 				}
 			}
 
@@ -80,7 +81,7 @@
 				label.style.width = 100;
 				label.style.height = 40;
 				label.style.backgroundColor = "#EFEFEF";	
-				label.innerHTML = "hello";
+				label.innerHTML = text;
 				label.style.top = y;
 				label.style.left = x;
 			}
