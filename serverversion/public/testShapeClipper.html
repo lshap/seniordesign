@@ -50,19 +50,24 @@
 			irregpts.push(new THREE.Vector2(0.5, -1.5));
 			irregpts.push(new THREE.Vector2(0.5, 0.5));
 
-			var shape2 = new THREE.Shape(irregpts);
+
+			var smallsqrpts = [];
+			smallsqrpts.push(new THREE.Vector2(2, 2));
+			smallsqrpts.push(new THREE.Vector2(2, -2));
+			smallsqrpts.push(new THREE.Vector2(-2, -2));
+			smallsqrpts.push(new THREE.Vector2(-2, 2));
+
+			var shape2 = new THREE.Shape(smallsqrpts);
 			shapeMat = new THREE.MeshBasicMaterial({color:0x00ff00});
 			var transmat = new THREE.Matrix4();
-			transmat.makeTranslation(2, 0, 0);
+			transmat.makeTranslation(1.5, 0, 0);
 			var shapegeom2 = new THREE.ShapeGeometry(shape2);
-			shapegeom2.applyMatrix(transmat);
+			//shapegeom2.applyMatrix(transmat);
 
 
 
 			var clipper = new ShapeClipper(shapegeom.vertices, shapegeom2.vertices);
 			var shapes = clipper.getClippedShapes();
-			console.log(shapes);
-			//console.log(shapes);	
 
 			var intersectMat = new THREE.MeshBasicMaterial({color:0x0000ff});
 			for (var i = 0; i < shapes.length; i++) {
