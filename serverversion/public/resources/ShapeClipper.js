@@ -45,17 +45,21 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	}
 
 	// curr points to last node in shape 
-	var close = new node();
+	/*var close = new node();
 	close.x = head.x;
 	close.y = head.y;
 	last.next = close;
-	close.prev = last;
+	close.prev = last;*/
+
+	last.next = head;
+	head.prev = last;
 
 
 
 	function printlist(start) {
 		var curr = start;
-		while (curr != null) {
+		var backToStart = false;
+		while (backToStart == false) {
 			console.log("curr : " + curr.x + " , " + curr.y); 
 			var prevtext = (curr.prev == null) ? "null" : curr.prev.x + " , " + curr.prev.y;
 			var nexttext = (curr.next == null) ? "null" : curr.next.x + " , " + curr.next.y;
@@ -65,6 +69,10 @@ ShapeClipper.prototype.getClippedShapes = function () {
 			console.log("intersect " + curr.intersect);
 			console.log("\n");
 			curr = curr.next;
+
+			if (curr.x == start.x && curr.y == start.y) {
+				backToStart = true;
+			}
 		}
 	}
 
@@ -89,20 +97,25 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	}
 	
 	// add new node to end
-	var clipclose = new node();
+	/*var clipclose = new node();
 	clipclose.x = cliphead.x;
 	clipclose.y = cliphead.y;
 	clipclose.prev = cliplast;
-	cliplast.next = clipclose;
+	cliplast.next = clipclose;*/
+	cliplast.next = cliphead;
+	cliphead.prev = cliplast;
 	
 
 	function createvertex(s1, s2, point) {
 		var newnode = new node();
 		newnode.intersect = true;
+
 		newnode.prev = s1;
 		newnode.next = s2;
+
 		s1.next = newnode;
 		s2.prev = newnode;
+
 		newnode.x = point.x; 
 		newnode.y = point.y; 
 		return newnode;
@@ -164,30 +177,61 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	
 
 	// PHASE ONE: loop through each shape and find intersections
-	var shapecurr = head;
-	var count = 0;
-	while (shapecurr.next != null) {
-		var clipcurr = cliphead;
-		while (clipcurr.next != null) {
-			count ++;
-			var intersection = intersect(shapecurr, shapecurr.next, clipcurr, clipcurr.next);
-			if (intersection != null) {
-				var i1 = createvertex(shapecurr, shapecurr.next, intersection);
-				var i2 = createvertex(clipcurr, clipcurr.next, intersection);
 
-				clipcurr = clipcurr.next;
-				shapecurr = shapecurr.next;	
+	var s1 = head;
+	var s2 = head.next;
+	var count = 0;
+	var shapevertslength = this.shapeverts.length;
+	console.log("shapeverts = " + shapevertslength);
+
+	var clipvertslength = this.clipverts.length;
+	console.log("clipverts = " + clipvertslength);
+
+	for (var i = 0; i < shapevertslength; i++) {
+		var c1 = cliphead;
+		var c2 = cliphead.next;
+
+		var numshifts = 1;
+
+		for (var j = 0; j < clipvertslength; j++) {
+			/*count ++;
+			console.log("comparing (" + s1.x + "," + s1.y + ") to (" + 
+					s2.x + "," + s2.y + ") with (" + 
+					c1.x + "," + c1.y + ") to (" + 
+					c2.x + "," + c2.y + ")") ;
+			console.log("\n");*/
+
+			var intersection = intersect(s1, s2, c1, c2);
+			if (intersection != null) {
+				var i1 = createvertex(s1, s2, intersection);
+				var i2 = createvertex(c1, c2, intersection);
+
+				c1 = c1.next;
+				numshifts ++;
 
 				i1.neighbor = i2;
 				i2.neighbor = i1;
 			}
 
-			clipcurr = clipcurr.next;
+			c1 = c1.next;
+			while (c1.intersect == true) {
+				c1 = c1.next;
+			}
+
+			c2 = c1.next;
+			while (c2.intersect == true) {
+				c2 = c2.next;
+			}
 		}
-	
-		shapecurr = shapecurr.next;
+
+		for (var k = 0; k < numshifts; k++) {
+			s1 = s1.next;
+		}
+
+		s2 = s1.next;
 	 }
 
+	console.log("loop ran " + count + " times");
 	
 	function pointInPoly(pt, poly) { 
 		for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
@@ -208,14 +252,19 @@ ShapeClipper.prototype.getClippedShapes = function () {
 			exitstatus = true;
 		}
 		
-		var s = head;
-		while (s.next != null) {
+		var s = start;
+		var backToStart = false;
+		while (backToStart == false) {
 			if (s.intersect == true) {
 				s.exit = exitstatus;
 				exitstatus = !exitstatus;
 			}
 
 			s = s.next;
+
+			if (s.x == start.x && s.y == start.y) {
+				backToStart = true;
+			}
 		}	
 
 	}
@@ -229,11 +278,16 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	// find all intersection nodes
 	var intersections = [];
 	curr = head;
-	while (curr != null) {
+	var backToHead = false;
+	while (backToHead == false) {
 		if (curr.intersect == true) {
 			intersections.push(curr);
 		}
+
 		curr = curr.next;
+		if (curr.x == head.x && curr.y == head.y) {
+			backToHead = true;
+		}
 	}
 
 
@@ -248,9 +302,33 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	if (intersections.length > 0) {
 		var curr = intersections[0];
 		markedInters[0] = true;
+		console.log("intersections " + intersections.length);
 	}
 
-	while (curr != null) {
+	else { // no intersections
+		curr = null;
+		var allInside = true;
+		var start = head;
+		for (var i = 0; i < this.shapeverts.length; i++) {
+			var pt = {x: start.x, y:start.y};
+			if (pointInPoly(pt, this.clipverts) == false) {
+				allInside = false;
+				break;
+			}	
+
+			start = start.next;
+		}
+
+		var shapes = [];	
+		if (allInside) {
+			shapes.push(new THREE.Shape(this.shapeverts));		
+		}
+
+		return shapes;
+	}
+
+
+/*	while (curr != null) {
 		var newpoly = [];
 		newpoly.push(new THREE.Vector2(curr.x, curr.y));
 
@@ -260,12 +338,13 @@ ShapeClipper.prototype.getClippedShapes = function () {
 		while (closed == false) {
 			if (curr.exit == false) {
 				var newintersect = false;
+
 				while (newintersect == false) {
 					curr = curr.next;
 					if (curr.x == start.x && curr.y == start.y) {
 						closed = true;
 					}
-					else {
+					else { // don't close the shape for extrude geom
 						newpoly.push(new THREE.Vector2(curr.x, curr.y));
 						console.log("added " + curr.x + " , " + curr.y);
 					}
@@ -289,7 +368,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 					if (curr.x == start.x && curr.y == start.y) {
 						closed = true;
 					}
-					else {
+					else { // don't close the shape for extrude geom
 						newpoly.push(new THREE.Vector2(curr.x, curr.y));
 						console.log("added " + curr.x + " , " + curr.y);
 					}
@@ -319,19 +398,18 @@ ShapeClipper.prototype.getClippedShapes = function () {
 				}
 			}
 			
-			console.log(newpoly);
 			polygons.push(newpoly);
-		}
+		} */
 
 
 	// polygons should contain vertices of polygons	
-	/*var shapes = [];
+	var shapes = [];
 	for (var i = 0; i < polygons.length; i++) {
-		var shape = new Shape(polygons[i]);
+		var shape = new THREE.Shape(polygons[i]);
+		shapes.push(shape);
 	}
 
-	return shapes;*/
-	return polygons;
+	return shapes;
 }
 
 

@@ -43,16 +43,37 @@
 			sqr2pts.push(new THREE.Vector2(-1, -1));
 			sqr2pts.push(new THREE.Vector2(1, -1));
 	
-			var shape2 = new THREE.Shape(sqr2pts);
+			var irregpts = [];
+			irregpts.push(new THREE.Vector2(-2, 0.5));
+			irregpts.push(new THREE.Vector2(-1.5, 0));
+			irregpts.push(new THREE.Vector2(-2, -1.5));
+			irregpts.push(new THREE.Vector2(0.5, -1.5));
+			irregpts.push(new THREE.Vector2(0.5, 0.5));
+
+			var shape2 = new THREE.Shape(irregpts);
 			shapeMat = new THREE.MeshBasicMaterial({color:0x00ff00});
 			var transmat = new THREE.Matrix4();
-			transmat.makeTranslation(1, 0.5, 0);
+			transmat.makeTranslation(2, 0, 0);
 			var shapegeom2 = new THREE.ShapeGeometry(shape2);
 			shapegeom2.applyMatrix(transmat);
 
+
+
 			var clipper = new ShapeClipper(shapegeom.vertices, shapegeom2.vertices);
 			var shapes = clipper.getClippedShapes();
+			/*console.log(shapes);
 			//console.log(shapes);	
+
+			var intersectMat = new THREE.MeshBasicMaterial({color:0x0000ff});
+			for (var i = 0; i < shapes.length; i++) {
+				var newshapegeom = new THREE.ShapeGeometry(shapes[i]);
+				var transmat = new THREE.Matrix4();
+				transmat.makeTranslation(0, 0, 0.1);
+				newshapegeom.applyMatrix(transmat);
+				var newmesh = new THREE.Mesh(newshapegeom, intersectMat);
+				scene.add(newmesh);
+			}*/
+		
 
 			scene.add(new THREE.Mesh(shapegeom2, shapeMat));
 
