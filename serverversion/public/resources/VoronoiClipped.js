@@ -7,9 +7,12 @@
 			var controls;
 
 			function VoronoiDiagram(pts, colors) {
-				var maxX = -1;
-				var maxY = -1;
+				var maxX = Number.MIN_VALUE;
+				var maxY = Number.MIN_VALUE;
 			
+				var minX = Number.MAX_VALUE;
+				var minY = Number.MAX_VALUE;
+
 				for (var i = 0; i < pts.length; i++) {
 					var p = pts[i];
 					if (p.x > maxX) {
@@ -18,11 +21,23 @@
 					if (p.y > maxY) {
 						maxY = p.y;
 					}
+
+					if (p.x < minX) {
+						minX = p.x;
+				}
+					if (p.y < minY) {
+						minY = p.y;
+					}
 				} 
 				
 				this.voronoi = new Voronoi();
-				console.log("max x = " + maxX + " maxy = " + maxY);
-				var bbox = {xl:0, xr:maxX, yt:0, yb:maxY};
+				this.padding = 1.5;
+				this.maxX = maxX + this.padding;
+				this.maxY = maxY + this.padding;
+				this.minX = minX - this.padding;
+				this.minY = minY - this.padding;
+
+				var bbox = {xl:this.minX, xr:this.maxX, yt:this.minY, yb:this.maxY};
 				this.diagram = this.voronoi.compute(pts, bbox);	
 				this.colors = colors;
 				console.log(this.diagram.cells[0]);
@@ -68,10 +83,6 @@
 				zGeom.vertices.push(new THREE.Vector3(0, 0, 10));
 				var Z = new THREE.Line(zGeom, ZaxisMat);
 				scene.add(Z);	*/
-
-
-				this.createDiagram();
-				animate();
 			}
 
 			function animate() {
@@ -190,14 +201,82 @@
 				return geometry;
 			}
 
+			VoronoiDiagram.prototype.computeCentroid = function(shapePts) {
+				var xsum = 0;
+				var zsum = 0;
+				for (var i = 0; i < shapePts.length; i++) {
+					xsum += shapePts[i].x;
+					zsum+= shapePts[i].z;
+				}
 
-			function clipGeom(halfedges, clipshape) {
-				var shape = shapeGeom(halfedges);
-				var shapegeometry = new THREE.ShapeGeometry(shape);
-
+				xsum /= shapePts.length;
+				zsum /= shapePts.length;
+				return (new THREE.Vector2(xsum, zsum));
 			}
 
-		
+
+			VoronoiDiagram.prototype.addClipShape = function(clipsvg) {
+				var path = $(clipsvg[0]).attr("d");
+				var shape = transformSVGPath(path);
+				var shapeGeom = new THREE.ShapeGeometry(shape);
+
+				var maxshapex = Number.MIN_VALUE;
+				var maxshapey = Number.MIN_VALUE;
+
+				var minshapex = Number.MAX_VALUE;
+				var minshapey = Number.MAX_VALUE;
+				
+				for (var i = 0; i < shapeGeom.vertices.length; i++) {
+					var curr = shapeGeom.vertices[i];
+					if (curr.x > maxshapex) {
+						maxshapex = curr.x;
+					}	
+
+					if (curr.y > maxshapey) {
+						maxshapey = curr.y;
+					}	
+
+					if (curr.x < minshapex) {
+						minshapex = curr.x;
+					}	
+
+					if (curr.y < minshapey) {
+						minshapey = curr.y;
+					}	
+				}
+
+				var scalex = (this.maxX - this.minX)/(maxshapex - minshapex);
+				var scaley = (this.maxY - this.minY)/(maxshapey - minshapey);
+				var scale = Math.max(scalex, scaley);
+
+				//console.log("scale x = " + scalex + " scale y = " + scaley);
+	
+				var scalemat = new THREE.Matrix4();
+				scalemat.makeScale(scale, scale, 1);
+				shapeGeom.applyMatrix(scalemat);
+
+				var mat = new THREE.MeshBasicMaterial({color:0xff0000});
+				var rotmat = new THREE.Matrix4();
+				rotmat.makeRotationX(Math.PI/2);
+
+				shapeGeom.applyMatrix(rotmat);
+				var centroid = this.computeCentroid(shapeGeom.vertices);
+				
+				var transmat = new THREE.Matrix4();
+				
+				var centroid = this.computeCentroid(shapeGeom.vertices);
+				console.log("centroid = " + centroid.x + "," + centroid.y);
+				transmat.makeTranslation(-centroid.x, 0, -centroid.y);
+
+				shapeGeom.applyMatrix(transmat);
+
+				var mesh = new THREE.Mesh(shapeGeom, mat);
+				scene.add(mesh);
+				this.clipvertices = shapeGeom.vertices;
+				this.createDiagram();
+				animate();
+			}
+
 			function shapeGeom(halfedges) {
 				var pts = [];
 
@@ -234,21 +313,58 @@
 				return shape;
 			}
 
-			function extrudeGeom(halfedges) {
+			VoronoiDiagram.prototype.extrudeGeom = function(halfedges) {
 				var extrudeSettings = {amount:0.1, steps: 1, bevelEnabled:false};
 				var shape = shapeGeom(halfedges);
-				var shape3d = shape.extrude(extrudeSettings);
 
-				var scalemat = new THREE.Matrix4();
-				var amount = Math.random() * 0.1 + 1;
-				scalemat.makeScale(0.9, 0.9, amount);
-				shape3d.applyMatrix(scalemat);
+				var shapeclipper = new ShapeClipper(shape.vertices, this.clipvertices); 
+				var clippedshapes = shapeclipper.getClippedShapes();	
 
-				var rotmat = new THREE.Matrix4();
-				rotmat.makeRotationX(3 * Math.PI/2);
-				shape3d.applyMatrix(rotmat);
+				var shapes = [];
+				if (clippedshapes.length > 0) {
+					shapes = clippedshapes;	
+				}
 
-				return shape3d;	
+				else {
+					shapes.push(shape);
+				}
+			
+				var shapes3d = [];
+				for (var i = 0; i < shapes.length; i++) {
+					var nextshape = shapes[i];
+					var shape3d = nextshape.extrude(extrudeSettings);
+
+					var scalemat = new THREE.Matrix4();
+					var amount = 2;
+					scalemat.makeScale(1, 1, amount);
+					shape3d.applyMatrix(scalemat);
+
+					var rotmat = new THREE.Matrix4();
+					rotmat.makeRotationX(Math.PI/2);
+					shape3d.applyMatrix(rotmat);
+
+
+					var outlinepts = [];
+					outlinepts.push(new THREE.Vector2(this.maxX, this.maxY));
+					outlinepts.push(new THREE.Vector2(this.minX, this.maxY));
+					outlinepts.push(new THREE.Vector2(this.minX, this.minY));
+					outlinepts.push(new THREE.Vector2(this.maxX, this.minY));
+
+					var outlineshapegeom = new THREE.ShapeGeometry(new THREE.Shape(outlinepts));
+					outlineshapegeom.applyMatrix(rotmat);
+
+
+					var centroid = this.computeCentroid(outlineshapegeom.vertices);
+					var transmat = new THREE.Matrix4();
+
+					transmat.makeTranslation(-centroid.x, 0, -centroid.y); 
+					shape3d.applyMatrix(transmat);
+					outlineshapegeom.applyMatrix(transmat);
+					centroid = this.computeCentroid(outlineshapegeom);
+					shapes3d.push(shape3d);
+				}
+				
+				return shapes3d;
 			}
 
 			VoronoiDiagram.prototype.screenshot = function (imagename) {
@@ -270,7 +386,7 @@
 						logged = true;
 					}*/
 
-					var geom = extrudeGeom(halfedges);
+					var geom = this.extrudeGeom(halfedges);
 					var colorInd = Math.floor(Math.random() * this.colors.length);
 					var col = this.colors[colorInd];
 

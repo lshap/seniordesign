@@ -185,7 +185,7 @@ function transformSVGPath(pathStr) {
       case 'A':
         rx = eatNum();
         ry = eatNum();
-        xar = eatNum() * DEGS_TO_RADS;
+        xar = eatNum() * Math.PI/180;
         laf = eatNum();
         sf = eatNum();
         nx = eatNum();
