@@ -19,7 +19,6 @@ ShapeClipper.prototype.getClippedShapes = function () {
 		this.alpha = 0;
 	}	
 	
-	console.log(this.clipverts);
 	
 	var curr = new node();
 	var head;
@@ -62,6 +61,8 @@ ShapeClipper.prototype.getClippedShapes = function () {
 			var nexttext = (curr.next == null) ? "null" : curr.next.x + " , " + curr.next.y;
 			console.log("prev " + prevtext);
 			console.log("next " + nexttext);
+			console.log("exit " + curr.exit);
+			console.log("intersect " + curr.intersect);
 			console.log("\n");
 			curr = curr.next;
 		}
@@ -177,9 +178,6 @@ ShapeClipper.prototype.getClippedShapes = function () {
 				clipcurr = clipcurr.next;
 				shapecurr = shapecurr.next;	
 
-				/*console.log("i1 = " + i1.x + " , " + i1.y);
-				c`nsole.log("shapecurr = " + shapecurr.x + " , " + shapecurr.y);*/
-
 				i1.neighbor = i2;
 				i2.neighbor = i1;
 			}
@@ -189,8 +187,8 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	
 		shapecurr = shapecurr.next;
 	 }
-	
 
+	
 	function pointInPoly(pt, poly) { 
 		for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
 			((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
@@ -203,32 +201,29 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	function markEntryStatus(start, othershape) {
 		var c = start;
 		var exitstatus = false;
-		while (c.next != null) {
-			var point = {x: c.x, y: c.y};
-			if (pointInPoly(point, othershape)) {
-				c.exit = true;
-				exitstatus = true;
-			}
-			
-			var s = head;
-			while (s.next != null) {
-				if (s.intersect == true) {
-					s.exit = exitstatus;
-					exitstatus = !exitstatus;
-				}
 
-				s = s.next;
-			}	
-
-			c = c.next;
+		var p0 = {x: c.x, y: c.y};
+		if (pointInPoly(p0, othershape)) {
+			c.exit = true;
+			exitstatus = true;
 		}
+		
+		var s = head;
+		while (s.next != null) {
+			if (s.intersect == true) {
+				s.exit = exitstatus;
+				exitstatus = !exitstatus;
+			}
+
+			s = s.next;
+		}	
+
 	}
 
 
 	// PHASE TWO: toggle entry/exit status
 	markEntryStatus(head, this.clipverts);
 	markEntryStatus(cliphead, this.shapeverts);
-
 
 	// PHASE THREE:
 	// find all intersection nodes
@@ -241,52 +236,92 @@ ShapeClipper.prototype.getClippedShapes = function () {
 		curr = curr.next;
 	}
 
-	console.log(intersections);
-
-
 
 	// set curr to point to head of intersection list
 	var polygons = [];
-	/*for (var i = 0; i < intersections.length; i++) {
-		var curr = intersections[i];
+	var markedInters = [];
+	for (var i = 0; i < intersections.length; i++) {
+		markedInters.push(false);
+	}
+
+
+	if (intersections.length > 0) {
+		var curr = intersections[0];
+		markedInters[0] = true;
+	}
+
+	while (curr != null) {
 		var newpoly = [];
 		newpoly.push(new THREE.Vector2(curr.x, curr.y));
 
 		var start = curr;
 		var closed = false;
-		printlist(curr);
+
 		while (closed == false) {
 			if (curr.exit == false) {
-				while (curr.intersect == false) {
+				var newintersect = false;
+				while (newintersect == false) {
 					curr = curr.next;
 					if (curr.x == start.x && curr.y == start.y) {
 						closed = true;
-						console.log('got here');
 					}
 					else {
-						newpoly.push[curr];
+						newpoly.push(new THREE.Vector2(curr.x, curr.y));
+						console.log("added " + curr.x + " , " + curr.y);
+					}
+
+					if (curr.intersect == true) {
+						newintersect = true;
+						for (var i = 0; i < intersections.length; i++) {
+							var inter = intersections[i];
+							if (inter.x == curr.x && inter.y == curr.y) {
+								markedInters[i] = true;
+								break;
+							}
+						}
 					}
 				}
 			}
 			else {
-				while (curr.intersect == false) {
+				var newintersect = false;
+				while (newintersect == false) {
 					curr = curr.prev;
 					if (curr.x == start.x && curr.y == start.y) {
 						closed = true;
-						console.log('got here 2');
 					}
 					else {
-						newpoly.push[curr];
+						newpoly.push(new THREE.Vector2(curr.x, curr.y));
+						console.log("added " + curr.x + " , " + curr.y);
+					}
+
+					if (curr.intersect == true) {
+						newintersect = true;
+						for (var i = 0; i < intersections.length; i++) {
+							var inter = intersections[i];
+							if (inter.x == curr.x && inter.y == curr.y) {
+								markedInters[i] = true;
+								break;
+								}
+							}
+						}
 					}
 				}
+
+				curr = curr.neighbor;
+
 			}
 
-			curr = curr.neighbor;
+			curr = null;
+			for (var i = 0; i < markedInters.length; i++) {
+				if (markedInters[i] == false) {
+					curr = intersections[i];
+					markedInters[i] = true;
+				}
+			}
+			
+			console.log(newpoly);
+			polygons.push(newpoly);
 		}
-
-
-		polygons.push(newpoly);
-	}*/
 
 
 	// polygons should contain vertices of polygons	
@@ -296,7 +331,6 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	}
 
 	return shapes;*/
-	console.log(polygons);
 	return polygons;
 }
 
