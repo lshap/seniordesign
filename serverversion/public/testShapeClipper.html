@@ -35,19 +35,26 @@
 			for (var i = 0; i < Math.PI * 2; i+= Math.PI / 12) {
 				circpts.push(new THREE.Vector2(2 * Math.cos(i), 2 * Math.sin(i)));
 			}
+
+
+			var sqr2pts = [];
+			sqr2pts.push(new THREE.Vector2(1, 1));
+			sqr2pts.push(new THREE.Vector2(-1, 1));
+			sqr2pts.push(new THREE.Vector2(-1, -1));
+			sqr2pts.push(new THREE.Vector2(1, -1));
 	
-			var shape2 = new THREE.Shape(circpts);
+			var shape2 = new THREE.Shape(sqr2pts);
 			shapeMat = new THREE.MeshBasicMaterial({color:0x00ff00});
 			var transmat = new THREE.Matrix4();
-			transmat.makeTranslation(1, 0, 0);
-			shapegeom = new THREE.ShapeGeometry(shape2);
-			shapegeom.applyMatrix(transmat);
+			transmat.makeTranslation(1, 0.5, 0);
+			var shapegeom2 = new THREE.ShapeGeometry(shape2);
+			shapegeom2.applyMatrix(transmat);
 
-			var clipper = new ShapeClipper(shape1, shape2);
+			var clipper = new ShapeClipper(shapegeom.vertices, shapegeom2.vertices);
 			var shapes = clipper.getClippedShapes();
-			console.log(shapes);	
+			//console.log(shapes);	
 
-			scene.add(new THREE.Mesh(shapegeom, shapeMat));
+			scene.add(new THREE.Mesh(shapegeom2, shapeMat));
 
 			animate();
 
