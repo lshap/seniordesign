@@ -231,8 +231,6 @@ ShapeClipper.prototype.getClippedShapes = function () {
 		s2 = s1.next;
 	 }
 
-	console.log("loop ran " + count + " times");
-	
 	function pointInPoly(pt, poly) { 
 		for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
 			((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
@@ -302,7 +300,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	if (intersections.length > 0) {
 		var curr = intersections[0];
 		markedInters[0] = true;
-		console.log("intersections " + intersections.length);
+		console.log(intersections);
 	}
 
 	else { // no intersections
@@ -328,7 +326,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	}
 
 
-/*	while (curr != null) {
+	while (curr != null) {
 		var newpoly = [];
 		newpoly.push(new THREE.Vector2(curr.x, curr.y));
 
@@ -346,7 +344,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 					}
 					else { // don't close the shape for extrude geom
 						newpoly.push(new THREE.Vector2(curr.x, curr.y));
-						console.log("added " + curr.x + " , " + curr.y);
+						//console.log("added " + curr.x + " , " + curr.y);
 					}
 
 					if (curr.intersect == true) {
@@ -370,7 +368,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 					}
 					else { // don't close the shape for extrude geom
 						newpoly.push(new THREE.Vector2(curr.x, curr.y));
-						console.log("added " + curr.x + " , " + curr.y);
+						//console.log("added " + curr.x + " , " + curr.y);
 					}
 
 					if (curr.intersect == true) {
@@ -399,7 +397,7 @@ ShapeClipper.prototype.getClippedShapes = function () {
 			}
 			
 			polygons.push(newpoly);
-		} */
+		} 
 
 
 	// polygons should contain vertices of polygons	

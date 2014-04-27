@@ -61,7 +61,7 @@
 
 			var clipper = new ShapeClipper(shapegeom.vertices, shapegeom2.vertices);
 			var shapes = clipper.getClippedShapes();
-			/*console.log(shapes);
+			console.log(shapes);
 			//console.log(shapes);	
 
 			var intersectMat = new THREE.MeshBasicMaterial({color:0x0000ff});
@@ -72,7 +72,7 @@
 				newshapegeom.applyMatrix(transmat);
 				var newmesh = new THREE.Mesh(newshapegeom, intersectMat);
 				scene.add(newmesh);
-			}*/
+			}
 		
 
 			scene.add(new THREE.Mesh(shapegeom2, shapeMat));
