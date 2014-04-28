@@ -62,7 +62,7 @@
 					<p class = "well">optional array of strings describing the data points given in the data array.</p>
 				<h5>colors</h5>	
 					<p class="well">
-					an array of colors specified in hexidecimal form.
+					an array of colors specified in hexidecimal form. Colors are assigned to extruded pixels randomly with equal probability.
 					</p>
 				<h5>shapetype</h5>
 					<p class="well">
@@ -113,7 +113,7 @@
 				<h4>SVGExtrusion(svg, opacity)</h4>
 				<h5>svg</h5>
 					<p class="well">
-						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6.
+						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6. If a <a class="doc-nav" doc="tooltips">tooltip</a> is being used, the description can be added with a "description" property in the associated path.
 					</p>
 				<h5>opacity</h5>
 					<p class="well">
@@ -128,6 +128,44 @@
 
 			<div class="doc" id="2d-voronoi">
 				<h2>2D Voronoi Diagram</h2>
+				<p class="well description">
+					A Voronoi Diagram divides space into a number of regions based off of a number of provided "sites". Each region corresponds to the set of points which are closer to the associated site than to any other site in the diagram. For more information, check <a href="https://en.wikipedia.org/wiki/Voronoi_diagram">here</a>. This visualization constructs a 2D Voronoi diagram and extrudes each cell into a 3D form. 
+				</p>
+				<h4 class="sectionor">Constructor</h4>
+				<h4>Voronoi2D(pts, height, svgbase, colors, opacity)</h4>
+				<h5>pts</h5>	
+					<p class="well">
+						array of 2D point objects used to construct the diagram. A point may specified as follows: <br></br>
+						<span style="font-weight:bold">var p = {x: 0, y:0}</span>
+						<br></br> or <br></br>
+
+						<span style="font-weight:bold">var p; p.x = 0; p.y = 0;</span>
+						<br></br>
+						with the appropriate values filled in for x and y.
+					</p>
+				<h5>height</h5>	
+					<p class="well">
+						the amount that each cell is extruded vertically by.
+					</p>
+				<h5>svgbase</h5>	
+					<p class="well">
+						path to an svg describing the shape around which to clip the diagram. The shape must be a simple convex curve.
+					</p>
+				<h5>colors</h5>	
+					<p class="well">
+						array of colors to assign to each extruded cell in the diagram. The colors will be assigned at random to each cell with equal probability.
+					</p>
+				<h5>opacity</h5>	
+					<p class="well">
+						opacity of the material used on the extruded cell forms. Default value is 0.6.
+					</p>
+	
+				<h4 class="sectionor">Source</h4>	
+				<a>src/Voronoi2D.js</a>
+
+				<h4 class="sectionor">Example</h4>	
+				<a>examples/Voronoi2D.html</a>
+2
 			</div><!-- end 2d voronoi doc description-->
 
 			<div class="doc" id="3d-voronoi">
