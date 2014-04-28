@@ -18,8 +18,8 @@
 		  </ul>
 	   </div>
 
-	
-		<div class="sidebar-module">
+		<div class="row">	
+		<div class="sidebar-module col-md-3">
 			<h4 >Documentation</h4>
 			<ol class="list-unstyled">
 				<li><a class="doc-nav" doc="getting-started">Getting Started</a></li>
@@ -61,7 +61,7 @@
 					</p>
 				</div>
 				<h4 class="sectionor">Constructor</h4>	
-				<h4 class="code">PixelExtrusion(img, extrudecolor, data, datadescriptions, colors, shapetype, tooltip)</h4>
+				<h4 class="code">PixelExtrusion(img, extrudecolor, data, datadescriptions, colors, shapetype, tooltip, scene, camera)</h4>
 				<h5 class="code">img</h5>	
 					<p class="well">the path to the image file to upload. .jpeg or .jpg work best.</p>
 				<h5 class="code">extrudecolor</h5>	
@@ -84,12 +84,22 @@
 	
 				<h5 class="code">tooltip</h5>
 					<p class="well">
-						optional json object describing tooltip behavior. Optional fields include "selectcolor", which describes what color to apply to the selected pixel and "selectaction", which can equal either "click" or "hover". Hover tooltips can severely impair the performance of large pixel extrusion visualizations. 
+						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected pixel and "selectaction", which can equal either "click" or "hover". Hover tooltips can severely impair the performance of large pixel extrusion visualizations. 
 					<br></br>
 					Eg.<span class="code" style="font-weight:bold"> {selectcolor: 0xffffff, selectaction:"click"}</span>
 					<br></br>
 					will add a tooltip to the pixel extrusion visualization that turns selected objects white when they are clicked. The text shown in the tooltip will be the associated string from the <span class ="code">datadescriptions</span> field that the visualization was initialized with, or the data value if no description is given.
 					</p>
+				<h5 class="code">scene</h5>
+					<p class="well">
+						threejs scene to add this image extrusion to.
+					</p>
+
+				<h5 class="code">camera</h5>
+					<p class="well">
+						threejs camera used with this scene. Needed for the tooltip.
+					</p>
+
 				<h4 class="sectionor">Methods</h4>
 					<h4 name="transform" class="code">.transform(newimages, newdatasets, delay, duration, loop)</h4>	
 					<h5 class="code">newimages</h5>
@@ -112,6 +122,8 @@
 						<p class="well">
 							boolean describing whether or not the transformation should loop.
 						</p>
+					<h4 class="code">.updateTransform()</h4>	
+						<p class="well">method to update the transformation. Call this method in the render loop.</p>
 
 				<h4 class="sectionor">Source</h4>	
 				<a>src/pixelextrusion.js</a>
@@ -130,22 +142,30 @@
 						would create a path with an extruded height of 10</p>
 				</div>
 				<h4 class="sectionor">Constructor</h4>
-				<h4 class="code">SVGExtrusion(svg, opacity)</h4>
+				<h4 class="code">SVGExtrusion(svg, opacity, tootlip, scene, camera)</h4>
 				<h5 class="code">svg</h5>
 					<p class="well">
 						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6. If a <a class="doc-nav" doc="tooltips">tooltip</a> is being used, the description can be added with a "description" property in the associated path.
 					</p>
 				<h5 class="code">opacity</h5>
 					<p class="well">
-						optional uniform opacity for all extruded form materials. Default opacity value if not specified is 0.6.
+						uniform opacity for all extruded form materials. Default opacity value if not specified is 0.6.
 					</p>
 				<h5 class="code">tooltip</h5>
 					<p class="well">
-						optional json object describing tooltip behavior. Optional fields include "selectcolor", which describes what color to apply to the selected object, "selectopacity", which specifies an opacity change to apply to the selected object, and "selectaction", which can equal either "click" or "hover". 					<br></br>
+						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected object, "selectopacity", which specifies an opacity change to apply to the selected object, and "selectaction", which can equal either "click" or "hover". 					<br></br>
 					Eg.<span class="code" style="font-weight:bold"> {selectopacity: 1, selectaction:"hover"}</span>
 					<br></br>
 					will add a tooltip to the svg extrusion visualization that turns selected objects opaque when they are hovered over. The text shown in the tooltip will be the associated string from the <span class ="code">description</span> field of the extruded svg path, or the data value if no description is given.</p>
+				<h5 class="code">scene</h5>
+					<p class="well">
+						threejs scene to add this svg extrusion to.
+					</p>
 
+				<h5 class="code">camera</h5>
+					<p class="well">
+						threejs camera used with this scene. Needed for the tooltip.
+					</p>
 
 				<h4 class="sectionor">Source</h4>
 				<a>src/svgextrusion.js</a>
@@ -160,7 +180,7 @@
 					A Voronoi Diagram divides space into a number of regions based off of a number of provided "sites". Each region corresponds to the set of points which are closer to the associated site than to any other site in the diagram. For more information, check <a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank">here</a>. This visualization constructs a 2D Voronoi diagram and extrudes each cell into a 3D form. 
 				</p>
 				<h4 class="sectionor">Constructor</h4>
-				<h4 class="code">Voronoi2D(pts, height, svgbase, colors, opacity)</h4>
+				<h4 class="code">Voronoi2D(pts, height, svgbase, colors, opacity, scene)</h4>
 				<h5 class="code">pts</h5>	
 					<p class="well">
 						array of 2D point objects used to construct the diagram. A point may specified as follows: <br></br>
@@ -187,6 +207,10 @@
 					<p class="well">
 						opacity of the material used on the extruded cell forms. Default value is 0.6.
 					</p>
+				<h5 class="code">scene</h5>	
+					<p class="well">
+						threejs scene to add this diagram to.
+					</p>
 	
 				<h4 class="sectionor">Source</h4>	
 				<a>src/voronoi2D.js</a>
@@ -203,7 +227,7 @@
 					<a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank">
 					voronoi diagram</a> for points in a 3D space. 
 					<h4 class="sectionor">Constructor</h4>
-				<h4 class="code">Voronoi3D(pts, containershape, colors, opacity)</h4>
+				<h4 class="code">Voronoi3D(pts, containershape, colors, opacity, scene)</h4>
 				<h5 class="code">pts</h5>	
 					<p class="well">
 						array of 3D point objects used to construct the diagram. A point may specified as follows: <br></br>
@@ -229,7 +253,10 @@
 					</p>
 	
 
-				</p>
+				<h5 class="code">scene</h5>	
+					<p class="well">
+						threejs scene to add this diagram to.
+					</p>
 				
 
 				<h4 class="sectionor">Source</h4>	
@@ -238,6 +265,7 @@
 				<h4 class="sectionor">Example</h4>	
 				<a>examples/voronoi3Dexample.html</a>
 			</div><!-- end 3d voronoi doc description-->
+	</div>
 	</div>
 	</div>
 
