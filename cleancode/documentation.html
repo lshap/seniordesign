@@ -51,13 +51,15 @@
 					</p>
 				</div>
 				<h4 class="sectionor">Constructor</h4>	
-				<h4>PixelExtrusion(img, data, colors, shapetype)</h4>
+				<h4>PixelExtrusion(img, data, datadescriptions, colors, shapetype)</h4>
 				<h5>img</h5>	
 					<p class="well">the path to the image file to upload. .jpeg or .jpg work best.</p>
 				<h5>data</h5>	
 					<p class = "well">an array of 1D data points to associate with the pixels. The pixels will be read left to right
 					   from the top down and will be extruded to the height of the associated data point. Only data.length
 					   extruded pixels will be drawn.</p>
+				<h5>datadescriptions</h5>	
+					<p class = "well">optional array of strings describing the data points given in the data array.</p>
 				<h5>colors</h5>	
 					<p class="well">
 					an array of colors specified in hexidecimal form.
@@ -96,23 +98,45 @@
 
 				<h4 class="sectionor">Example</h4>	
 				<a>examples/pixelextrusionsexample.html</a>
-			</div>
+			</div><!-- end pixel extrusion doc description-->
 
 			<div class="doc" id="svg-extrusion">
 				<h2>SVG Extrusion</h2>
-			</div>
+				<div class="well description">
+					This visualization extrudes the individual paths of an svg to a height based off of an associated data point,
+					which is given by adding a "data" attribute to the associated path of the svg.
+					<br></br>	
+					<p><span style="font-weight:bold">Eg. &#60;path d="..." data="10" &#47;&#62; </span><br></br> 
+						would create a path with an extruded height of 10</p>
+				</div>
+				<h4 class="sectionor">Constructor</h4>
+				<h4>SVGExtrusion(svg, opacity)</h4>
+				<h5>svg</h5>
+					<p class="well">
+						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6.
+					</p>
+				<h5>opacity</h5>
+					<p class="well">
+						optional uniform opacity for all extruded form materials. Default opacity value if not specified is 0.6.
+					</p>
+				<h4 class="sectionor">Source</h4>
+				<a>src/svgextrusion.js</a>
+
+				<h4 class="sectionor">Example</h4>
+				<a>examples/svgextrusionsexample.html</a>
+			</div><!-- end svg extrusion doc description-->
 
 			<div class="doc" id="2d-voronoi">
 				<h2>2D Voronoi Diagram</h2>
-			</div>
+			</div><!-- end 2d voronoi doc description-->
 
 			<div class="doc" id="3d-voronoi">
 				<h2>3D Voronoi Diagram</h2>
-			</div>
+			</div><!-- end 3d voronoi doc description-->
 
 			<div class="doc" id="tooltips">
 				<h2>Tooltips</h2>
-			</div>
+			</div><!-- end tooltip doc description-->
 		</div>
 	</div>
 
