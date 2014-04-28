@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<script src="resources/jquery-1.11.0.min.js"></script>
+		<script src="src/resources/jquery-1.11.0.min.js"></script>
 		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<link href="bootstrap/css/bootstrap.min.css" rel = "stylesheet">
 		<link href="styles/documentation.css" rel = "stylesheet">
@@ -19,7 +19,6 @@
 	   </div>
 
 	
-	  <div class="container"> 
 		<div class="sidebar-module">
 			<h4 >Documentation</h4>
 			<ol class="list-unstyled">
@@ -28,13 +27,24 @@
 				<li><a class="doc-nav" doc = "svg-extrusion">SVG Path Extrusion</a></li>
 				<li><a class="doc-nav" doc = "2d-voronoi">2D Voronoi Diagram</a></li>
 				<li><a class="doc-nav" doc = "3d-voronoi">3D Voronoi Diagram</a></li>
-				<li><a class="doc-nav" doc = "tooltips">Tooltips</a></li>
 			</ol>
 		</div>
 
+	  	<div class="container"> 
 		<div class="col-md-9 col-md-offset-3">
 			<div class="doc" id="getting-started">
 				<h2>Getting started with ThreeData</h2>
+					<h4 class="sectionor">Including source files</h4>
+						<p class="well">ThreeData depends on <a href="http://threejs.org" target="_blank">three.js</a>. 
+							To create a ThreeData visualization, include the following sources:</p>
+							<br></br>
+						<p></p>
+					<h4 class="sectionor">Boiler plate code</h4>
+					<p class="well">The first thing to do is set up a threejs scene. For more details check out threejs's site, but below is some sample code:
+						<br></br>
+						<span id="boilerplatecode" class="code"></span>
+					</p>
+
 			</div>
 			<div class="doc" id="pixel-extrusion">
 				<h2>Pixel Extrusion</h2>
@@ -46,49 +56,59 @@
 					<a href="http://threejs.org/docs/#Reference/Core/BufferGeometry" target="_blank">
 					BufferGeometry</a> 
 					and can support images with several thousand pixels. 
-					In addition, a <a>transform</a> can be applied to animate the 
+					In addition, a <a href="#transform">transform</a> can be applied to animate the 
 					transition between a start image and data set into a second image and second data set.
 					</p>
 				</div>
 				<h4 class="sectionor">Constructor</h4>	
-				<h4>PixelExtrusion(img, data, datadescriptions, colors, shapetype)</h4>
-				<h5>img</h5>	
+				<h4 class="code">PixelExtrusion(img, extrudecolor, data, datadescriptions, colors, shapetype, tooltip)</h4>
+				<h5 class="code">img</h5>	
 					<p class="well">the path to the image file to upload. .jpeg or .jpg work best.</p>
-				<h5>data</h5>	
+				<h5 class="code">extrudecolor</h5>	
+					<p class="well">the pixel color to extrude, specified in hexidecimal</p>
+				<h5 class="code">data</h5>	
 					<p class = "well">an array of 1D data points to associate with the pixels. The pixels will be read left to right
 					   from the top down and will be extruded to the height of the associated data point. Only data.length
 					   extruded pixels will be drawn.</p>
-				<h5>datadescriptions</h5>	
+				<h5 class="code">datadescriptions</h5>	
 					<p class = "well">optional array of strings describing the data points given in the data array.</p>
-				<h5>colors</h5>	
+				<h5 class="code">colors</h5>	
 					<p class="well">
 					an array of colors specified in hexidecimal form. Colors are assigned to extruded pixels randomly with equal probability.
 					</p>
-				<h5>shapetype</h5>
+				<h5 class="code">shapetype</h5>
 					<p class="well">
 						the type of shape to extrude for each pixel. Options are PixelExtrusion.ShapeType.SQUARE (0),
 						PixelExtrusion.ShapeType.CYLINDER (1), or PixelExtrusion.ShapeType.CONE (2).
 					</p>
 	
+				<h5 class="code">tooltip</h5>
+					<p class="well">
+						optional json object describing tooltip behavior. Optional fields include "selectcolor", which describes what color to apply to the selected pixel and "selectaction", which can equal either "click" or "hover". Hover tooltips can severely impair the performance of large pixel extrusion visualizations. 
+					<br></br>
+					Eg.<span class="code" style="font-weight:bold"> {selectcolor: 0xffffff, selectaction:"click"}</span>
+					<br></br>
+					will add a tooltip to the pixel extrusion visualization that turns selected objects white when they are clicked. The text shown in the tooltip will be the associated string from the <span class ="code">datadescriptions</span> field that the visualization was initialized with, or the data value if no description is given.
+					</p>
 				<h4 class="sectionor">Methods</h4>
-					<h4>.transform(newimages, newdatasets, delay, duration, loop)</h4>	
-					<h5>newimages</h5>
+					<h4 name="transform" class="code">.transform(newimages, newdatasets, delay, duration, loop)</h4>	
+					<h5 class="code">newimages</h5>
 						<p class="well">
 							array of image paths to transform between.
 						</p>
-					<h5>newdatasets</h5>
+					<h5 class="code">newdatasets</h5>
 						<p class="well">
 							array of data arrays to transform between. 
 						</p>
-					<h5>delay</h5>
+					<h5 class="code">delay</h5>
 						<p class="well">
 							delay, in milliseconds, between transformations.
 						</p>
-					<h5>duration</h5>
+					<h5 class="code">duration</h5>
 						<p class="well">
 							duration of transformation, in milliseconds.
 						</p>
-					<h5>loop</h5>
+					<h5 class="code">loop</h5>
 						<p class="well">
 							boolean describing whether or not the transformation should loop.
 						</p>
@@ -97,7 +117,7 @@
 				<a>src/pixelextrusion.js</a>
 
 				<h4 class="sectionor">Example</h4>	
-				<a>examples/pixelextrusionsexample.html</a>
+				<a>examples/pixelextrusionexample.html</a>
 			</div><!-- end pixel extrusion doc description-->
 
 			<div class="doc" id="svg-extrusion">
@@ -106,76 +126,119 @@
 					This visualization extrudes the individual paths of an svg to a height based off of an associated data point,
 					which is given by adding a "data" attribute to the associated path of the svg.
 					<br></br>	
-					<p><span style="font-weight:bold">Eg. &#60;path d="..." data="10" &#47;&#62; </span><br></br> 
+					<p>Eg.<span class="code" style="font-weight:bold"> &#60;path d="..." data="10" &#47;&#62; </span><br></br> 
 						would create a path with an extruded height of 10</p>
 				</div>
 				<h4 class="sectionor">Constructor</h4>
-				<h4>SVGExtrusion(svg, opacity)</h4>
-				<h5>svg</h5>
+				<h4 class="code">SVGExtrusion(svg, opacity)</h4>
+				<h5 class="code">svg</h5>
 					<p class="well">
 						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6. If a <a class="doc-nav" doc="tooltips">tooltip</a> is being used, the description can be added with a "description" property in the associated path.
 					</p>
-				<h5>opacity</h5>
+				<h5 class="code">opacity</h5>
 					<p class="well">
 						optional uniform opacity for all extruded form materials. Default opacity value if not specified is 0.6.
 					</p>
+				<h5 class="code">tooltip</h5>
+					<p class="well">
+						optional json object describing tooltip behavior. Optional fields include "selectcolor", which describes what color to apply to the selected object, "selectopacity", which specifies an opacity change to apply to the selected object, and "selectaction", which can equal either "click" or "hover". 					<br></br>
+					Eg.<span class="code" style="font-weight:bold"> {selectopacity: 1, selectaction:"hover"}</span>
+					<br></br>
+					will add a tooltip to the svg extrusion visualization that turns selected objects opaque when they are hovered over. The text shown in the tooltip will be the associated string from the <span class ="code">description</span> field of the extruded svg path, or the data value if no description is given.</p>
+
+
 				<h4 class="sectionor">Source</h4>
 				<a>src/svgextrusion.js</a>
 
 				<h4 class="sectionor">Example</h4>
-				<a>examples/svgextrusionsexample.html</a>
+				<a>examples/svgextrusionexample.html</a>
 			</div><!-- end svg extrusion doc description-->
 
 			<div class="doc" id="2d-voronoi">
 				<h2>2D Voronoi Diagram</h2>
 				<p class="well description">
-					A Voronoi Diagram divides space into a number of regions based off of a number of provided "sites". Each region corresponds to the set of points which are closer to the associated site than to any other site in the diagram. For more information, check <a href="https://en.wikipedia.org/wiki/Voronoi_diagram">here</a>. This visualization constructs a 2D Voronoi diagram and extrudes each cell into a 3D form. 
+					A Voronoi Diagram divides space into a number of regions based off of a number of provided "sites". Each region corresponds to the set of points which are closer to the associated site than to any other site in the diagram. For more information, check <a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank">here</a>. This visualization constructs a 2D Voronoi diagram and extrudes each cell into a 3D form. 
 				</p>
 				<h4 class="sectionor">Constructor</h4>
-				<h4>Voronoi2D(pts, height, svgbase, colors, opacity)</h4>
-				<h5>pts</h5>	
+				<h4 class="code">Voronoi2D(pts, height, svgbase, colors, opacity)</h4>
+				<h5 class="code">pts</h5>	
 					<p class="well">
 						array of 2D point objects used to construct the diagram. A point may specified as follows: <br></br>
-						<span style="font-weight:bold">var p = {x: 0, y:0}</span>
+						<span class="code" style="font-weight:bold">var p = {x: 0, y:0}</span>
 						<br></br> or <br></br>
 
-						<span style="font-weight:bold">var p; p.x = 0; p.y = 0;</span>
+						<span class="code" style="font-weight:bold">var p; p.x = 0; p.y = 0;</span>
 						<br></br>
 						with the appropriate values filled in for x and y.
 					</p>
-				<h5>height</h5>	
+				<h5 class="code">height</h5>	
 					<p class="well">
 						the amount that each cell is extruded vertically by.
 					</p>
-				<h5>svgbase</h5>	
+				<h5 class="code">svgbase</h5>	
 					<p class="well">
 						path to an svg describing the shape around which to clip the diagram. The shape must be a simple convex curve.
 					</p>
-				<h5>colors</h5>	
+				<h5 class="code">colors</h5>	
 					<p class="well">
 						array of colors to assign to each extruded cell in the diagram. The colors will be assigned at random to each cell with equal probability.
 					</p>
-				<h5>opacity</h5>	
+				<h5 class="code">opacity</h5>	
 					<p class="well">
 						opacity of the material used on the extruded cell forms. Default value is 0.6.
 					</p>
 	
 				<h4 class="sectionor">Source</h4>	
-				<a>src/Voronoi2D.js</a>
+				<a>src/voronoi2D.js</a>
 
 				<h4 class="sectionor">Example</h4>	
-				<a>examples/Voronoi2D.html</a>
-2
+				<a>examples/voronoi2Dexample.html</a>
+
 			</div><!-- end 2d voronoi doc description-->
 
 			<div class="doc" id="3d-voronoi">
 				<h2>3D Voronoi Diagram</h2>
-			</div><!-- end 3d voronoi doc description-->
+				<p class="well description">
+					The 3D Voronoi Diagram visualization constructs a 
+					<a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank">
+					voronoi diagram</a> for points in a 3D space. 
+					<h4 class="sectionor">Constructor</h4>
+				<h4 class="code">Voronoi3D(pts, containershape, colors, opacity)</h4>
+				<h5 class="code">pts</h5>	
+					<p class="well">
+						array of 3D point objects used to construct the diagram. A point may specified as follows: <br></br>
+						<span class="code" style="font-weight:bold">var p = {x: 0, y:0, z:0}</span>
+						<br></br> or <br></br>
 
-			<div class="doc" id="tooltips">
-				<h2>Tooltips</h2>
-			</div><!-- end tooltip doc description-->
-		</div>
+						<span class="code" style="font-weight:bold">var p; p.x = 0; p.y = 0; p.z = 0;</span>
+						<br></br>
+						with the appropriate values filled in for x, y, and z.
+					</p>
+				<h5 class="code">containershape</h5>	
+					<p class="well">
+						the shape of the container to construct the diagram within. Options are ThreeData.ContainerType.RECTANGLE or
+						THREEData.ContainerType.DODECAHEDRON.
+					</p>
+				<h5 class="code">colors</h5>	
+					<p class="well">
+						array of colors to assign to each cell in the diagram. The colors will be assigned at random to each cell with equal probability.
+					</p>
+				<h5 class="code">opacity</h5>	
+					<p class="well">
+						opacity of the material used on the extruded cell forms. Default value is 0.6.
+					</p>
+	
+
+				</p>
+				
+
+				<h4 class="sectionor">Source</h4>	
+				<a>src/voronoi3D.js</a>
+
+				<h4 class="sectionor">Example</h4>	
+				<a>examples/voronoi3Dexample.html</a>
+			</div><!-- end 3d voronoi doc description-->
+	</div>
 	</div>
 
 
@@ -183,7 +246,9 @@
 			$(document).ready(function() {
 				$(".doc").hide();
 				$("#getting-started").show();
-			
+				$("#boilerplatecode").text("<html>\n</html>");		
+
+	
 				$(".doc-nav").click(function() {
 					var doc = $(this).attr("doc");
 					$(".doc").hide();

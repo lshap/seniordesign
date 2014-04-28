@@ -13,16 +13,23 @@
 	padding-top:130px; 
 	left:0px;
 	position:fixed;
-	padding-left:40;
+	padding-left:40px;
 	padding-right:40px;
 	height:100%;
-	width:
 }
 
+.code {
+	font-family:"Menlo"
+}
+
+h4.code {
+	font-size: 14px;
+	font-weight:bold;
+	
+}
 
 h5 {
 	padding-left:10px;
-	font-style:bold;
 }
 
 .sectionor {
