@@ -4,6 +4,7 @@
 
 .container {
 	padding-top:50px;
+	padding-bottom:80px;
 }
 
 .sidebar-module {
@@ -12,8 +13,20 @@
 	padding-top:130px; 
 	left:0px;
 	position:fixed;
-	padding-left:30px;
-	padding-right:30px;
+	padding-left:40;
+	padding-right:40px;
 	height:100%;
 	width:
+}
+
+
+h5 {
+	padding-left:10px;
+	font-style:bold;
+}
+
+.sectionor {
+	color:#6B24B2;
+	color:#66FF99;
+	color:#00B8E6;
 }

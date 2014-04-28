@@ -23,32 +23,95 @@
 		<div class="sidebar-module">
 			<h4 >Documentation</h4>
 			<ol class="list-unstyled">
-				<li><a href = "#">Getting Started</a></li>
-				<li><a href = "#">Pixel Extrusion</a></li>
-				<li><a href = "#">SVG Path Extrusion</a></li>
-				<li><a href = "#">2D Voronoi Diagram</a></li>
-				<li><a href = "#">3D Voronoi Diagram</a></li>
-				<li><a href = "#">Tooltip</a></li>
+				<li><a class="doc-nav" doc="getting-started">Getting Started</a></li>
+				<li><a class="doc-nav" doc = "pixel-extrusion">Pixel Extrusion</a></li>
+				<li><a class="doc-nav" doc = "svg-extrusion">SVG Path Extrusion</a></li>
+				<li><a class="doc-nav" doc = "2d-voronoi">2D Voronoi Diagram</a></li>
+				<li><a class="doc-nav" doc = "3d-voronoi">3D Voronoi Diagram</a></li>
+				<li><a class="doc-nav" doc = "tooltips">Tooltips</a></li>
 			</ol>
 		</div>
 
 		<div class="col-md-9 col-md-offset-3">
 			<div class="doc" id="getting-started">
-				<h3>Getting started with ThreeData</h3>
+				<h2>Getting started with ThreeData</h2>
 			</div>
 			<div class="doc" id="pixel-extrusion">
+				<h2>Pixel Extrusion</h2>
+				<div class="well description">
+					<p> The pixel extrusion visualization extrudes each
+					    pixel (of a specified color) of an uploaded jpeg to a height based off a 
+					    value from an associated data point. This visualization 
+					    relies on the three.js 
+					<a href="http://threejs.org/docs/#Reference/Core/BufferGeometry" target="_blank">
+					BufferGeometry</a> 
+					and can support images with several thousand pixels. 
+					In addition, a <a>transform</a> can be applied to animate the 
+					transition between a start image and data set into a second image and second data set.
+					</p>
+				</div>
+				<h4 class="sectionor">Constructor</h4>	
+				<h4>PixelExtrusion(img, data, colors, shapetype)</h4>
+				<h5>img</h5>	
+					<p class="well">the path to the image file to upload. .jpeg or .jpg work best.</p>
+				<h5>data</h5>	
+					<p class = "well">an array of 1D data points to associate with the pixels. The pixels will be read left to right
+					   from the top down and will be extruded to the height of the associated data point. Only data.length
+					   extruded pixels will be drawn.</p>
+				<h5>colors</h5>	
+					<p class="well">
+					an array of colors specified in hexidecimal form.
+					</p>
+				<h5>shapetype</h5>
+					<p class="well">
+						the type of shape to extrude for each pixel. Options are PixelExtrusion.ShapeType.SQUARE (0),
+						PixelExtrusion.ShapeType.CYLINDER (1), or PixelExtrusion.ShapeType.CONE (2).
+					</p>
+	
+				<h4 class="sectionor">Methods</h4>
+					<h4>.transform(newimages, newdatasets, delay, duration, loop)</h4>	
+					<h5>newimages</h5>
+						<p class="well">
+							array of image paths to transform between.
+						</p>
+					<h5>newdatasets</h5>
+						<p class="well">
+							array of data arrays to transform between. 
+						</p>
+					<h5>delay</h5>
+						<p class="well">
+							delay, in milliseconds, between transformations.
+						</p>
+					<h5>duration</h5>
+						<p class="well">
+							duration of transformation, in milliseconds.
+						</p>
+					<h5>loop</h5>
+						<p class="well">
+							boolean describing whether or not the transformation should loop.
+						</p>
+
+				<h4 class="sectionor">Source</h4>	
+				<a>src/pixelextrusion.js</a>
+
+				<h4 class="sectionor">Example</h4>	
+				<a>examples/pixelextrusionsexample.html</a>
 			</div>
 
 			<div class="doc" id="svg-extrusion">
+				<h2>SVG Extrusion</h2>
 			</div>
 
 			<div class="doc" id="2d-voronoi">
+				<h2>2D Voronoi Diagram</h2>
 			</div>
 
 			<div class="doc" id="3d-voronoi">
+				<h2>3D Voronoi Diagram</h2>
 			</div>
 
-			<div class="doc" id="tooltip">
+			<div class="doc" id="tooltips">
+				<h2>Tooltips</h2>
 			</div>
 		</div>
 	</div>
@@ -58,6 +121,12 @@
 			$(document).ready(function() {
 				$(".doc").hide();
 				$("#getting-started").show();
+			
+				$(".doc-nav").click(function() {
+					var doc = $(this).attr("doc");
+					$(".doc").hide();
+					$("#" + doc).show();
+				});
 			});
 		</script>
 	</body>
