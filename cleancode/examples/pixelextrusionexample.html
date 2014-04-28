@@ -51,11 +51,11 @@
 				colors.push(0xff00ff);
 				colors.push(0x00ffff);
 
-				var shapetype = ThreeData.ShapeType.SQUARE;
+				var shapetype = 0;
 
 				// call the constructor
 				var pixelextrusion = new ThreeData.PixelExtrusion(img, extrudecolor, data, [], colors, shapetype, null, scene, camera);
-
+							console.log(scene);
 				animate(); // call the animate method to update the scene when the camera changes
 			}
 

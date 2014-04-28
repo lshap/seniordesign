@@ -10,17 +10,17 @@ ThreeData.ShapeType = {
 	CONE: 2, 
 }
 
-ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, colors, shapetype, tooltip, scene, camera) {
+ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, vertexcolors, shapetype, tooltip, scene, camera) {
 
 	this.img = img;
 	this.extrudecolor = extrudecolor;
 	this.data = data;
 	this.datdescriptions = datadescriptions;
-	this.colors = colors;
+	this.vertexcolors = vertexcolors;
 	this.shapetype = shapetype;
 	this.scene = scene;
 	this.camera = camera;
-	
+
 	this.init();	
 
 	if (tooltip != null) {
@@ -32,8 +32,7 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, c
 
 ThreeData.PixelExtrusion.prototype.init = function() {
 	this.buffergeom = new THREE.BufferGeometry();	
-	
-	switch (this.shapeType) {
+	switch (this.shapetype) {
 	case ThreeData.ShapeType.SQUARE:
 		this.numshapetriangles = 12;
 	break;
@@ -44,7 +43,6 @@ ThreeData.PixelExtrusion.prototype.init = function() {
 		this.numshapetriangles = 32;
 	break;
 	}
-
 	var triangles = this.numshapetriangles * this.data.length; // 12 triangles per cube
 	this.buffergeom.attributes = {
 		position: {
@@ -123,8 +121,8 @@ ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 			var z = pix / this.imgdata.width;
 			var height = Math.random() * 4;
 	
-			var colordecision = Math.floor(Math.random() * this.colors.length);
-			var drawcolor = new THREE.Color(this.colors[colordecision]);
+			var colordecision = Math.floor(Math.random() * this.vertexcolors.length);
+			var drawcolor = new THREE.Color(this.vertexcolors[colordecision]);
 
 			var mesh, geom, mat;
 			switch(this.shapeType) {
@@ -152,7 +150,10 @@ ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 	var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
 
 	//var material = new THREE.MeshBasicMaterial({vertexColors:THREE.VertexColors});
+	console.log("this.positions = ");
+	console.log(this.positions);
 	this.buffermesh = new THREE.Mesh(this.buffergeom, material);
+	console.log(this.buffermesh);
 	this.scene.add(this.buffermesh);
 }
 
