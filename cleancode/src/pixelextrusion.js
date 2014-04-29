@@ -10,6 +10,8 @@ ThreeData.ShapeType = {
 	CONE: 2, 
 }
 
+var pixelextrusion;
+
 ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, vertexcolors, shapetype, tooltip, scene, camera) {
 
 	this.img = img;
@@ -21,10 +23,9 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 	this.scene = scene;
 	this.camera = camera;
 	this.init();	
-
-
+	
 	if (tooltip != null) {
-		console.log(tooltip);
+		this.mouse = new THREE.Vector2();
 		this.tooltip = tooltip;
 		var action = tooltip["selectaction"];
 		if (action == undefined) {
@@ -36,6 +37,7 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 
 		}
 		
+		pixelextrusion = this;
 		this.initRayCaster();
 	}
 }
@@ -219,16 +221,16 @@ ThreeData.PixelExtrusion.prototype.addMesh = function(i, geom, color) {
 
 
 ThreeData.PixelExtrusion.prototype.onMouseMove = function(event) {
-	if (this.intersected) {
-		for (var i = 0; i < this.numshapetriangles * 9; i+=3 ) {
-			var index = this.selectedshapeindex * (this.numshapetriangles * 9) + i;
-			this.vertexcolors[index] = this.oldcolor.r;
-			this.vertexcolors[index + 1] = this.oldcolor.g;
-			this.vertexcolors[index + 2] = this.oldcolor.b;	
+	if (pixelextrusion.intersected) {
+		for (var i = 0; i < pixelextrusion.numshapetriangles * 9; i+=3 ) {
+			var index = pixelextrusion.selectedshapeindex * (pixelextrusion.numshapetriangles * 9) + i;
+			pixelextrusion.colors[index] = pixelextrusion.oldcolor.r;
+			pixelextrusion.colors[index + 1] = pixelextrusion.oldcolor.g;
+			pixelextrusion.colors[index + 2] = pixelextrusion.oldcolor.b;	
 		}
 
-		this.buffergeom.attributes.color.needsUpdate = true;
-		this.intersected = false;
+		pixelextrusion.buffergeom.attributes.color.needsUpdate = true;
+		pixelextrusion.intersected = false;
 		$("#tooltip").hide();
 	}
 }
@@ -245,61 +247,66 @@ ThreeData.PixelExtrusion.prototype.addLabel = function(text, x, y) {
 	label.style.left = x;
 }
 
-ThreeData.PixelExtrusion.prototype.onMouseDown = function(event, obj) {
-	console.log(obj);
-	
-	obj.mouse = new THREE.Vector2();
-	
+ThreeData.PixelExtrusion.prototype.onMouseDown = function(event) {
 	event.preventDefault();
-	obj.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	obj.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	pixelextrusion.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	pixelextrusion.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	var cpos = obj.camera.position;
+	var cpos = pixelextrusion.camera.position;
 	var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
 
-	var vector = new THREE.Vector3( obj.mouse.x, obj.mouse.y, 1);
-	obj.projector.unprojectVector( vector, obj.camera );
+	var vector = new THREE.Vector3( pixelextrusion.mouse.x, pixelextrusion.mouse.y, 1);
+	pixelextrusion.projector.unprojectVector( vector, pixelextrusion.camera );
 
-	obj.raycaster.set( obj.camera.position, vector.sub( obj.camera.position ).normalize() );
+	pixelextrusion.raycaster.set( pixelextrusion.camera.position, vector.sub( pixelextrusion.camera.position ).normalize() );
 
-	var intersects = obj.raycaster.intersectObject( obj.buffermesh );
+	var intersects = pixelextrusion.raycaster.intersectObject( pixelextrusion.buffermesh );
 
 	if ( intersects.length > 0 ) {
+		console.log("found intersection");
 		var intersect = intersects[0];
-		obj.selectedshapeindex = Math.floor(intersect.indices[0]/(obj.numshapetriangles * 3));
+		pixelextrusion.selectedshapeindex = Math.floor(intersect.indices[0]/(pixelextrusion.numshapetriangles * 3));
 
-		for (var i = 0; i < obj.numshapetriangles * 9; i+=3 ) {
-			var index = obj.selectedshapeindex * (obj.numshapetriangles * 9) + i;
+		for (var i = 0; i < pixelextrusion.numshapetriangles * 9; i+=3 ) {
+			var index = pixelextrusion.selectedshapeindex * (pixelextrusion.numshapetriangles * 9) + i;
 			if (i==0) {
-				obj.oldcolor = new THREE.Color(obj.vertexcolors[index], 
-							   obj.vertexcolors[index + 1], 
-							   obj.vertexcolors[index + 2]);
+				pixelextrusion.oldcolor = new THREE.Color(pixelextrusion.colors[index], 
+							   pixelextrusion.colors[index + 1], 
+							   pixelextrusion.colors[index + 2]);
 			}
-			obj.vertexcolors[index] = 1;
-			obj.vertexcolors[index + 1] = 1;
-			obj.vertexcolors[index + 2] = 1;	
+
+			var selectcolor;
+			if (tooltip["selectcolor"]) {
+				selectcolor = new THREE.Color(tooltip["selectcolor"]);
+			}
+			else  {
+				selectcolor = new THREE.Color(0xffffff);
+			}
+			pixelextrusion.colors[index] = selectcolor.r;
+			pixelextrusion.colors[index + 1] = selectcolor.g;
+			pixelextrusion.colors[index + 2] = selectcolor.b;	
 		}
 
 		
 		
-		obj.addLabel("hello", event.clientX, event.clientY);
-		obj.buffergeom.attributes.color.needsUpdate = true;
-		obj.intersected = true;
+		pixelextrusion.addLabel("hello", event.clientX, event.clientY);
+		pixelextrusion.buffergeom.attributes.color.needsUpdate = true;
+		pixelextrusion.intersected = true;
 	}
 }
 
 
 ThreeData.PixelExtrusion.prototype.onMouseUp = function(event) {
-	if (this.intersected) {
-		for (var i = 0; i < this.numshapetriangles * 9; i+=3 ) {
-			var index = this.selectedshapeindex * (this.numshapetriangles * 9) + i;
-			this.vertexcolors[index] = this.oldcolor.r;
-			this.vertexcolors[index + 1] = this.oldcolor.g;
-			this.vertexcolors[index + 2] = this.oldcolor.b;	
+	if (pixelextrusion.intersected) {
+		for (var i = 0; i < pixelextrusion.numshapetriangles * 9; i+=3 ) {
+			var index = pixelextrusion.selectedshapeindex * (pixelextrusion.numshapetriangles * 9) + i;
+			pixelextrusion.colors[index] = pixelextrusion.oldcolor.r;
+			pixelextrusion.colors[index + 1] = pixelextrusion.oldcolor.g;
+			pixelextrusion.colors[index + 2] = pixelextrusion.oldcolor.b;	
 		}
 
-		this.buffergeom.attributes.color.needsUpdate = true;
-		this.intersected = false;
+		pixelextrusion.buffergeom.attributes.color.needsUpdate = true;
+		pixelextrusion.intersected = false;
 	}
 
 	$("#tooltip").hide();
@@ -316,9 +323,9 @@ ThreeData.PixelExtrusion.prototype.initRayCaster = function() {
 	label.id = "tooltip";
 
 	document.body.appendChild(label);
-	document.addEventListener('mousemove', this.onMouseMove(this), false);
-	document.addEventListener('mousedown', this.onMouseDown(this), false);
-	document.addEventListener('mouseup', this.onMouseUp(this), false);
+	document.addEventListener('mousemove', this.onMouseMove, false);
+	document.addEventListener('mousedown', this.onMouseDown, false);
+	document.addEventListener('mouseup', this.onMouseUp, false);
 }
 
 

@@ -9,6 +9,11 @@ var ThreeData = {VERSION: '1'};
 ThreeData.SVGExtrusion = function(svg, opacity, tooltip, scene, camera) {
 	this.svg = svg;
 	this.opacity = opacity;
+
+	if (this.opacity == undefined) {
+		this.opacity = 0.6;
+	}
+
 	this.tooltip = tooltip;
 	this.scene = scene;
 	this.camera = camera;
@@ -112,14 +117,12 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 	var meshes = [];
 	for (var i = 0; i < shapes.length; i++) {
 		var shape = shapes[i].shape;
-		//console.log(shape.extractPoints().shape);
 
 		var color = shapes[i].color;
-		//var amount = shapes[i].amount;
 		var amount = 10 + Math.random() * 90;
 
 		var extrudegeom = new THREE.ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false});
-		var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity:0.7});
+		var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity:this.opacity});
 		var extrudemesh = new THREE.Mesh(extrudegeom, extrudeMat);
 
 		var rotmat = new THREE.Matrix4();
@@ -130,7 +133,7 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 
 		// translate to center
 		var transmat = new THREE.Matrix4();
-		transmat.makeTranslation(0, amount, -100);
+		transmat.makeTranslation(0, amount, -200);
 		extrudemesh.applyMatrix(transmat);
 		meshes.push(extrudemesh); 
 	}
