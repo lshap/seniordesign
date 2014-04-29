@@ -1,0 +1,95 @@
+
+<html>
+	<head>
+		<script src="../src/resources/three.js"></script>
+		<script src="../src/resources/jquery-1.11.0.min.js"></script>
+		<script src="../src/resources/tweenjs-0.5.1.min.js"></script>
+		<script src="../src/resources/OrbitControls.js"></script>
+		<script src="../src/pixelextrusion.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var scene;
+			var camera;
+			var renderer;
+			var controls; // camera control object
+			var pixelextrusion;
+
+			$(document).ready(function(){
+				init();
+			});
+
+			/*
+			 * set up the three js scene
+			 */
+			function init() {
+				scene = new THREE.Scene();
+				var light = new THREE.DirectionalLight( 0xffffff);
+				light.position.set( 0,10,0);
+				scene.add( light );
+				camera = new THREE.PerspectiveCamera( 75, 
+									window.innerWidth / window.innerHeight,
+									0.1,
+									1000 );
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+				controls = new THREE.OrbitControls(camera);
+				camera.position.set(0, 50, 150);
+
+
+				// set up the pixel extrusion parameters
+				var img = "images/democraticdonkey.jpg";
+				var extrudecolor = 0x000000;
+				var data = [];
+				
+				for (var i = 0; i < 8000; i++) {
+					data.push(Math.random() * 20);
+				}
+				console.log("data.length = " + data.length);
+
+				var colors = [];
+				colors.push(0xff0000);
+				colors.push(0x0000ff);
+				var shapetype = ThreeData.ShapeType.SQUARE;
+
+				// call the constructor
+				pixelextrusion = new ThreeData.PixelExtrusion(img, extrudecolor, data, [], colors, shapetype, null, scene, camera);
+				
+
+				var newimage = "images/republicanelephant.jpg";
+				var newdata = [];
+				for (var i = 0; i < 8000; i++) {
+					newdata.push(Math.random() * 20);
+				}
+
+				var delay = 5000;
+				var duration = 5000;
+				var loop = true;
+
+				pixelextrusion.transform(newimage, extrudecolor, newdata, delay, duration, loop);
+				animate(); // call the animate method to update the scene when the camera changes
+			}
+
+			/*
+			 * animate function  	
+			 */
+
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			/*
+			 * render the scene
+			 */
+			function render() {
+				// if using a transform, call the 'updateTransform' method here
+				pixelextrusion.updateTransform();
+				renderer.render(scene, camera);
+			}
+
+		</script>
+	</body>
+</html>
