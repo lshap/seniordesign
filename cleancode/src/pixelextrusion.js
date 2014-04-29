@@ -20,12 +20,22 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 	this.shapetype = shapetype;
 	this.scene = scene;
 	this.camera = camera;
-
 	this.init();	
 
 
 	if (tooltip != null) {
+		console.log(tooltip);
 		this.tooltip = tooltip;
+		var action = tooltip["selectaction"];
+		if (action == undefined) {
+			console.log("Error setting up tooltip--you must specify a 'selectaction' attribute!");
+		}
+		
+		var selectcolor;
+		if (tooltip["selectcolor"] != undefined) {
+
+		}
+		
 		this.initRayCaster();
 	}
 }
@@ -208,8 +218,107 @@ ThreeData.PixelExtrusion.prototype.addMesh = function(i, geom, color) {
 }
 
 
-ThreeData.PixelExtrusion.prototype.initRayCaster = function() {
+ThreeData.PixelExtrusion.prototype.onMouseMove = function(event) {
+	if (this.intersected) {
+		for (var i = 0; i < this.numshapetriangles * 9; i+=3 ) {
+			var index = this.selectedshapeindex * (this.numshapetriangles * 9) + i;
+			this.vertexcolors[index] = this.oldcolor.r;
+			this.vertexcolors[index + 1] = this.oldcolor.g;
+			this.vertexcolors[index + 2] = this.oldcolor.b;	
+		}
 
+		this.buffergeom.attributes.color.needsUpdate = true;
+		this.intersected = false;
+		$("#tooltip").hide();
+	}
+}
+
+ThreeData.PixelExtrusion.prototype.addLabel = function(text, x, y) {
+	var label = document.getElementById('tooltip');
+	$(label).show();
+	label.style.position = 'absolute';
+	label.style.width = 100;
+	label.style.height = 40;
+	label.style.backgroundColor = "#EFEFEF";	
+	label.innerHTML = text;
+	label.style.top = y;
+	label.style.left = x;
+}
+
+ThreeData.PixelExtrusion.prototype.onMouseDown = function(event, obj) {
+	console.log(obj);
+	
+	obj.mouse = new THREE.Vector2();
+	
+	event.preventDefault();
+	obj.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	obj.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+	var cpos = obj.camera.position;
+	var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
+
+	var vector = new THREE.Vector3( obj.mouse.x, obj.mouse.y, 1);
+	obj.projector.unprojectVector( vector, obj.camera );
+
+	obj.raycaster.set( obj.camera.position, vector.sub( obj.camera.position ).normalize() );
+
+	var intersects = obj.raycaster.intersectObject( obj.buffermesh );
+
+	if ( intersects.length > 0 ) {
+		var intersect = intersects[0];
+		obj.selectedshapeindex = Math.floor(intersect.indices[0]/(obj.numshapetriangles * 3));
+
+		for (var i = 0; i < obj.numshapetriangles * 9; i+=3 ) {
+			var index = obj.selectedshapeindex * (obj.numshapetriangles * 9) + i;
+			if (i==0) {
+				obj.oldcolor = new THREE.Color(obj.vertexcolors[index], 
+							   obj.vertexcolors[index + 1], 
+							   obj.vertexcolors[index + 2]);
+			}
+			obj.vertexcolors[index] = 1;
+			obj.vertexcolors[index + 1] = 1;
+			obj.vertexcolors[index + 2] = 1;	
+		}
+
+		
+		
+		obj.addLabel("hello", event.clientX, event.clientY);
+		obj.buffergeom.attributes.color.needsUpdate = true;
+		obj.intersected = true;
+	}
+}
+
+
+ThreeData.PixelExtrusion.prototype.onMouseUp = function(event) {
+	if (this.intersected) {
+		for (var i = 0; i < this.numshapetriangles * 9; i+=3 ) {
+			var index = this.selectedshapeindex * (this.numshapetriangles * 9) + i;
+			this.vertexcolors[index] = this.oldcolor.r;
+			this.vertexcolors[index + 1] = this.oldcolor.g;
+			this.vertexcolors[index + 2] = this.oldcolor.b;	
+		}
+
+		this.buffergeom.attributes.color.needsUpdate = true;
+		this.intersected = false;
+	}
+
+	$("#tooltip").hide();
+}			
+
+
+
+ThreeData.PixelExtrusion.prototype.initRayCaster = function() {
+	this.projector = new THREE.Projector();
+	this.raycaster = new THREE.Raycaster();
+
+	this.mouse = new THREE.Vector2();
+	var label = document.createElement("div");
+	label.id = "tooltip";
+
+	document.body.appendChild(label);
+	document.addEventListener('mousemove', this.onMouseMove(this), false);
+	document.addEventListener('mousedown', this.onMouseDown(this), false);
+	document.addEventListener('mouseup', this.onMouseUp(this), false);
 }
 
 
@@ -421,9 +530,15 @@ ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudec
 /*
  * updates a tween if it exists
  */
-ThreeData.PixelExtrusion.prototype.updateTransform = function() {
+ThreeData.PixelExtrusion.prototype.update = function() {
 	if (this.tween) {
 		TWEEN.update();
 	}	
+
+	if (this.tooltip) {
+		var vector = new THREE.Vector3(this.mouse.x, this.mouse.y, 1 );
+		this.projector.unprojectVector( vector, this.camera );
+		this.raycaster.set(this.camera.position, vector.sub(this.camera.position).normalize());
+	}
 }
 

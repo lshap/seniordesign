@@ -101,18 +101,18 @@
 					</p>
 
 				<h4 class="sectionor">Methods</h4>
-					<h4 name="transform" class="code">.transform(newimages, extrudecolors, newdatasets, delay, duration, loop)</h4>	
-					<h5 class="code">newimages</h5>
+					<h4 name="transform" class="code">.transform(newimage, extrudecolor, newdataset, delay, duration, loop)</h4>	
+					<h5 class="code">newimage</h5>
 						<p class="well">
-							array of image paths to transform between.
+							image path to transform into.
 						</p>
-					<h5 class="code">extrudecolors</h5>
+					<h5 class="code">extrudecolor</h5>
 						<p class="well">
-							array of colors to extrude
+							color to extrude from new image.
 						</p>
-					<h5 class="code">newdatasets</h5>
+					<h5 class="code">newdataset</h5>
 						<p class="well">
-							array of data arrays to transform between. 
+							data array to apply to the new image. 
 						</p>
 					<h5 class="code">delay</h5>
 						<p class="well">
@@ -126,8 +126,8 @@
 						<p class="well">
 							boolean describing whether or not the transformation should loop.
 						</p>
-					<h4 class="code">.updateTransform()</h4>	
-						<p class="well">method to update the transformation. Call this method in the render loop.</p>
+					<h4 class="code">.update()</h4>	
+						<p class="well">method to update the any transformation or to update the tooltip. Call this method in the render loop.</p>
 
 				<h4 class="sectionor">Source</h4>	
 				<a>src/pixelextrusion.js</a>
@@ -149,7 +149,7 @@
 				<h4 class="code">SVGExtrusion(svg, opacity, tootlip, scene, camera)</h4>
 				<h5 class="code">svg</h5>
 					<p class="well">
-						path of svg image to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6. If a <a class="doc-nav" doc="tooltips">tooltip</a> is being used, the description can be added with a "description" property in the associated path.
+						svg image object to extrude. The extrusion data is specified by the "data" property of the associated extrusion path. The color of the extruded form is specified by the "fill" property. The opacity of the material can be specified by adding an "opacity" property to the associated path. The default value is 0.6. If a <a class="doc-nav" doc="tooltips">tooltip</a> is being used, the description can be added with a "description" property in the associated path.
 					</p>
 				<h5 class="code">opacity</h5>
 					<p class="well">
