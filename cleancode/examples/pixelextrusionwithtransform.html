@@ -1,4 +1,5 @@
 
+
 <html>
 	<head>
 		<script src="../src/resources/three.js"></script>
@@ -36,36 +37,37 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
 				controls = new THREE.OrbitControls(camera);
-				camera.position.set(0, 50, 150);
+				camera.position.set(0, 100, 80);
+				camera.lookAt(1, 1, 1);
+				controls.target = new THREE.Vector3(1,1,1);
 
 
 				// set up the pixel extrusion parameters
-				var img = "images/democraticdonkey.jpg";
+				var img = "images/hello.jpg";
 				var extrudecolor = 0x000000;
 				var data = [];
 				
-				for (var i = 0; i < 8000; i++) {
-					data.push(Math.random() * 20);
+				for (var i = 0; i < 4000; i++) {
+					data.push(Math.random() * 10);
 				}
 				console.log("data.length = " + data.length);
 
 				var colors = [];
-				colors.push(0xff0000);
-				colors.push(0x0000ff);
+				colors.push(0xff00ff);
 				var shapetype = ThreeData.ShapeType.SQUARE;
 
 				// call the constructor
 				pixelextrusion = new ThreeData.PixelExtrusion(img, extrudecolor, data, [], colors, shapetype, null, scene, camera);
 				
 
-				var newimage = "images/republicanelephant.jpg";
+				var newimage = "images/goodbye.jpg";
 				var newdata = [];
 				for (var i = 0; i < 8000; i++) {
-					newdata.push(Math.random() * 20);
+					newdata.push(Math.random() * 10);
 				}
 
-				var delay = 5000;
-				var duration = 5000;
+				var delay = 2000;
+				var duration = 2000;
 				var loop = true;
 
 				pixelextrusion.transform(newimage, extrudecolor, newdata, delay, duration, loop);

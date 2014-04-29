@@ -23,6 +23,7 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 
 	this.init();	
 
+
 	if (tooltip != null) {
 		this.tooltip = tooltip;
 		this.initRayCaster();
@@ -140,7 +141,7 @@ ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 			}
 
 			var translate = new THREE.Matrix4();
-			translate.makeTranslation(x - this.imgdata.width/2, 0, z - this.imgdata.height/2);
+			translate.makeTranslation(x - this.imgdata.width/2, height/2, z - this.imgdata.height/2);
 			geom.applyMatrix(translate);
 			this.addMesh(ind, geom, drawcolor);
 			ind += geom.faces.length * 9;
@@ -148,6 +149,7 @@ ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 	}
 
 	var material = new THREE.MeshLambertMaterial({color:0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors});	
+
 	this.buffermesh = new THREE.Mesh(this.buffergeom, material);
 	this.scene.add(this.buffermesh);
 }
@@ -339,7 +341,7 @@ ThreeData.PixelExtrusion.prototype.extrudeBufferMesh = function(imagedata, extru
 			}
 
 			var translate = new THREE.Matrix4();
-			translate.makeTranslation(x - imagedata.width/2, 0, z - imagedata.height/2);
+			translate.makeTranslation(x - imagedata.width/2, height/2, z - imagedata.height/2);
 			geom.applyMatrix(translate);
 
 			this.addMeshToGeom(ind, geom, buffG, drawcolor);
@@ -355,11 +357,7 @@ ThreeData.PixelExtrusion.prototype.extrudeBufferMesh = function(imagedata, extru
  * calculates an optionally looping tween to transform from one image extrusion to another
  */
 ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudecolor, newdataset, delay, duration, loop) {
-	var currpositions = [];
-	for (var i = 0; i < this.positions.length; i++) {
-		currpositions.push(this.positions[i]);
-	}
-
+	var currpositions = this.positions;
 
 	// load the new image
 	var image = new Image();
@@ -385,7 +383,12 @@ ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudec
 		$("#imagecanvas").remove();
 		var targetgeom = obj.extrudeBufferMesh(pixelData, newextrudecolor, newdataset);
 		var targetpos1 = targetgeom.attributes.position.array;
-		var targetpos2 = obj.positions;
+		var targetpos2 = [];
+
+		for (var i = 0; i < obj.positions.length; i++) {
+			targetpos2.push(obj.positions[i]);
+		}
+
 		var repeat;
 		if (loop == true) {
 			repeat = Infinity;
@@ -395,30 +398,12 @@ ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudec
 		}
 
 		// create the first tween
-		obj.tween_forward = new TWEEN.Tween(currpositions).to(targetpos1, duration)
-							  .delay(duration + delay)
-							  .yoyo(loop)
-							  .repeat(repeat)
-							  .easing(TWEEN.Easing.Cubic.In);
-		obj.tween_forward.onUpdate(function () {
-			console.log("got here");
-			for (var i = 0; i < obj.positions.length; i++) {
-				if (i < targetpos1.length) {
-					obj.positions[i] = currpositions[i]; 
-				}
-			
-			}
-
-			obj.buffergeom.attributes.position.needsUpdate = true;
-		});
-
-		// create the second obj.tween
-		obj.tween_backward = new TWEEN.Tween(currpositions).to(targetpos2, duration)
+		obj.tween = new TWEEN.Tween(currpositions).to(targetpos1, duration)
 							  .delay(delay)
 							  .yoyo(loop)
 							  .repeat(repeat)
 							  .easing(TWEEN.Easing.Cubic.In);
-		obj.tween_backward.onUpdate(function() {
+		obj.tween.onUpdate(function () {
 			for (var i = 0; i < obj.positions.length; i++) {
 				if (i < targetpos1.length) {
 					obj.positions[i] = currpositions[i]; 
@@ -429,9 +414,7 @@ ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudec
 			obj.buffergeom.attributes.position.needsUpdate = true;
 		});
 
-		obj.tween_forward.start();
-		obj.tween_backward.start();
-
+		obj.tween.start();
 	});	
 }
 
@@ -439,7 +422,7 @@ ThreeData.PixelExtrusion.prototype.transform = function(newimagesrc, newextrudec
  * updates a tween if it exists
  */
 ThreeData.PixelExtrusion.prototype.updateTransform = function() {
-	if (this.tween_forward) {
+	if (this.tween) {
 		TWEEN.update();
 	}	
 }
