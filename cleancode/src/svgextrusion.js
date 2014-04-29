@@ -45,6 +45,69 @@ ThreeData.SVGExtrusion.prototype.calculateCentroid = function(points) {
 	return centroid;
 }
 
+ThreeData.SVGExtrusion.prototype.getWorldPosition = function(mesh) {
+	mesh.geometry.computeBoundingBox();
+	var boundingBox = mesh.geometry.boundingBox;
+
+	var position = new THREE.Vector3();
+	position.subVectors( boundingBox.max, boundingBox.min );
+	position.multiplyScalar( 0.5 );
+	position.add( boundingBox.min );
+
+	position.applyMatrix4(mesh.matrixWorld );
+	return position;
+}
+
+ThreeData.SVGExtrusion.prototype.getCameraCenter = function() {
+	if (this.avgCentroid == undefined) {
+		this.positionCamera(this.meshes);
+	}
+
+	return this.avgCentroid;
+}
+
+ThreeData.SVGExtrusion.prototype.positionCamera = function(meshes) {
+	this.avgCentroid = new THREE.Vector3(0,0,0);
+	var numfaces = 0;
+	var scenegeom = new THREE.Geometry();
+	var numvertices = 0;
+
+	for (var i = 0; i < meshes.length; i++) {
+		var nextgeom = meshes[i].geometry;
+		var position = this.getWorldPosition(meshes[i])
+		this.avgCentroid.x += position.x;
+		this.avgCentroid.y += position.y;
+		this.avgCentroid.z += position.z;
+	
+		nextgeom.computeCentroids();	
+		numfaces += nextgeom.faces.length;
+
+		for (var j = 0; j < nextgeom.vertices.length; j++) {
+			scenegeom.vertices.push(nextgeom.vertices[j]);
+		}
+
+		for (var j = 0; j < nextgeom.faces.length; j++) {
+			var nextface = nextgeom.faces[j];
+			var newface = new THREE.Face3();
+			newface.a = nextface.a + numvertices;
+			newface.b = nextface.b + numvertices;
+			newface.c = nextface.c + numvertices;
+			scenegeom.faces.push(newface);
+		}
+	}
+
+	this.avgCentroid.x /= meshes.length;
+	this.avgCentroid.y /= meshes.length;
+	this.avgCentroid.z /= meshes.length;
+	this.avgCentroid.y = 0;
+
+	this.camera.lookAt(this.avgCentroid);
+
+	scenegeom.computeBoundingSphere();
+	var radius = scenegeom.boundingSphere.radius;
+	this.camera.position.set(radius/2, radius, radius);
+}
+
 ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 	var meshes = [];
 	for (var i = 0; i < shapes.length; i++) {
@@ -67,7 +130,7 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 
 		// translate to center
 		var transmat = new THREE.Matrix4();
-		transmat.makeTranslation(0, amount, -200);
+		transmat.makeTranslation(0, amount, -100);
 		extrudemesh.applyMatrix(transmat);
 		meshes.push(extrudemesh); 
 	}

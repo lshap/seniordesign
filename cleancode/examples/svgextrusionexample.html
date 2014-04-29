@@ -42,6 +42,8 @@
 
 				// call the constructor
 				var svgextrusion = new ThreeData.SVGExtrusion(svg, 0.7, null, scene, camera);
+				var centroid  = svgextrusion.getCameraCenter();
+				controls.target = centroid;
 				animate(); // call the animate method to update the scene when the camera changes
 			}
 
