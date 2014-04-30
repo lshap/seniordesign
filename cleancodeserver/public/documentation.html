@@ -82,7 +82,7 @@
 	
 				<h5 class="code">tooltip</h5>
 					<p class="well">
-						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected pixel and "selectaction", which can equal either "click" or "hover". Hover tooltips can severely impair the performance of large pixel extrusion visualizations. 
+						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected pixel, "selectaction", which can equal either "click" or "hover", and "style", which allows for custom css-styling. Hover tooltips can severely impair the performance of large pixel extrusion visualizations. 
 					<br></br>
 					Eg.<span class="code" style="font-weight:bold"> {selectcolor: 0xffffff, selectaction:"click"}</span>
 					<br></br>
@@ -155,7 +155,7 @@
 					</p>
 				<h5 class="code">tooltip</h5>
 					<p class="well">
-						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected object, "selectopacity", which specifies an opacity change to apply to the selected object, and "selectaction", which can equal either "click" or "hover". 					<br></br>
+						json object describing tooltip behavior. Set this field to "null" if no tooltip is desired. Optional fields include "selectcolor", which describes what color to apply to the selected object, "selectopacity", which specifies an opacity change to apply to the selected object, "selectaction", which can equal either "click" or "hover", and "style", which allows for custom css styling. 					<br></br>
 					Eg.<span class="code" style="font-weight:bold"> {selectopacity: 1, selectaction:"hover"}</span>
 					<br></br>
 					will add a tooltip to the svg extrusion visualization that turns selected objects opaque when they are hovered over. The text shown in the tooltip will be the associated string from the <span class ="code">description</span> field of the extruded svg path, or the data value if no description is given.</p>

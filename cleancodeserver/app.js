@@ -14,26 +14,6 @@ app.all('/', function(req, res, next) {
   next();
  });
 
-
-app.get('/data/twitterdata', function(req, res) {
-	
-});
-
-app.get('/data/twitterdata', function(req, res) {
-
-	var newreq = http.get(url, function (newres) {
-			console.log(newres.statusCode);
-			console.log(newres.body);
-			//res.send(newres);
-	});
-
-	newreq.on('error', function(e) {
-		console.log('problem with request' + e.message);
-	});
-	newreq.end();
-});
-
-
 // get all resources
 app.get('/siteimages/*', function(req, res) {
 	res.sendfile('public/siteimages/' + req.params[0]);

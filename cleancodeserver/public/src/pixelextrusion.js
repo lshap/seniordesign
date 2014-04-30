@@ -17,7 +17,7 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 	this.img = img;
 	this.extrudecolor = extrudecolor;
 	this.data = data;
-	this.datdescriptions = datadescriptions;
+	this.datadescriptions = datadescriptions;
 	this.vertexcolors = vertexcolors;
 	this.shapetype = shapetype;
 	this.scene = scene;
@@ -244,8 +244,9 @@ ThreeData.PixelExtrusion.prototype.addLabel = function(text, x, y) {
 
 	$(label).show();
 	label.style.position = 'absolute';
-	label.style.width = 100;
-	label.style.height = 40;
+	//label.style.width = 100;
+	//label.style.height = 40;
+	label.style.padding = "5px";
 	label.style.backgroundColor = "#EFEFEF";	
 	label.innerHTML = text;
 	label.style.top = y;
@@ -294,7 +295,15 @@ ThreeData.PixelExtrusion.prototype.onMouseDown = function(event) {
 
 		
 		
-		pixelextrusion.addLabel("hello", event.clientX, event.clientY);
+		
+		if (pixelextrusion.selectedshapeindex < pixelextrusion.datadescriptions.length && pixelextrusion.datadescriptions[pixelextrusion.selectedshapeindex] != undefined) {
+			description = pixelextrusion.datadescriptions[pixelextrusion.selectedshapeindex];
+		}
+		else {
+			description = "data = " + pixelextrusion.data[pixelextrusion.selectedshapeindex];
+		}
+
+		pixelextrusion.addLabel(description, event.clientX, event.clientY);
 		pixelextrusion.buffergeom.attributes.color.needsUpdate = true;
 		pixelextrusion.intersected = true;
 	}
