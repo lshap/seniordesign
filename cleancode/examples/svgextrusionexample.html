@@ -37,9 +37,14 @@
 				controls = new THREE.OrbitControls(camera);
 				camera.position.set(0, 50, 150);
 
-				var svg = $("#svg");
 				$("#svg").hide();
+				var paths = $("path");
+				for (var i = 0; i < paths.length; i++) {
+					$(paths[i]).attr("data", Math.random() * 90 + 10);
+				}
 
+				var svg = $("#svg");
+		
 				// call the constructor
 				var svgextrusion = new ThreeData.SVGExtrusion(svg, 0.7, null, scene, camera);
 				var centroid  = svgextrusion.getCameraCenter();

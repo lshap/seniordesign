@@ -41,6 +41,7 @@ ThreeData.SVGExtrusion = function(svg, opacity, tooltip, scene, camera) {
 
 ThreeData.SVGExtrusion.prototype.init = function() {
 	var shapes = this.parsePaths();
+	console.log(shapes);
 	this.meshes = this.extrudeShapes(shapes);	
 
 	for (var i = 0; i < this.meshes.length; i++) {
@@ -86,6 +87,7 @@ ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
 					// moused out of last mesh so set that material back to old material
 					var oldindex = svgextrusion.selectindex;
 					svgextrusion.meshes[oldindex].material = svgextrusion.oldmaterial;
+					svgextrusion.selectindex = -1;
 					$("#tooltip").hide();
 					break;
 				}
@@ -100,7 +102,6 @@ ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
 		svgextrusion.selectindex = index;
 
 		var selectcolor = svgextrusion.tooltip["selectcolor"] || 0x000000;
-		console.log("selectopacity = " + svgextrusion.tooltip["selectopacity"]);
 		var selectopacity = svgextrusion.tooltip["selectopacity"] || this.opacity;
 
 		svgextrusion.oldmaterial = svgextrusion.meshes[index].material;
@@ -111,7 +112,7 @@ ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
 
 		svgextrusion.addLabel("hello", event.clientX, event.clientY);
 	}
-	else if (svgextrusion.selectindex && svgextrusion.selectindex > -1) { // moused out of lastmesh 
+	else if (svgextrusion.selectindex != undefined && svgextrusion.selectindex > -1) { // moused out of lastmesh 
 		var oldindex = svgextrusion.selectindex;
 		svgextrusion.meshes[oldindex].material = svgextrusion.oldmaterial;
 		$("#tooltip").hide();
@@ -319,12 +320,27 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 	var meshes = [];
 	for (var i = 0; i < shapes.length; i++) {
 		var shape = shapes[i].shape;
-
 		var color = shapes[i].color;
-		var amount = 10 + Math.random() * 90;
+		var id = shapes[i].id;
+		
+		if (color == undefined) {
+			console.log("Warning: no fill color specified in svg path with id" + id);
+			color = 0x000000;
+		}
+
+		var opacity = shapes[i].opacity;
+		if (opacity == undefined) {
+			opacity = this.opacity;
+		}
+
+		var amount = shapes[i].data;
+		if (amount == undefined) {
+			console.log("Warning: no data attribute specified in svg path with id " + id);
+			amount = 0;
+		}
 
 		var extrudegeom = new THREE.ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false});
-		var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity:this.opacity});
+		var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity: opacity});
 		var extrudemesh = new THREE.Mesh(extrudegeom, extrudeMat);
 
 		var rotmat = new THREE.Matrix4();
@@ -337,6 +353,7 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 		var transmat = new THREE.Matrix4();
 		transmat.makeTranslation(0, amount, -200);
 		extrudemesh.applyMatrix(transmat);
+		console.log(extrudemesh);
 		meshes.push(extrudemesh); 
 	}
 
@@ -350,7 +367,10 @@ ThreeData.SVGExtrusion.prototype.parsePaths = function(){
 	for (var i = 0; i < paths.length; i++) {
 		var nextpath = $(paths[i]).attr("d");
 		var nextcolor = $(paths[i]).attr("fill");
-		shapes.push({shape: this.transformSVGPath(nextpath), color:nextcolor});
+		var opacity = $(paths[i]).attr("opacity");
+		var data = $(paths[i]).attr("data");
+		var id = $(paths[i]).attr("id");
+		shapes.push({shape: this.transformSVGPath(nextpath), color:nextcolor, opacity:opacity, data:data, id:id});
 	}	
 
 	return shapes;
