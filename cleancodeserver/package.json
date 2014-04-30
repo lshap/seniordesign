@@ -1,0 +1,10 @@
+{
+	"name":"senior-design",
+	"description":"senior design project",
+	"version":"0.0.1",
+	"dependencies" : {
+		"express": "4.0",
+		"connect": "2.x",
+		"body-parser":"1.x"
+	}
+}

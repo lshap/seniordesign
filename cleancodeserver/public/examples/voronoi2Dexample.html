@@ -1,0 +1,73 @@
+<html>
+	<head>
+		<script src="../src/resources/three.js"></script>
+		<script src="../src/resources/jquery-1.11.0.min.js"></script>
+		<script src="../src/resources/voronoi-core.min.js"></script>
+		<script src="../src/resources/OrbitControls.js"></script>
+		<script src="../src/voronoi2D.js"></script>
+	</head>
+	<body>
+		<script type = "text/javascript">
+			var scene;
+			var camera;
+			var renderer;
+			var controls; // camera control object
+
+			$(document).ready(function(){
+				init();
+			});
+
+			/*
+			 * set up the three js scene
+			 */
+			function init() {
+				scene = new THREE.Scene();
+				var light = new THREE.DirectionalLight( 0xffffff);
+				light.position.set( 0,10,0);
+				scene.add( light );
+				camera = new THREE.PerspectiveCamera( 75, 
+									window.innerWidth / window.innerHeight,
+									0.1,
+									1000 );
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+				controls = new THREE.OrbitControls(camera);
+				camera.position.set(0, 10, 10);
+
+				var colors = [];
+				colors.push(0x00ff00);
+				colors.push(0xff00ff);
+				colors.push(0x0000ff);
+			
+				var data = [];
+				for (var i = 0; i < 100; i++) {
+					var x = Math.random() * 10 + 10;
+					var y = Math.random() * 10 + 10;
+					data.push(new THREE.Vector2(x, y));
+				}	
+
+				var voronoi = new ThreeData.Voronoi2D(data,10, null, colors, 0.6, scene);
+				animate(); // call the animate method to update the scene when the camera changes
+			}
+
+			/*
+			 * animate function  	
+			 */
+
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+			}
+
+			/*
+			 * render the scene
+			 */
+			function render() {
+				// if using a transform, call the 'updateTransform' method here
+				renderer.render(scene, camera);
+			}
+		</script>
+	</body>
+</html>

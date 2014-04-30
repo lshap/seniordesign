@@ -1,0 +1,39 @@
+.body {
+	padding-top:50px;
+}
+
+.container {
+	padding-top:50px;
+	padding-bottom:80px;
+}
+
+.sidebar-module {
+	background-color: #f5f5f5;
+	top:0px;
+	padding-top:130px; 
+	left:0px;
+	position:fixed;
+	padding-left:40px;
+	padding-right:40px;
+	height:100%;
+}
+
+.code {
+	font-family:"Menlo"
+}
+
+h4.code {
+	font-size: 14px;
+	font-weight:bold;
+	
+}
+
+h5 {
+	padding-left:10px;
+}
+
+.sectionor {
+	color:#6B24B2;
+	color:#66FF99;
+	color:#00B8E6;
+}

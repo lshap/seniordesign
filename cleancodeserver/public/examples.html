@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<script src="src/resources/jquery-1.11.0.min.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<link href="bootstrap/css/bootstrap.min.css" rel = "stylesheet">
+		<link href="styles/examples.css" rel = "stylesheet">
+	</head>
+	<body>
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+				<div class = "navbar-header">
+					<a class="navbar-brand" href="index.html">ThreeData</a>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="index.html"> Home</a></li>
+						<li><a href="documentation.html">Docs</a></li>
+						<li class="active"><a href="#">Examples</a></li>
+					</ul>
+				</div>
+		</div>
+
+
+		<div class="sidebar-module">
+				<h4 >Examples</h4>
+				<ol class="list-unstyled">
+					<h5 class="sectionor">Pixel Extrusion</h5>
+					<li><a class="example-nav" ex="examples/pixelextrusionexample.html">pixel extrusion</a></li>
+					<li><a class="example-nav" ex="examples/pixelextrusionwithtransform.html">extrusion with transform</a></li>
+					<li><a class="example-nav" ex="examples/pixelextrusionwithtooltip.html">extrusion with tooltip</a></li>
+					<h5 class="sectionor">SVG Extrusion</h5>
+					<li><a class="example-nav" ex="examples/svgextrusionexample.html">svg extrusion</a></li>
+					<li><a class="example-nav" ex="examples/svgextrusionwithtooltip.html">extrusion with tooltip</a></li>
+					<h5 class="sectionor">Voronoi Diagram 2D</h5>
+					<li><a class="example-nav" ex="examples/voronoi2Dexample.html">2D voronoi diagram</a></li>
+					<h5 class="sectionor">Voronoi Diagram 3D</h5>
+					<li><a class="example-nav" ex="examples/voronoi3Dexample.html">rectangular container</a></li>
+					<li><a class="example-nav" ex="examples/voronoi3Dirregular.html">irregular container</a></li>
+				</ol>
+		</div>
+
+		<div class="container">
+			<div class="col-md-9 col-md-offset-3">
+				<iframe id="exampleframe" scrolling="no" frameborder="0"></iframe>
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+				$(document).ready(function(){
+					$(".example-nav").click(function(){
+						var src = $(this).attr("ex");
+						$("#exampleframe").attr("src", src);
+					});	
+
+				});
+		</script>
+
+	</body>
+</html>
