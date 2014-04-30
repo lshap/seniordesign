@@ -34,12 +34,9 @@
 		<div class="col-md-9 col-md-offset-3">
 			<div class="doc" id="getting-started">
 				<h2>Getting started with ThreeData</h2>
-					<h4 class="sectionor">Including source files</h4>
+					<h4 class="sectionor">Dependencies</h4>
 						<p class="well">ThreeData depends on <a href="http://threejs.org" target="_blank">three.js</a>
 							and <a href="http://jquery.com" target="_blank">jQuery</a>. 
-							To create a ThreeData visualization, include the following sources:</p>
-							<br></br>
-						<p></p>
 					<h4 class="sectionor">Boiler plate code</h4>
 					<p class="well">The first thing to do is set up a threejs scene. For more details check out threejs's site, but below is some sample code:
 						<br></br>
@@ -131,10 +128,10 @@
 						<p class="well">method to update the any transformation or to update the tooltip. Call this method in the render loop.</p>
 
 				<h4 class="sectionor">Source</h4>	
-				<a>src/pixelextrusion.js</a>
+				<a href="src/pixelextrusion.js" target="_blank">src/pixelextrusion.js</a>
 
 				<h4 class="sectionor">Example</h4>	
-				<a>examples/pixelextrusionexample.html</a>
+				<a href="examples/pixelextrusionexample.html" target="_blank">examples/pixelextrusionexample.html</a>
 			</div><!-- end pixel extrusion doc description-->
 
 			<div class="doc" id="svg-extrusion">
@@ -173,10 +170,10 @@
 					</p>
 
 				<h4 class="sectionor">Source</h4>
-				<a>src/svgextrusion.js</a>
+				<a href ="src/svgextrusion.js<" target ="_blank">src/svgextrusion.js</a>
 
 				<h4 class="sectionor">Example</h4>
-				<a>examples/svgextrusionexample.html</a>
+				<a target="_blank" href="examples/svgextrusionexample.html" >examples/svgextrusionexample.html</a>
 			</div><!-- end svg extrusion doc description-->
 
 			<div class="doc" id="2d-voronoi">
@@ -218,10 +215,10 @@
 					</p>
 	
 				<h4 class="sectionor">Source</h4>	
-				<a>src/voronoi2D.js</a>
+				<a href="src/voronoi2D.js" target ="_blank">src/voronoi2D.js</a>
 
 				<h4 class="sectionor">Example</h4>	
-				<a>examples/voronoi2Dexample.html</a>
+				<a target="_blank" href="examples/voronoi2Dexample.html">examples/voronoi2Dexample.html</a>
 
 			</div><!-- end 2d voronoi doc description-->
 
@@ -265,10 +262,10 @@
 				
 
 				<h4 class="sectionor">Source</h4>	
-				<a>src/voronoi3D.js</a>
+				<a target="_blank" href="src/voronoi3D.js">src/voronoi3D.js</a>
 
 				<h4 class="sectionor">Example</h4>	
-				<a>examples/voronoi3Dexample.html</a>
+				<a target="_blank" href="examples/voronoi3Dexample.html">examples/voronoi3Dexample.html</a>
 			</div><!-- end 3d voronoi doc description-->
 	</div>
 	</div>
@@ -279,8 +276,18 @@
 			$(document).ready(function() {
 				$(".doc").hide();
 				$("#getting-started").show();
-				$("#boilerplatecode").text("<html>\n</html>");		
 
+				var url = 'src/resources/boilerplate.txt'; 				
+				var request = new XMLHttpRequest();
+				request.open("GET", url, true);
+				request.responseType = "text";
+
+				request.onload = function() {
+					var text = request.response;
+					$("#boilerplatecode").html(text);	
+				};
+
+				request.send();
 	
 				$(".doc-nav").click(function() {
 					var doc = $(this).attr("doc");

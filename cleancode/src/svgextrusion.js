@@ -41,7 +41,6 @@ ThreeData.SVGExtrusion = function(svg, opacity, tooltip, scene, camera) {
 
 ThreeData.SVGExtrusion.prototype.init = function() {
 	var shapes = this.parsePaths();
-	console.log(shapes);
 	this.meshes = this.extrudeShapes(shapes);	
 
 	for (var i = 0; i < this.meshes.length; i++) {
@@ -154,7 +153,6 @@ ThreeData.SVGExtrusion.prototype.onMouseDown = function() {
 	if ( intersects.length > 0 ) {
 		console.log("found intersection");
 		var intersect = intersects[0];
-		console.log(intersect.object);
 		var index;
 		for (var i = 0; i < svgextrusion.meshes.length;i++) {
 			var currmesh = svgextrusion.meshes[i];
@@ -353,7 +351,6 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 		var transmat = new THREE.Matrix4();
 		transmat.makeTranslation(0, amount, -200);
 		extrudemesh.applyMatrix(transmat);
-		console.log(extrudemesh);
 		meshes.push(extrudemesh); 
 	}
 
