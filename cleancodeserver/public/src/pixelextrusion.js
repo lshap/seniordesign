@@ -124,18 +124,22 @@ ThreeData.PixelExtrusion.prototype.rgbToHex = function(r, g, b, a) {
 // converts pixel data to a 3D scene
 ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 	var ind = 0;
+	var dataindex = 0;
 	var vertexColors = {name: "colors", colors:[]};
 	var imagedata = this.imgdata.data;
+	console.log("this.data.length = " + this.data.length);
 	for (var i = 0; i < imagedata.length; i+= 4) {
 		var color = this.rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
-		if (color == this.extrudecolor) {
+		if (color == this.extrudecolor && dataindex < this.data.length) {
+			
+			console.log('got here');
 			var pix = i/4;
 			var x =  pix % this.imgdata.width;
 			var z = pix / this.imgdata.width;
-			var height = Math.random() * 4;
-	
 			var colordecision = Math.floor(Math.random() * this.vertexcolors.length);
 			var drawcolor = new THREE.Color(this.vertexcolors[colordecision]);
+			var height = this.data[dataindex]/30;
+			dataindex++;
 
 			var mesh, geom, mat;
 			switch(this.shapetype) {
@@ -437,6 +441,7 @@ ThreeData.PixelExtrusion.prototype.extrudeBufferMesh = function(imagedata, extru
 	var vertexColors = {name: "colors", colors:[]};
 	var picData = imagedata.data;
 
+	var dataindex = 0;
 	for (var i = 0; i < picData.length; i+= 4) {
 		var color = this.rgbToHex(picData[i], picData[i + 1], picData[i + 2], picData[i + 3]);
 		if (color == extrudecolor) {
@@ -445,8 +450,9 @@ ThreeData.PixelExtrusion.prototype.extrudeBufferMesh = function(imagedata, extru
 			var z = pix / imagedata.width;
 
 			var height;
-			if (i/4 < data.length) {
-				height = data[i / 4];
+			if (dataindex < data.length) {
+				height = data[dataindex];
+				dataindex ++;
 			}
 			else {
 				height = 0;

@@ -78,7 +78,7 @@
 						var csv = event.target.result;
 						var dataarray = $.csv.toArrays(csv);
 						console.log(dataarray.length);
-						for (var i = 0; i < dataarray.length; i++) {
+						for (var i = 1; i < dataarray.length; i++) {
 							if (dataarray[i].length == 2) {
 								var dataitem = parseFloat(dataarray[i][1]);
 								var description = "price of gold in "+ dataarray[i][0]+ " : $" + dataitem;
