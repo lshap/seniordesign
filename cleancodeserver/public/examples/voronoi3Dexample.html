@@ -33,7 +33,10 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     controls = new THREE.OrbitControls(camera);
-    camera.position.set(0, 5, 5);
+
+    camera.position.set(0, 4, 3);
+    controls.target = new THREE.Vector3(0, 0, 0);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 
     // SET UP THE PARAMETERS

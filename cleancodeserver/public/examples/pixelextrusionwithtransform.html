@@ -38,8 +38,9 @@
 				document.body.appendChild(renderer.domElement);
 				controls = new THREE.OrbitControls(camera);
 				camera.position.set(0, 100, 80);
-				camera.lookAt(1, 1, 1);
+
 				controls.target = new THREE.Vector3(1,1,1);
+				camera.lookAt(new THREE.Vector3(1,1,1));
 
 
 				// set up the pixel extrusion parameters
@@ -48,7 +49,7 @@
 				var data = [];
 				
 				for (var i = 0; i < 4000; i++) {
-					data.push(Math.random() * 10);
+					data.push(Math.random() * 50);
 				}
 				console.log("data.length = " + data.length);
 

@@ -29,14 +29,12 @@
 				scene.add( light );
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
-									0.1,
+									0.01,
 									2000 );
 				renderer = new THREE.WebGLRenderer();
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
-				controls = new THREE.OrbitControls(camera);
-				camera.position.set(0, 50, 150);
 
 				var paths = $("path");
 
@@ -58,10 +56,15 @@
 
 				var svgextrusion = new ThreeData.SVGExtrusion(svg, 0.7, tooltip, scene, camera);
 				var center  = svgextrusion.getCameraCenter();
-				controls.target = center["centroid"];
+
+				controls = new THREE.OrbitControls(camera);
+				
 				var radius = center["radius"];
-				camera.position.set(0, radius, radius);
-				//controls.maxRadius = radius * 1.2;
+				camera.position.set(0, radius, 0);
+
+				controls.target = new THREE.Vector3(600, 0, 300);
+				camera.lookAt(new THREE.Vector3(600, 0, 300));
+
 				animate(); // call the animate method to update the scene when the camera changes
 			}
 

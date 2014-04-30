@@ -49,6 +49,11 @@
 				}	
 
 				var voronoi = new ThreeData.Voronoi2D(data,10, null, colors, 0.6, scene);
+				var radius = voronoi.computeBoundingSphereRadius();
+
+				camera.position.set(0, radius, 0);
+				controls.target = new THREE.Vector3(0, 0, 0);
+				camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 				controls.maxRadius = 10;
 				animate(); // call the animate method to update the scene when the camera changes

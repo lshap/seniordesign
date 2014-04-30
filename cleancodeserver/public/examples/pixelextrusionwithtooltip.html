@@ -24,8 +24,22 @@
 			function init() {
 				scene = new THREE.Scene();
 				var light = new THREE.DirectionalLight( 0xffffff);
-				light.position.set( 0,10,0);
+				light.position.set( 0,150,0);
+				var light2 = new THREE.DirectionalLight( 0xffffff);
+				light2.position.set( 0,150,150);
+				
+				var light3 = new THREE.DirectionalLight( 0xffffff);
+				light3.position.set( -100,150,0);
+
+				var light4 = new THREE.DirectionalLight( 0xffffff);
+				light4.position.set( 100,150,0);
+
 				scene.add( light );
+				scene.add( light2 );
+				scene.add( light3 );
+				scene.add( light4 );
+
+				console.log(light);
 				camera = new THREE.PerspectiveCamera( 75, 
 									window.innerWidth / window.innerHeight,
 									0.1,
@@ -34,19 +48,16 @@
 				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
+
 				controls = new THREE.OrbitControls(camera);
-				camera.position.set(0, 5, 15);
+				camera.position.set(0, 80, 15);
+				controls.target = new THREE.Vector3(0, 0, 0);
+				camera.lookAt(new THREE.Vector3(0,0,0));
 
 
 				// set up the pixel extrusion parameters
 				var img = "images/dollarsign_100.jpg";
 				var extrudecolor = 0x000000;
-				/*var data = [];
-				
-				for (var i = 0; i < 12000; i++) {
-					data.push(10 + Math.random() * 20);
-				}*/
-
 
 				var request = new XMLHttpRequest();
 				var url = '../src/resources/goldprices.csv';
@@ -66,7 +77,7 @@
 
 				var shapetype = ThreeData.ShapeType.SQUARE;
 				var style = "font-family:Helvetica, Arial, sans-serif; font-size:12px;"
-				var tooltip = {selectaction:"click", style:style, selectcolor:0xffffff};
+				var tooltip = {selectaction:"click", style:style, selectcolor:0xffcc00};
 				controls.maxRadius = 300;
 
 				// read data from file

@@ -69,6 +69,22 @@ ThreeData.Voronoi2D.prototype.createDiagram = function() {
 	}
 }
 
+ThreeData.Voronoi2D.prototype.computeBoundingSphereRadius = function() {
+	var outlinepts = [];
+	outlinepts.push(new THREE.Vector2(this.maxX, this.maxY));
+	outlinepts.push(new THREE.Vector2(this.minX, this.maxY));
+	outlinepts.push(new THREE.Vector2(this.minX, this.minY));
+	outlinepts.push(new THREE.Vector2(this.maxX, this.minY));
+
+	var outlineshapegeom = new THREE.ShapeGeometry(new THREE.Shape(outlinepts));
+	var rotmat = new THREE.Matrix4();
+	rotmat.makeRotationX(3 * Math.PI/2);
+
+	outlineshapegeom.applyMatrix(rotmat);
+	outlineshapegeom.computeBoundingSphere();
+	return outlineshapegeom.boundingSphere.radius;
+}
+
 
 ThreeData.Voronoi2D.prototype.computeCentroid = function(shapePts) {
 	var xsum = 0;

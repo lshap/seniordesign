@@ -17,6 +17,22 @@ ThreeData.PixelExtrusion = function(img, extrudecolor, data, datadescriptions, v
 	this.img = img;
 	this.extrudecolor = extrudecolor;
 	this.data = data;
+
+	this.max = Number.MIN_VALUE;
+	this.min = Number.MAX_VALUE;
+	for (var i = 0; i < this.data.length; i++) {
+		if (this.data[i] > this.max) {
+			this.max = this.data[i]; 
+		}
+
+		if (this.data[i] < this.min) {
+			this.min = this.data[i]; 
+		}
+	}
+
+	this.scale = (this.max - this.min)/10;
+	
+
 	this.datadescriptions = datadescriptions;
 	this.vertexcolors = vertexcolors;
 	this.shapetype = shapetype;
@@ -131,14 +147,12 @@ ThreeData.PixelExtrusion.prototype.extrudeImage = function() {
 	for (var i = 0; i < imagedata.length; i+= 4) {
 		var color = this.rgbToHex(imagedata[i], imagedata[i + 1], imagedata[i + 2], imagedata[i + 3]);
 		if (color == this.extrudecolor && dataindex < this.data.length) {
-			
-			console.log('got here');
 			var pix = i/4;
 			var x =  pix % this.imgdata.width;
 			var z = pix / this.imgdata.width;
 			var colordecision = Math.floor(Math.random() * this.vertexcolors.length);
 			var drawcolor = new THREE.Color(this.vertexcolors[colordecision]);
-			var height = this.data[dataindex]/30;
+			var height = this.data[dataindex]/this.max * this.scale;
 			dataindex++;
 
 			var mesh, geom, mat;
@@ -286,8 +300,8 @@ ThreeData.PixelExtrusion.prototype.onMouseDown = function(event) {
 			}
 
 			var selectcolor;
-			if (tooltip["selectcolor"]) {
-				selectcolor = new THREE.Color(tooltip["selectcolor"]);
+			if (pixelextrusion.tooltip["selectcolor"]) {
+				selectcolor = new THREE.Color(pixelextrusion.tooltip["selectcolor"]);
 			}
 			else  {
 				selectcolor = new THREE.Color(0xffffff);
@@ -451,7 +465,7 @@ ThreeData.PixelExtrusion.prototype.extrudeBufferMesh = function(imagedata, extru
 
 			var height;
 			if (dataindex < data.length) {
-				height = data[dataindex];
+				height = this.data[dataindex]/this.max * this.scale;
 				dataindex ++;
 			}
 			else {

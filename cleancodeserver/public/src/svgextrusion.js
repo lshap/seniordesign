@@ -327,6 +327,7 @@ ThreeData.SVGExtrusion.prototype.computeCameraPosition = function(meshes) {
 	this.avgCentroid.x /= meshes.length;
 	this.avgCentroid.y /= meshes.length;
 	this.avgCentroid.z /= meshes.length;
+	console.log("z = " + this.avgCentroid.z);
 	this.avgCentroid.y = 0;
 	scenegeom.computeBoundingSphere();
 	var radius = scenegeom.boundingSphere.radius;	
