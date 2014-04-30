@@ -265,7 +265,6 @@
 				var transmat = new THREE.Matrix4();
 				
 				var centroid = this.computeCentroid(shapeGeom.vertices);
-				console.log("centroid = " + centroid.x + "," + centroid.y);
 				transmat.makeTranslation(-centroid.x, 0, -centroid.y);
 
 				shapeGeom.applyMatrix(transmat);
@@ -277,7 +276,7 @@
 				animate();
 			}
 
-			function shapeGeom(halfedges) {
+			VoronoiDiagram.prototype.shapeGeom = function(halfedges) {
 				var pts = [];
 
 				var h = halfedges[0];
@@ -315,10 +314,49 @@
 
 			VoronoiDiagram.prototype.extrudeGeom = function(halfedges) {
 				var extrudeSettings = {amount:0.1, steps: 1, bevelEnabled:false};
-				var shape = shapeGeom(halfedges);
+				var shape = this.shapeGeom(halfedges);
 
-				var shapeclipper = new ShapeClipper((new THREE.ShapeGeometry(shape)).vertices, this.clipvertices); 
+				var shapegeom = new THREE.ShapeGeometry(shape);
+
+				// rotate and translate shapegeom to desired location
+				var rotmat = new THREE.Matrix4();
+				rotmat.makeRotationX(Math.PI/2);
+				shapegeom.applyMatrix(rotmat);
+
+
+				var outlinepts = [];
+				outlinepts.push(new THREE.Vector2(this.maxX, this.maxY));
+				outlinepts.push(new THREE.Vector2(this.minX, this.maxY));
+				outlinepts.push(new THREE.Vector2(this.minX, this.minY));
+				outlinepts.push(new THREE.Vector2(this.maxX, this.minY));
+
+				var outlineshapegeom = new THREE.ShapeGeometry(new THREE.Shape(outlinepts));
+				outlineshapegeom.applyMatrix(rotmat);
+
+				var centroid = this.computeCentroid(outlineshapegeom.vertices);
+				var transmat = new THREE.Matrix4();
+
+				transmat.makeTranslation(-centroid.x, 0, -centroid.y); 
+				shapegeom.applyMatrix(transmat);
+				var shapevertices = shapegeom.vertices;
+
+				/*var shapemat = new THREE.MeshBasicMaterial({color:0x00ff00});
+				var shapemesh = new THREE.Mesh(shapegeom, shapemat);
+				scene.add(shapemat);*/
+	
+				var clipverts2D = [];
+				for (var i = 0; i < this.clipvertices.length; i++) {
+					clipverts2D.push(new THREE.Vector2(this.clipvertices[i].x, this.clipvertices[i].z));
+				}
+
+				var shapeverts2D = [];
+				for (var i = 0; i < shapevertices.length; i++) {
+					shapeverts2D.push(new THREE.Vector2(shapevertices[i].x, shapevertices[i].z));
+				}
+				var shapeclipper = new ShapeClipper(shapeverts2D, clipverts2D);
 				var clippedshapes = shapeclipper.getClippedShapes();	
+				console.log("clipped shapes = ");
+				console.log(clippedshapes);
 
 				var shapes = [];
 				if (clippedshapes.length > 0) {
@@ -337,34 +375,15 @@
 					var scalemat = new THREE.Matrix4();
 					var amount = 2;
 					scalemat.makeScale(1, 1, amount);
-					shape3d.applyMatrix(scalemat);
 
-					var rotmat = new THREE.Matrix4();
-					rotmat.makeRotationX(Math.PI/2);
 					shape3d.applyMatrix(rotmat);
-
-
-					var outlinepts = [];
-					outlinepts.push(new THREE.Vector2(this.maxX, this.maxY));
-					outlinepts.push(new THREE.Vector2(this.minX, this.maxY));
-					outlinepts.push(new THREE.Vector2(this.minX, this.minY));
-					outlinepts.push(new THREE.Vector2(this.maxX, this.minY));
-
-					var outlineshapegeom = new THREE.ShapeGeometry(new THREE.Shape(outlinepts));
-					outlineshapegeom.applyMatrix(rotmat);
-
-
-					var centroid = this.computeCentroid(outlineshapegeom.vertices);
-					var transmat = new THREE.Matrix4();
-
-					transmat.makeTranslation(-centroid.x, 0, -centroid.y); 
 					shape3d.applyMatrix(transmat);
-					outlineshapegeom.applyMatrix(transmat);
-					centroid = this.computeCentroid(outlineshapegeom);
+					shape3d.applyMatrix(scalemat);
 					shapes3d.push(shape3d);
 				}
 				
 				return shapes3d;
+				return shapes;
 			}
 
 			VoronoiDiagram.prototype.screenshot = function (imagename) {
@@ -378,7 +397,7 @@
 				var logged = false;
 
 				//for (var i = 0; i < cells.length; i++) {
-				for (var i = 0; i < 1; i++) {
+				for (var i = 1; i < 2; i++) {
 					// get next site
 					var halfedges = cells[i].halfedges;
 
@@ -394,8 +413,11 @@
 
 						var mat = new THREE.MeshBasicMaterial({color:col, transparent:true, opacity:0.25});
 						// var mat = new THREE.MeshBasicMaterial({color:0x00ff00, wireframe:true});
-						var extmesh = new THREE.Mesh(geom[i], mat);
-						scene.add(extmesh);
+						var nextgeom = geom[i];
+						if (nextgeom) {
+							var extmesh = new THREE.Mesh(nextgeom, mat);
+							scene.add(extmesh);
+						}
 					}
 				}
 			}

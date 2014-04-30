@@ -6,6 +6,8 @@
  */
 var ThreeData = {VERSION: '1'};
 
+var svgextrusion;
+
 ThreeData.SVGExtrusion = function(svg, opacity, tooltip, scene, camera) {
 	this.svg = svg;
 	this.opacity = opacity;
@@ -18,6 +20,23 @@ ThreeData.SVGExtrusion = function(svg, opacity, tooltip, scene, camera) {
 	this.scene = scene;
 	this.camera = camera;
 	this.init();
+
+	if (tooltip != null) {
+		this.mouse = new THREE.Vector2();
+		this.tooltip = tooltip;
+		var action = tooltip["selectaction"];
+		if (action == undefined) {
+			console.log("Error setting up tooltip--you must specify a 'selectaction' attribute!");
+		}
+		
+		var selectcolor;
+		if (tooltip["selectcolor"] != undefined) {
+
+		}
+		
+		svgextrusion = this;
+		this.initRayCaster();
+	}
 }
 
 ThreeData.SVGExtrusion.prototype.init = function() {
@@ -31,7 +50,126 @@ ThreeData.SVGExtrusion.prototype.init = function() {
 	//this.positionCamera(this.meshes);	
 }
 
+
+ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
+
+}
 	
+ThreeData.SVGExtrusion.prototype.onMouseMove_click = function() {
+	if (svgextrusion.intersected) {
+		var index = svgextrusion.selectindex;
+		svgextrusion.meshes[index].material = svgextrusion.oldmaterial;
+		svgextrusion.intersected = false;
+		$("#tooltip").hide();
+	}
+}
+
+ThreeData.SVGExtrusion.prototype.onMouseDown = function() {
+	event.preventDefault();
+	svgextrusion.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	svgextrusion.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+	var cpos = svgextrusion.camera.position;
+	var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
+
+	var vector = new THREE.Vector3( svgextrusion.mouse.x, svgextrusion.mouse.y, 1);
+	svgextrusion.projector.unprojectVector( vector, svgextrusion.camera );
+
+	svgextrusion.raycaster.set( svgextrusion.camera.position, vector.sub( svgextrusion.camera.position ).normalize() );
+
+	var intersects;
+	for (var i = 0; i < svgextrusion.meshes.length; i++) {
+		intersects = svgextrusion.raycaster.intersectObject( svgextrusion.meshes[i]);
+		if (intersects.length > 0) {
+			break;
+		}
+	}
+
+	if ( intersects.length > 0 ) {
+		console.log("found intersection");
+		var intersect = intersects[0];
+		console.log(intersect.object);
+		var index;
+		for (var i = 0; i < svgextrusion.meshes.length;i++) {
+			var currmesh = svgextrusion.meshes[i];
+			if (currmesh == intersect.object) {
+				index = i;
+				break;
+			}
+		}
+
+		if (index == undefined) {
+			console.log("error retrieving intersection");
+			return;
+		}
+
+		svgextrusion.selectindex = index;
+
+		var selectcolor = svgextrusion.tooltip["selectcolor"] || 0x000000;
+		console.log("selectopacity = " + svgextrusion.tooltip["selectopacity"]);
+		var selectopacity = svgextrusion.tooltip["selectopacity"] || this.opacity;
+
+		svgextrusion.oldmaterial = svgextrusion.meshes[index].material;
+		var transparent = selectopacity < 1;
+
+		svgextrusion.meshes[index].material = new THREE.MeshBasicMaterial({transparent: transparent, opacity: selectopacity, 
+							color:selectcolor});
+
+		svgextrusion.addLabel("hello", event.clientX, event.clientY);
+		svgextrusion.intersected = true;
+	}
+}
+	
+ThreeData.SVGExtrusion.prototype.onMouseUp = function() {
+	if (svgextrusion.intersected) {
+		var index = svgextrusion.selectindex;
+		svgextrusion.meshes[index].material = svgextrusion.oldmaterial;
+		svgextrusion.intersected = false;
+	}
+
+	$("#tooltip").hide();
+}
+
+ThreeData.SVGExtrusion.prototype.addLabel = function(text, x, y) {
+	var label = document.getElementById('tooltip');
+	$(label).show();
+	label.style.position = 'absolute';
+	label.style.width = 100;
+	label.style.height = 40;
+	label.style.backgroundColor = "#EFEFEF";	
+	label.innerHTML = text;
+	label.style.top = y;
+	label.style.left = x;
+}
+
+ThreeData.SVGExtrusion.prototype.initRayCaster = function() {
+	this.projector = new THREE.Projector();
+	this.raycaster = new THREE.Raycaster();
+
+	this.mouse = new THREE.Vector2();
+	var label = document.createElement("div");
+	label.id = "tooltip";
+
+	document.body.appendChild(label);
+
+	if (this.tooltip["selectaction"] == undefined) {
+		console.log("Error creating a tooltip--no 'selectaction' attribute specified");
+		return;
+	}
+
+	if (this.tooltip["selectaction"] == "click") {
+		document.addEventListener('mousemove', this.onMouseMove_click, false);
+		document.addEventListener('mousedown', this.onMouseDown, false);
+		document.addEventListener('mouseup', this.onMouseUp, false);
+	}
+	else if (this.tooltip["selectaction"] == "hover") {
+		document.addEventListener('mousemove', this.onMouseMove_hover, false);
+	}
+	else {
+		console.log("Error creating a tooltip--invalid 'selectaction' attribute specified");
+	}
+}
+
 ThreeData.SVGExtrusion.prototype.calculateCentroid = function(points) {
 	//get x-z center
 	var x_tot = 0;	

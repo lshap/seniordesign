@@ -414,6 +414,17 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	// polygons should contain vertices of polygons	
 	var shapes = [];
 	for (var i = 0; i < polygons.length; i++) {
+		/*var centroid = this.centroid(polygons[i]);
+		for (var j = 0; j < polygons[i].length - 1; j++) {
+			var p1 = polygons[i][j];
+			var p2 = polygons[i][j + 1];
+
+			if (this.inClockwiseOrder(p1, p2, centroid) == false) {
+				console.log("not in order");
+				console.log("point " + p1.x + " , " + p1.y + " is greater than point " + p2.x + " , " + p2.y);
+			} 
+		}*/
+
 		var shape = new THREE.Shape(polygons[i]);
 		shapes.push(shape);
 	}
@@ -422,4 +433,44 @@ ShapeClipper.prototype.getClippedShapes = function () {
 	return shapes;
 }
 
+ShapeClipper.prototype.centroid = function(pts) {
+	var avgx = 0;
+	var avgy = 0;
+	console.log(pts);
+	for (var i = 0; i < pts.length; i++) {
+		avgx += pts[i].x;
+		avgy += pts[i].y;
+	}
+
+	avgx /= pts.length;
+	avgy /= pts.length;
+	var center = new THREE.Vector2(avgx, avgy);
+	return center;
+}
+
+
+ShapeClipper.prototype.inClockwiseOrder = function(a, b, center) {
+ if (a.x - center.x >= 0 && b.x - center.x < 0)
+        return true;
+    if (a.x - center.x < 0 && b.x - center.x >= 0)
+        return false;
+    if (a.x - center.x == 0 && b.x - center.x == 0) {
+        if (a.y - center.y >= 0 || b.y - center.y >= 0)
+            return a.y > b.y;
+        return b.y > a.y;
+    }
+
+    // compute the cross product of vectors (center -> a) x (center -> b)
+    var det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
+    if (det < 0)
+        return true;
+    if (det > 0)
+        return false;
+
+    // points a and b are on the same line from the center
+    // check which point is closer to the center
+    var d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+    var d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+    return d1 > d2;
+}
 
