@@ -1,0 +1,88 @@
+
+<html>  
+ <head>
+  <script src="../src/resources/three.js"></script>
+  <script src="../src/resources/jquery-1.11.0.min.js"></script>
+  <script src="../src/resources/OrbitControls.js"></script>
+  <script src="../src/voronoi3D.js"></script>
+ </head>
+ <body>
+  <script type="text/javascript">
+   var scene;
+   var camera;
+   var renderer;
+   var controls; // camera control object
+
+   $(document).ready(function(){
+    init();
+   });
+
+   /*
+    * set up the three js scene
+    */
+   function init() {
+    scene = new THREE.Scene();
+    var light = new THREE.DirectionalLight( 0xffffff);
+    light.position.set( 0,10,0);
+    scene.add( light );
+    camera = new THREE.PerspectiveCamera( 75, 
+         window.innerWidth / window.innerHeight,
+         0.1,
+         1000 );
+    renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(0xffffff, 1);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    controls = new THREE.OrbitControls(camera);
+    camera.position.set(0, 3, 3);
+
+
+    // SET UP THE PARAMETERS
+	var colors = [];
+	colors.push(0x0ff000);
+	colors.push(0x006600);
+	colors.push(0xff00ff);
+	colors.push(0xffff00);
+
+	var containershape = "irregular";
+	var displaysites = false;
+	var sitecolor = null;
+	var opacity = 0.6;
+
+	var url = '../src/resources/particles.txt';
+	var request = new XMLHttpRequest();
+	request.open("GET", url, true);
+	request.responseType = "blob";
+
+	request.onload = function() {
+		var file = request.response;
+		var voronoi = new ThreeData.Voronoi3D(file, containershape, colors, displaysites, sitecolor, opacity, scene);
+	};
+
+	request.send();
+
+    // CREATE THREEDATA OBJECT INSTANCE
+    animate(); // call the animate method to update the scene when the camera changes
+   }
+
+   /*
+    * animate function  
+    */
+
+   function animate() {
+    requestAnimationFrame(animate);
+    render();
+   }
+
+   /*
+    * render the scene
+    */
+   function render() {
+    // IF USING A TRANSFORM, CALL THE 'UPDATETRANSFORM' METHOD HERE
+    renderer.render(scene, camera);
+   }
+
+  </script>
+ </body>
+ </body>
+</html>

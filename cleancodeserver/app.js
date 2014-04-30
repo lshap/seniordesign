@@ -1,10 +1,37 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var http = require('http');
 var app = express();
 var child_process = require('child_process');
 var fs = require('fs');
 
 app.use(bodyParser());
+
+// set up cross origin headers
+app.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+ });
+
+
+app.get('/data/twitterdata', function(req, res) {
+	
+});
+
+app.get('/data/twitterdata', function(req, res) {
+
+	var newreq = http.get(url, function (newres) {
+			console.log(newres.statusCode);
+			console.log(newres.body);
+			//res.send(newres);
+	});
+
+	newreq.on('error', function(e) {
+		console.log('problem with request' + e.message);
+	});
+	newreq.end();
+});
 
 
 // get all resources
@@ -37,9 +64,28 @@ app.get('/', function(req, res) {
 	res.sendfile('public/index.html');
 });
 
-app.post('/data', function(req, res) {
+
+app.post('/data/rectangular', function(req, res) {
 	var jsondata = req.body["data"];
-	console.log(req.body);
+	fs.writeFile("particles_from_server",jsondata, 
+			function(err) {
+			if (err) {
+				console.log(err);
+				res.end();
+			}
+			else {
+				res.writeHead(200, {'Content-Type':'text/plain'});
+				child_process.execFile('./test', function(error, stdout, stderror){
+					res.write(stdout);
+					res.end();	
+				});
+			}
+
+	});
+});
+
+app.post('/data/irregular', function(req, res) {
+	var jsondata = req.body["data"];
 	fs.writeFile("particles_from_server",jsondata, 
 			function(err) {
 			if (err) {
@@ -49,10 +95,8 @@ app.post('/data', function(req, res) {
 			else {
 				res.writeHead(200, {'Content-Type':'text/plain'});
 				child_process.execFile('./irregular', function(error, stdout, stderror){
-					console.log(stdout);
 					res.write(stdout);
 					res.end();	
-
 				});
 			}
 

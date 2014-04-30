@@ -46,6 +46,6 @@ int main() {
 		printf("Container volume : %g\n"
 	       "Voronoi volume   : %g\n"
 	       "Difference       : %g\n",cvol,vvol,vvol-cvol);*/
-	con.print_custom("%P\n%t\n%l\n\n", stdout);
+       con.print_custom("new THREE.Vector3(%x, %y, %z)\n%P\n%t\n%l\n\n", stdout);
 }
 

@@ -12,6 +12,7 @@
 			var camera;
 			var renderer;
 			var controls; // camera control object
+			var nytimes_apikey = "a86b83c1a1544f40271e22b58283025d:7:48531503";
 
 			$(document).ready(function(){
 				init();
@@ -45,6 +46,17 @@
 				for (var i = 0; i < 12000; i++) {
 					data.push(10 + Math.random() * 20);
 				}
+
+				var url="/data/money"; 
+				var request = new XMLHttpRequest();
+				request.open("GET", url, true);
+				request.responseType = "application/json";
+				request.onload = function() {
+					var resp = request.response;
+					console.log(resp);
+				}	
+
+				request.send();
 
 				var colors = [];
 				colors.push(0x00ff00);

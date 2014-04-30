@@ -33,7 +33,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     controls = new THREE.OrbitControls(camera);
-    camera.position.set(0, 50, 150);
+    camera.position.set(0, 3, 3);
 
 
     // SET UP THE PARAMETERS
@@ -43,11 +43,12 @@
 	colors.push(0xff00ff);
 	colors.push(0xffff00);
 
-	var containershape = null;
+	var containershape = "rectangular";
 	var displaysites = false;
 	var sitecolor = null;
 	var opacity = 0.6;
 
+	// choose file to load data from
 	var url = '../src/resources/particles.txt';
 	var request = new XMLHttpRequest();
 	request.open("GET", url, true);

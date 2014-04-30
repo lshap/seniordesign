@@ -97,13 +97,12 @@ ThreeData.Voronoi3D.prototype.init = function() {
 	var filestring;
 	reader.readAsText(this.file);	
 	var obj = this;
+	var url = "/data/" + this.containershape;
 	reader.onload = function(event) {
 		filestring = event.target.result;
-		console.log("finished reading file in js");
-		console.log(filestring);
 		var d = JSON.stringify({data:filestring});	
 		$.ajax({
-			url:"/data",
+			url:url,
 			type: "post",
 			processData:false,
 			contentType:"application/json",

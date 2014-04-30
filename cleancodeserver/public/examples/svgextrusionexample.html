@@ -35,7 +35,7 @@
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				document.body.appendChild(renderer.domElement);
 				controls = new THREE.OrbitControls(camera);
-				camera.position.set(0, 50, 150);
+				camera.position.set(0, 50, 50);
 
 				$("#svg").hide();
 				var paths = $("path");
@@ -47,9 +47,15 @@
 		
 				// call the constructor
 				var svgextrusion = new ThreeData.SVGExtrusion(svg, 0.7, null, scene, camera);
-				var centroid  = svgextrusion.getCameraCenter();
+				var center = svgextrusion.getCameraCenter();
+
+				var centroid = center["centroid"];
+				var radius = center["radius"];
+
+				camera.position.set(0, radius, radius);
+				camera.lookAt(centroid);
 				controls.target = centroid;
-				controls.maxRadius = 200;
+				controls.maxRadius = radius;
 				animate(); // call the animate method to update the scene when the camera changes
 			}
 

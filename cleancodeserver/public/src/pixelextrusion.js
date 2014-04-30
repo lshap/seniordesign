@@ -237,6 +237,11 @@ ThreeData.PixelExtrusion.prototype.onMouseMove = function(event) {
 
 ThreeData.PixelExtrusion.prototype.addLabel = function(text, x, y) {
 	var label = document.getElementById('tooltip');
+
+	if (this.tooltip["style"]) {
+		$(label).attr("style", this.tooltip["style"]);
+	}
+
 	$(label).show();
 	label.style.position = 'absolute';
 	label.style.width = 100;

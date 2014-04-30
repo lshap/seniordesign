@@ -109,7 +109,15 @@ ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
 		svgextrusion.meshes[index].material = new THREE.MeshBasicMaterial({transparent: transparent, opacity: selectopacity, 
 							color:selectcolor});
 
-		svgextrusion.addLabel("hello", event.clientX, event.clientY);
+		var description;
+		if (svgextrusion.descriptions[index] != undefined) {
+			description = svgextrusion.descriptions[index];
+		}
+		else {
+			description = "data = " + svgextrusion.data[index];
+		}
+
+		svgextrusion.addLabel(description, event.clientX, event.clientY);
 	}
 	else if (svgextrusion.selectindex != undefined && svgextrusion.selectindex > -1) { // moused out of lastmesh 
 		var oldindex = svgextrusion.selectindex;
@@ -178,7 +186,16 @@ ThreeData.SVGExtrusion.prototype.onMouseDown = function() {
 		svgextrusion.meshes[index].material = new THREE.MeshBasicMaterial({transparent: transparent, opacity: selectopacity, 
 							color:selectcolor});
 
-		svgextrusion.addLabel("hello", event.clientX, event.clientY);
+
+		var description;
+		if (svgextrusion.descriptions[index] != undefined) {
+			description = svgextrusion.descriptions[index];
+		}
+		else {
+			description = "data = " + svgextrusion.data[index];
+		}
+
+		svgextrusion.addLabel(description, event.clientX, event.clientY);
 		svgextrusion.intersected = true;
 	}
 }
@@ -195,11 +212,18 @@ ThreeData.SVGExtrusion.prototype.onMouseUp = function() {
 
 ThreeData.SVGExtrusion.prototype.addLabel = function(text, x, y) {
 	var label = document.getElementById('tooltip');
+
+	if (this.tooltip["style"]) {
+		console.log(this.tooltip["style"]);
+		$(label).attr("style", this.tooltip["style"]);
+	}
+
 	$(label).show();
 	label.style.position = 'absolute';
 	label.style.width = 100;
-	label.style.height = 40;
+	label.style.height = 30;
 	label.style.backgroundColor = "#EFEFEF";	
+	label.style.padding = "5px";
 	label.innerHTML = text;
 	label.style.top = y;
 	label.style.left = x;
@@ -266,18 +290,17 @@ ThreeData.SVGExtrusion.prototype.getWorldPosition = function(mesh) {
 
 ThreeData.SVGExtrusion.prototype.getCameraCenter = function() {
 	if (this.avgCentroid == undefined) {
-		this.positionCamera(this.meshes);
+		var center = this.computeCameraPosition(this.meshes);
 	}
 
-	return this.avgCentroid;
+	return center;
 }
 
-ThreeData.SVGExtrusion.prototype.positionCamera = function(meshes) {
+ThreeData.SVGExtrusion.prototype.computeCameraPosition = function(meshes) {
 	this.avgCentroid = new THREE.Vector3(0,0,0);
 	var numfaces = 0;
 	var scenegeom = new THREE.Geometry();
 	var numvertices = 0;
-
 	for (var i = 0; i < meshes.length; i++) {
 		var nextgeom = meshes[i].geometry;
 		var position = this.getWorldPosition(meshes[i])
@@ -306,16 +329,17 @@ ThreeData.SVGExtrusion.prototype.positionCamera = function(meshes) {
 	this.avgCentroid.y /= meshes.length;
 	this.avgCentroid.z /= meshes.length;
 	this.avgCentroid.y = 0;
-
-	this.camera.lookAt(this.avgCentroid);
-
 	scenegeom.computeBoundingSphere();
-	var radius = scenegeom.boundingSphere.radius;
-	this.camera.position.set(radius/2, radius, radius);
+	var radius = scenegeom.boundingSphere.radius;	
+	var center = {centroid: this.avgCentroid, radius: radius};
+	return center;
 }
 
 ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 	var meshes = [];
+	this.data = [];
+	this.descriptions = [];
+
 	for (var i = 0; i < shapes.length; i++) {
 		var shape = shapes[i].shape;
 		var color = shapes[i].color;
@@ -331,11 +355,16 @@ ThreeData.SVGExtrusion.prototype.extrudeShapes = function(shapes) {
 			opacity = this.opacity;
 		}
 
+		var description = shapes[i].description;
+		this.descriptions.push(description);
+
 		var amount = shapes[i].data;
 		if (amount == undefined) {
 			console.log("Warning: no data attribute specified in svg path with id " + id);
 			amount = 0;
 		}
+		
+		this.data.push(amount);
 
 		var extrudegeom = new THREE.ExtrudeGeometry(shape, {amount:amount, bevelEnabled:false});
 		var extrudeMat = new THREE.MeshBasicMaterial({color:color, transparent:true, opacity: opacity});
@@ -367,7 +396,8 @@ ThreeData.SVGExtrusion.prototype.parsePaths = function(){
 		var opacity = $(paths[i]).attr("opacity");
 		var data = $(paths[i]).attr("data");
 		var id = $(paths[i]).attr("id");
-		shapes.push({shape: this.transformSVGPath(nextpath), color:nextcolor, opacity:opacity, data:data, id:id});
+		var description = $(paths[i]).attr("description");
+		shapes.push({shape: this.transformSVGPath(nextpath), color:nextcolor, opacity:opacity, description:description, data:data, id:id});
 	}	
 
 	return shapes;
@@ -379,6 +409,9 @@ ThreeData.SVGExtrusion.prototype.parsePaths = function(){
  * very slightly adjusted transform method from: https://gist.github.com/gabrielflorit/3758456
  */
 ThreeData.SVGExtrusion.prototype.transformSVGPath = function(pathStr) {
+  // delete all spaces, tabs, and newlines
+  pathStr = pathStr.replace(/\s/g, "");
+
   var seenpoints = []; 
   const DIGIT_0 = 48, DIGIT_9 = 57, COMMA = 44, SPACE = 32, PERIOD = 46,
       MINUS = 45;
@@ -616,7 +649,7 @@ ThreeData.SVGExtrusion.prototype.transformSVGPath = function(pathStr) {
         y = ny;
         break;
       default:
-	if (activeCmd !== " ") {
+	if (activeCmd !== " " ) {
         	throw new Error("weird path command: " + activeCmd);
 	}
     }

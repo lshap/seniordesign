@@ -229,16 +229,13 @@
 					<a href="https://en.wikipedia.org/wiki/Voronoi_diagram" target="_blank">
 					voronoi diagram</a> for points in a 3D space. 
 					<h4 class="sectionor">Constructor</h4>
-				<h4 class="code">Voronoi3D(pts, containershape, colors, displaysites, opacity, scene)</h4>
-				<h5 class="code">pts</h5>	
+				<h4 class="code">Voronoi3D(ptsfile, containershape, colors, displaysites, opacity, scene)</h4>
+				<h5 class="code">ptsfile</h5>	
 					<p class="well">
-						array of 3D point objects used to construct the diagram. A point may specified as follows: <br></br>
-						<span class="code" style="font-weight:bold">var p = {x: 0, y:0, z:0}</span>
-						<br></br> or <br></br>
-
-						<span class="code" style="font-weight:bold">var p; p.x = 0; p.y = 0; p.z = 0;</span>
-						<br></br>
-						with the appropriate values filled in for x, y, and z.
+						.txt file containing 3D point data in the following format:<br></br>
+						<span class="code">id  x, y, z</span><br></br>
+						where id is an integer value from 1 to the number of sites specified in the file, and x, y and z are
+						the x, y, and z position of the 3D site.
 					</p>
 				<h5 class="code">containershape</h5>	
 					<p class="well">

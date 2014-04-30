@@ -26,7 +26,7 @@ random_points: random_points.cc
 test: test.cc
 	$(CXX) $(CFLAGS) $(E_INC) $(E_LIB) -o test test.cc -lvoro++
 
-test: irregular.cc
+irregular: irregular.cc
 	$(CXX) $(CFLAGS) $(E_INC) $(E_LIB) -o irregular irregular.cc -lvoro++
 
 import: import.cc
