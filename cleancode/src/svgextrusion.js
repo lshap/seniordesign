@@ -52,7 +52,72 @@ ThreeData.SVGExtrusion.prototype.init = function() {
 
 
 ThreeData.SVGExtrusion.prototype.onMouseMove_hover = function() {
+	event.preventDefault();
+	svgextrusion.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	svgextrusion.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
+	var cpos = svgextrusion.camera.position;
+	var distance = Math.sqrt(cpos.x * cpos.x + cpos.y * cpos.y + cpos.z * cpos.z);
+
+	var vector = new THREE.Vector3( svgextrusion.mouse.x, svgextrusion.mouse.y, 1);
+	svgextrusion.projector.unprojectVector( vector, svgextrusion.camera );
+
+	svgextrusion.raycaster.set( svgextrusion.camera.position, vector.sub( svgextrusion.camera.position ).normalize() );
+
+	var intersects;
+	for (var i = 0; i < svgextrusion.meshes.length; i++) {
+		intersects = svgextrusion.raycaster.intersectObject( svgextrusion.meshes[i]);
+		if (intersects.length > 0) {
+			break;
+		}
+	}
+
+	if ( intersects.length > 0 ) {
+		var intersect = intersects[0];
+		var index;
+		for (var i = 0; i < svgextrusion.meshes.length;i++) {
+			var currmesh = svgextrusion.meshes[i];
+			if (currmesh == intersect.object) {
+				index = i;
+				if (index == svgextrusion.selectindex) {
+					return;
+				}
+				else if (svgextrusion.selectindex && svgextrusion.selectindex > -1) { 
+					// moused out of last mesh so set that material back to old material
+					var oldindex = svgextrusion.selectindex;
+					svgextrusion.meshes[oldindex].material = svgextrusion.oldmaterial;
+					$("#tooltip").hide();
+					break;
+				}
+			}
+		}
+
+		if (index == undefined) {
+			console.log("error retrieving intersection");
+			return;
+		}
+
+		svgextrusion.selectindex = index;
+
+		var selectcolor = svgextrusion.tooltip["selectcolor"] || 0x000000;
+		console.log("selectopacity = " + svgextrusion.tooltip["selectopacity"]);
+		var selectopacity = svgextrusion.tooltip["selectopacity"] || this.opacity;
+
+		svgextrusion.oldmaterial = svgextrusion.meshes[index].material;
+		var transparent = selectopacity < 1;
+
+		svgextrusion.meshes[index].material = new THREE.MeshBasicMaterial({transparent: transparent, opacity: selectopacity, 
+							color:selectcolor});
+
+		svgextrusion.addLabel("hello", event.clientX, event.clientY);
+	}
+	else if (svgextrusion.selectindex && svgextrusion.selectindex > -1) { // moused out of lastmesh 
+		var oldindex = svgextrusion.selectindex;
+		svgextrusion.meshes[oldindex].material = svgextrusion.oldmaterial;
+		$("#tooltip").hide();
+		svgextrusion.intersected = false;
+		svgextrusion.selectindex = -1;
+	}
 }
 	
 ThreeData.SVGExtrusion.prototype.onMouseMove_click = function() {
@@ -106,7 +171,6 @@ ThreeData.SVGExtrusion.prototype.onMouseDown = function() {
 		svgextrusion.selectindex = index;
 
 		var selectcolor = svgextrusion.tooltip["selectcolor"] || 0x000000;
-		console.log("selectopacity = " + svgextrusion.tooltip["selectopacity"]);
 		var selectopacity = svgextrusion.tooltip["selectopacity"] || this.opacity;
 
 		svgextrusion.oldmaterial = svgextrusion.meshes[index].material;

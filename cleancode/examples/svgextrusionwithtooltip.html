@@ -42,7 +42,7 @@
 				$("#svg").hide();
 
 				// call the constructor
-				var tooltip = {selectopacity:1, selectaction:"click", selectcolor:0x000000};
+				var tooltip = {selectopacity:1, selectaction:"hover", selectcolor:0x000000};
 
 				var svgextrusion = new ThreeData.SVGExtrusion(svg, 0.7, tooltip, scene, camera);
 				var centroid  = svgextrusion.getCameraCenter();
