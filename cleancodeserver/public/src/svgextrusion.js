@@ -214,7 +214,6 @@ ThreeData.SVGExtrusion.prototype.addLabel = function(text, x, y) {
 	var label = document.getElementById('tooltip');
 
 	if (this.tooltip["style"]) {
-		console.log(this.tooltip["style"]);
 		$(label).attr("style", this.tooltip["style"]);
 	}
 
@@ -410,7 +409,8 @@ ThreeData.SVGExtrusion.prototype.parsePaths = function(){
  */
 ThreeData.SVGExtrusion.prototype.transformSVGPath = function(pathStr) {
   // delete all spaces, tabs, and newlines
-  pathStr = pathStr.replace(/\s/g, "");
+  pathStr = pathStr.replace(/\t/g, "");
+  pathStr = pathStr.replace(/\n/g, "");
 
   var seenpoints = []; 
   const DIGIT_0 = 48, DIGIT_9 = 57, COMMA = 44, SPACE = 32, PERIOD = 46,
