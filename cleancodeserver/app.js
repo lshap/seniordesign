@@ -54,7 +54,7 @@ app.post('/data/rectangular', function(req, res) {
 				res.end();
 			}
 			else {
-				res.writeHead(200, {'Content-Type':'text/plain'});
+				res.writeHead('200', {'Content-Type':'text/plain'});
 				child_process.execFile('./test', function(error, stdout, stderror){
 					res.write(stdout);
 					res.end();	
@@ -73,7 +73,7 @@ app.post('/data/irregular', function(req, res) {
 				res.end();
 			}
 			else {
-				res.writeHead(200, {'Content-Type':'text/plain'});
+				res.writeHead('200', {'Content-Type':'text/plain'});
 				child_process.execFile('./irregular', function(error, stdout, stderror){
 					res.write(stdout);
 					res.end();	
@@ -82,4 +82,4 @@ app.post('/data/irregular', function(req, res) {
 
 	});
 });
-app.listen(8000);
+app.listen(process.env.PORT || 8000);
